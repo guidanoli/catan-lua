@@ -1,2 +1,5 @@
-# catan-lua
-Settlers of Catan implemented in Lua
+# Settlers of Catan implemented in Lua
+
+## Dependencies
+
+* Lua 5.4

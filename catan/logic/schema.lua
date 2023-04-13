@@ -1,193 +1,129 @@
--- Catan game state schema
+-- Catan game state schema v0.1
 
-local face = {
+require "util.safe"
+
+local schema = require "util.schema"
+
+local Face = schema.Struct{
     x = "number",
     y = "number",
 }
 
-local vertextype = {
-    left = true,
-    right = true,
+local Vertex = schema.Struct{
+    kind = schema.Enum{
+        'left',
+        'right',
+    },
+    face = Face,
 }
 
-local vertex = {
-    face = face,
-    vertextype = vertextype,
+local Edge = schema.Struct{
+    kind = schema.Enum{
+        'northwest',
+        'north',
+        'northeast',
+    },
+    face = Face,
 }
 
-local edgetype = {
-    northwest = true,
-    north = true,
-    northeast = true,
+local Hex = schema.Struct{
+    kind = schema.Enum{
+        'hills',
+        'forest',
+        'mountains',
+        'fields',
+        'pasture',
+        'desert',
+    },
+    face = Face,
 }
 
-local edge = {
-    face = face,
-    edgetype = edgetype,
-}
-
-local hextype = {
-    hills = true,
-    forest = true,
-    mountains = true,
-    fields = true,
-    pasture = true,
-    desert = true,
-}
-
-local hex = {
-    face = face,
-    hextype = hextype,
-}
-
-local numbertoken = {
-    face = face,
+local NumberToken = schema.Struct{
+    face = Face,
     number = "number",
 }
 
-local robber = {
-    face = face,
+local Robber = schema.Struct{
+    face = Face,
 }
 
-local player = {
-    red = true,
-    blue = true,
-    yellow = true,
-    white = true,
+local Player = schema.Enum{
+    'red',
+    'blue',
+    'yellow',
+    'white',
 }
 
-local placed_settlement = {
-    player = player,
-    vertex = vertex,
+local Settlement = schema.Struct{
+    player = Player,
+    vertex = schema.Option(Vertex),
 }
 
-local unplaced_settlement = {
-    player = player,
+local City = schema.Struct{
+    player = Player,
+    vertex = schema.Option(Vertex),
 }
 
-local settlement = {
-    [placed_settlement] = true,
-    [unplaced_settlement] = true,
+local Road = schema.Struct{
+    player = Player,
+    edge = schema.Option(Edge),
 }
 
-local placed_city = {
-    player = player,
-    vertex = vertex,
+local Harbor = schema.Struct{
+    kind = schema.Enum{
+        'generic',
+        'brick',
+        'lumber',
+        'ore',
+        'grain',
+        'wool',
+    },
+    vertex = Vertex,
 }
 
-local unplaced_city = {
-    player = player,
-}
-
-local city = {
-    [placed_city] = true,
-    [unplaced_city] = true,
-}
-
-local placed_road = {
-    player = player,
-    edge = edge,
-}
-
-local unplaced_road = {
-    player = player,
-}
-
-local road = {
-    [placed_road] = true,
-    [unplaced_road] = true,
-}
-
-local harbortype = {
-    generic = true,
-    brick = true,
-    lumber = true,
-    ore = true,
-    grain = true,
-    wool = true,
-}
-
-local harbor = {
-    harbortype = harbortype,
-    vertex = vertex,
-}
-
-local developmentcardtype = {
-    knight = true,
-    roadbuilding = true,
-    yearofplenty = true,
-    monopoly = true,
-    victorypoint = true,
-}
-
-local drawn_developmentcard = {
-    developmentcardtype = developmentcardtype,
-    player = player,
+local DevelopmentCard = schema.Struct{
+    kind = schema.Enum{
+        'knight',
+        'roadbuilding',
+        'yearofplenty',
+        'monopoly',
+        'victorypoint',
+    },
+    player = schema.Option(Player),
     used = "boolean",
 }
 
-local undrawn_developmentcard = {
-    developmentcardtype = developmentcardtype,
+local ResourceCard = schema.Struct{
+    kind = schema.Enum{
+        'brick',
+        'lumber',
+        'ore',
+        'grain',
+        'wool',
+    },
+    player = schema.Option(Player),
 }
 
-local developmentcard = {
-    [drawn_developmentcard] = true,
-    [undrawn_developmentcard] = true,
+local SpecialCard = schema.Struct{
+    kind = schema.Enum{
+        'largestroad',
+        'largestarmy',
+    },
+    player = schema.Option(Player),
 }
 
-local resourcetype = {
-    brick = true,
-    lumber = true,
-    ore = true,
-    grain = true,
-    wool = true,
-}
+local CardID = "number"
 
-local drawn_resourcecard = {
-    resourcetype = resourcetype,
-    player = player,
-}
-
-local undrawn_resourcecard = {
-    resourcetype = resourcetype,
-}
-
-local resourcecard = {
-    [drawn_resourcecard] = true,
-    [undrawn_resourcecard] = true,
-}
-
-local specialcardtype = {
-    largestroad = true,
-    largestarmy = true,
-}
-
-local acquired_specialcard = {
-    specialcardtype = specialcardtype,
-    player = player,
-}
-
-local unacquired_specialcard = {
-    specialcardtype = specialcardtype,
-}
-
-local specialcard = {
-    [acquired_specialcard] = true,
-    [unacquired_specialcard] = true,
-}
-
-local drawpile = { "number" }
-
-return {
-    hexes = { hex },
-    numbertokens = { numbertoken },
-    robber = robber,
-    settlements = { settlements },
-    cities = { city },
-    roads = { road },
-    harbors = { harbor },
-    developmentcards = { developmentcard },
-    resourcecards = { resourcecard },
-    specialcards = { specialcard },
-    drawpile = drawpile,
+return schema.Struct{
+    hexes = schema.Array(Hex),
+    numbertokens = schema.Array(NumberToken),
+    robber = Robber,
+    settlements = schema.Array(Settlement),
+    cities = schema.Array(City),
+    roads = schema.Array(Road),
+    harbors = schema.Array(Harbor),
+    developmentcards = schema.Array(DevelopmentCard),
+    resourcecards = schema.Array(ResourceCard),
+    specialcards = schema.Array(SpecialCard),
+    drawpile = schema.Array(CardID),
 }

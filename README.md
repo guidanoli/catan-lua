@@ -2,4 +2,5 @@
 
 ## Dependencies
 
-* Lua 5.4
+* [Lua](https://www.lua.org/) 5.4
+* [Serpent](https://luarocks.org/modules/paulclinger/serpent) 0.30-2

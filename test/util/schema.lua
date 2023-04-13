@@ -130,3 +130,50 @@ do
     fail{c = {x = 'haha', y = 123}}
     fail{c = {x = 'haha', y = 'haha'}}
 end
+
+-- Enums
+
+do
+    s = schema.Enum{}
+
+    fail(nil)
+    fail(1)
+    fail'foo'
+    fail{}
+
+    s = schema.Enum{'foo'}
+
+    ok'foo'
+    fail'f'
+    fail'FOO'
+    fail'foo '
+    fail' foo'
+    fail'Foo'
+    fail'bar'
+    fail(nil)
+    fail(1)
+    fail{}
+
+    s = schema.Enum{'foo', 'bar'}
+
+    ok'foo'
+    ok'bar'
+    fail'foobar'
+    fail'haha'
+
+    s = schema.Enum{'foo', nil, 'bar'}
+
+    ok'foo'
+    fail(nil)
+    ok'bar'
+
+    s = schema.Enum{foo='bar'}
+
+    fail'foo'
+    ok'bar'
+
+    s = schema.Enum{[true] = 'bar'}
+
+    fail(true)
+    ok'bar'
+end

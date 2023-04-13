@@ -3,13 +3,13 @@ Enum.__index = Enum
 
 function Enum:validate(v)
     assert(type(v) == 'string')
-    assert(self[v] ~= nil)
+    assert(self[v] == true)
 end
 
 return function (t)
     assert(type(t) == 'table')
     local schema = {}
-    for k, field in pairs(t) do
+    for _, field in pairs(t) do
         assert(type(field) == 'string')
         schema[field] = true
     end

@@ -1,4 +1,4 @@
-local Value = require "util.schema.value"
+local cast = require "util.schema.cast"
 
 local Struct = {}
 Struct.__index = Struct
@@ -17,11 +17,7 @@ return function (t)
     assert(type(t) == 'table')
     local schema = {}
     for field, subschema in pairs(t) do
-        if type(subschema) == 'string' then
-            schema[field] = Value(subschema)
-        else
-            schema[field] = subschema
-        end
+        schema[field] = cast(subschema)
     end
     return setmetatable(schema, Struct)
 end

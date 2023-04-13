@@ -24,40 +24,40 @@ local function fail(v)
     print('fail (expected)...', pprint(v))
 end
 
+local values = {
+    0,
+    math.mininteger,
+    math.maxinteger,
+    math.pi,
+    0/0, -- nan
+    1/0, -- +inf
+    -1/0, -- -inf
+    true,
+    false,
+    "", -- empty string
+    "abc", -- non-empty string
+    {}, -- empty table
+    {x = 123}, -- non-empty table
+    print, -- c function
+    function() end, -- lua function
+    coroutine.running(), -- thread
+    io.stderr, -- userdatum
+}
+
+local types = {
+    ['nil'] = true,
+    ['boolean'] = true,
+    ['number'] = true,
+    ['string'] = true,
+    ['function'] = true,
+    ['userdata'] = true,
+    ['thread'] = true,
+    ['table'] = true,
+}
+
 -- Values
 
 do
-    local values = {
-        0,
-        math.mininteger,
-        math.maxinteger,
-        0.0,
-        0/0, -- nan
-        1/0, -- +inf
-        -1/0, -- -inf
-        true,
-        false,
-        "", -- empty string
-        "abc", -- non-empty string
-        {}, -- empty table
-        {x = 123}, -- non-empty table
-        print, -- c function
-        function() end, -- lua function
-        coroutine.running(), -- thread
-        io.stderr, -- userdatum
-    }
-
-    local types = {
-        ['nil'] = true,
-        ['boolean'] = true,
-        ['number'] = true,
-        ['string'] = true,
-        ['function'] = true,
-        ['userdata'] = true,
-        ['thread'] = true,
-        ['table'] = true,
-    }
-
     for t in pairs(types) do
         s = schema.Value(t)
         if t ~= 'nil' then
@@ -176,4 +176,20 @@ do
 
     fail(true)
     ok'bar'
+end
+
+-- Options
+
+do
+    for t in pairs(types) do
+        s = schema.Option(t)
+        ok(nil)
+        for _, value in pairs(values) do
+            if type(value) == t then
+                ok(value)
+            else
+                fail(value)
+            end
+        end
+    end
 end

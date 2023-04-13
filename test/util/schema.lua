@@ -57,18 +57,16 @@ local types = {
 
 -- Values
 
-do
-    for t in pairs(types) do
-        s = schema.Value(t)
-        if t ~= 'nil' then
-            fail(nil)
-        end
-        for _, value in pairs(values) do
-            if type(value) == t then
-                ok(value)
-            else
-                fail(value)
-            end
+for t in pairs(types) do
+    s = schema.Value(t)
+    if t ~= 'nil' then
+        fail(nil)
+    end
+    for _, value in pairs(values) do
+        if type(value) == t then
+            ok(value)
+        else
+            fail(value)
         end
     end
 end
@@ -180,16 +178,51 @@ end
 
 -- Options
 
-do
-    for t in pairs(types) do
-        s = schema.Option(t)
-        ok(nil)
-        for _, value in pairs(values) do
-            if type(value) == t then
-                ok(value)
-            else
-                fail(value)
-            end
+for t in pairs(types) do
+    s = schema.Option(t)
+    ok(nil)
+    for _, value in pairs(values) do
+        if type(value) == t then
+            ok(value)
+        else
+            fail(value)
         end
     end
+end
+
+-- Arrays
+
+do
+    s = schema.Array'nil'
+
+    ok{}
+    ok{nil, nil, nil}
+    fail(nil)
+    fail(123)
+    fail'haha'
+    fail{1}
+    fail{[true] = 1}
+    fail{[3] = 1}
+
+    s = schema.Array'number'
+
+    ok{}
+    ok{1, 2, 3}
+    fail{{1, 2, 3}, {4, 5, 6}, {7, 8, 9}}
+    fail{{1, 2, 3}, nil, {7, 8, 9}}
+    fail{[777] = {1, 2, 3}}
+    fail(123)
+    fail'haha'
+
+    s = schema.Array(schema.Struct{x = 'number', y = 'number'})
+
+    ok{}
+    ok{{x = 10, y = 20}}
+    ok{{x = 10, y = 20}, {x = 33, y = 66}}
+    fail{x = 10, y = 20}
+    fail{{x = 10, y = 20}, 'blabla'}
+    fail{{x = 10, y = 20}, {x = 33}}
+    fail{{x = 10, y = 20}, {x = 33, y = 'foo'}}
+    fail{{x = 10, y = 20}, nil, {x = 33, y = 66}}
+    fail{[123] = {x = 10, y = 20}}
 end

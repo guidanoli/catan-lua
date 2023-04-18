@@ -8,8 +8,8 @@ local Face = schema.Struct{
 }
 
 local VertexKind = schema.Enum{
-    'left',
-    'right',
+    'N',
+    'S',
 }
 
 local Vertex = schema.Struct{
@@ -18,9 +18,9 @@ local Vertex = schema.Struct{
 }
 
 local EdgeKind = schema.Enum{
-    'northwest',
-    'north',
-    'northeast',
+    'NW',
+    'W',
+    'SW',
 }
 
 local Edge = schema.Struct{

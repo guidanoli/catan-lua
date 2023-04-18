@@ -74,4 +74,25 @@ do
     assert(sum == #Default.numbers)
 end
 
+Default.harbors = {
+    {q = +0, r = -3, vk = 'S', hk = 'generic'},
+    {q = +0, r = -2, vk = 'N', hk = 'generic'},
+    {q = +1, r = -2, vk = 'N', hk = 'grain'},
+    {q = +2, r = -3, vk = 'S', hk = 'grain'},
+    {q = +2, r = -1, vk = 'N', hk = 'ore'},
+    {q = +3, r = -2, vk = 'S', hk = 'ore'},
+    {q = +3, r = -1, vk = 'S', hk = 'generic'},
+    {q = +2, r = +1, vk = 'N', hk = 'generic'},
+    {q = +1, r = +2, vk = 'N', hk = 'wool'},
+    {q = +1, r = +1, vk = 'S', hk = 'wool'},
+    {q = -1, r = +3, vk = 'N', hk = 'generic'},
+    {q = -1, r = +2, vk = 'S', hk = 'generic'},
+    {q = -2, r = +2, vk = 'S', hk = 'generic'},
+    {q = -3, r = +3, vk = 'N', hk = 'generic'},
+    {q = -3, r = +2, vk = 'N', hk = 'brick'},
+    {q = -2, r = +0, vk = 'S', hk = 'brick'},
+    {q = -2, r = +0, vk = 'N', hk = 'lumber'},
+    {q = -1, r = -2, vk = 'S', hk = 'lumber'},
+}
+
 return Default

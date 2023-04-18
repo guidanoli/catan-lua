@@ -3,6 +3,7 @@ local TableUtils = require "util.table"
 local Default = require "catan.logic.default"
 local Hex = require "catan.logic.hex"
 local FaceMap = require "catan.logic.facemap"
+local VertexMap = require "catan.logic.facemap"
 
 local Game = {}
 Game.__index = Game
@@ -12,6 +13,7 @@ function Game:new (t)
     local game = setmetatable({}, self)
     game:_createHexMap(t)
     game:_createNumberMap(t)
+    game:_createHarborMap(t)
     -- TODO: create the rest of the fields
     return game
 end
@@ -34,6 +36,15 @@ function Game:_createNumberMap (t)
             FaceMap:set(self.numbermap, face, t.numbers[i])
             i = i + 1
         end
+    end
+end
+
+function Game:_createHarborMap (t)
+    self.harbormap = {}
+    for _, harbor in ipairs(t.harbors) do
+        local face = {q = harbor.q, r = harbor.r}
+        local vector = {kind = harbor.vk, face = face}
+        VertexMap:set(self.harbormap, vector, harbor.hk)
     end
 end
 

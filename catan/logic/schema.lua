@@ -1,4 +1,4 @@
--- Catan game state schema v0.1
+-- Catan game state schema v0.2
 
 local schema = require "util.schema"
 

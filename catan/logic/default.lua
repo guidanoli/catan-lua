@@ -95,4 +95,11 @@ Default.harbors = {
     {q = -1, r = -2, vk = 'S', hk = 'lumber'},
 }
 
+Default.players = {
+    'red',
+    'blue',
+    'yellow',
+    'white',
+}
+
 return Default

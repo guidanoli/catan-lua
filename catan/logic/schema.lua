@@ -1,4 +1,4 @@
--- Catan game state schema v1.0
+-- Catan game state schema v1.1
 
 local schema = require "util.schema"
 
@@ -37,12 +37,7 @@ local Hex = schema.Enum{
     'desert',
 }
 
-local Player = schema.Enum{
-    'red',
-    'blue',
-    'yellow',
-    'white',
-}
+local Player = 'string'
 
 local Building = schema.Struct{
     kind = schema.Enum{
@@ -102,6 +97,8 @@ return schema.Struct{
     buildmap = VertexMapping(Building),
     roadmap = EdgeMapping(Player),
     robber = Face,
+    -- players
+    players = schema.Array(Player),
     -- player cards
     devcards = PlayerMapping(schema.Array(DevelopmentCard)),
     rescards = PlayerMapping(schema.Array(ResourceCard)),

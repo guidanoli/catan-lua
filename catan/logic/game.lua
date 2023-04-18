@@ -8,17 +8,27 @@ local VertexMap = require "catan.logic.facemap"
 local Game = {}
 Game.__index = Game
 
-function Game:new (t)
+function Game:new (players, t)
     if t == nil then t = Default end
     local game = setmetatable({}, self)
+    game:_validatePlayers(players, t)
     game:_createHexMap(t)
     game:_createNumberMap(t)
     game:_createHarborMap(t)
     game.buildmap = {}
     game.roadmap = {}
     game:_placeRobberInDesert()
+    game.players = players
+    game.devcards = {}
+    game.rescards = {}
     -- TODO: create the rest of the fields
     return game
+end
+
+function Game:_validatePlayers (players, t)
+    assert(TableUtils:isArray(players))
+    assert(TableUtils:isContainedIn(players, t.players))
+    assert(#players >= 3)
 end
 
 function Game:_createHexMap (t)

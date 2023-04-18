@@ -5,10 +5,10 @@ function FaceMap:get(map, face)
     return map[q][r]
 end
 
-function FaceMap:set(map, face, v)
+function FaceMap:set(map, face, o)
     local q, r = face.q, face.r
     if map[q] == nil then map[q] = {} end
-    map[q][r] = v
+    map[q][r] = o
 end
 
 return FaceMap

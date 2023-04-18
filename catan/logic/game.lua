@@ -14,6 +14,9 @@ function Game:new (t)
     game:_createHexMap(t)
     game:_createNumberMap(t)
     game:_createHarborMap(t)
+    game.buildmap = {}
+    game.roadmap = {}
+    game:_placeRobberInDesert()
     -- TODO: create the rest of the fields
     return game
 end
@@ -46,6 +49,15 @@ function Game:_createHarborMap (t)
         local vector = {kind = harbor.vk, face = face}
         VertexMap:set(self.harbormap, vector, harbor.hk)
     end
+end
+
+function Game:_placeRobberInDesert ()
+    FaceMap:iter(self.hexmap, function (q, r, hex)
+        if hex == 'desert' then
+            self.robber = {q = q, r = r}
+            return true -- stop iteration
+        end
+    end)
 end
 
 return Game

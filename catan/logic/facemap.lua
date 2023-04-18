@@ -11,4 +11,14 @@ function FaceMap:set(map, face, o)
     map[q][r] = o
 end
 
+function FaceMap:iter(map, co)
+    for q in pairs(map) do
+        for r in pairs(map[q]) do
+            if f(q, r, map[q][r]) then
+                return
+            end
+        end
+    end
+end
+
 return FaceMap

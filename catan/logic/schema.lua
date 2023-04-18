@@ -1,7 +1,5 @@
 -- Catan game state schema v0.1
 
-require "util.safe"
-
 local schema = require "util.schema"
 
 local Face = schema.Struct{

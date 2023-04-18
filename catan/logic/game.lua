@@ -21,14 +21,14 @@ function Game:_createHexMap (t)
     TableUtils:shuffleInPlace(hexes)
     self.hexmap = {}
     for i, hex in ipairs(hexes) do
-        FaceMap:set(self.hexmap, t.faces[i], hex)
+        FaceMap:set(self.hexmap, t.terrainFaces[i], hex)
     end
 end
 
 function Game:_createNumberMap (t)
     local i = 1
     self.numbermap = {}
-    for _, face in ipairs(t.faces) do
+    for _, face in ipairs(t.terrainFaces) do
         local hex = FaceMap:get(self.hexmap, face)
         if hex ~= 'desert' then
             FaceMap:set(self.numbermap, face, t.numbers[i])

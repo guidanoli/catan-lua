@@ -4,4 +4,5 @@ return {
     Struct = require "util.schema.struct",
     Option = require "util.schema.option",
     Array = require "util.schema.array",
+    Mapping = require "util.schema.mapping",
 }

@@ -7,6 +7,5 @@ end
 
 return function (t)
     assert(type(t) == 'string')
-    local schema = { vtype = t }
-    return setmetatable(schema, Value)
+    return setmetatable({vtype = t}, Value)
 end

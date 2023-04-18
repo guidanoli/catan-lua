@@ -226,3 +226,25 @@ do
     fail{{x = 10, y = 20}, nil, {x = 33, y = 66}}
     fail{[123] = {x = 10, y = 20}}
 end
+
+-- Mappings
+
+do
+    s = schema.Mapping('number', 'string')
+
+    ok{}
+    ok{"a", "b", "c"}
+    ok{"a", "b", [77] = "c"}
+    ok{"a", [3.14] = "b", [77] = "c"}
+    fail{123}
+    fail{"a", "b", "c", 123}
+    fail{"a", "b", [77] = 123}
+    fail{"a", "b", [3.14] = 123}
+
+    s = schema.Mapping(schema.Struct{x = 'number', y = 'number'}, schema.Struct{a = 'string', b = 'boolean'})
+
+    ok{}
+    ok{[{x=1,y=2}] = {a='foo', b=false}}
+    fail{[{x=1, y='foo'}] = {a='foo', b=false}}
+    fail{[{x=1,y=2}] = {a=123, b=false}}
+end

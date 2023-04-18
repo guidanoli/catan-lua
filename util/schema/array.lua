@@ -10,11 +10,10 @@ function Array:validate(t)
         assert(k >= 1 and k <= #t)
     end
     for i = 1, #t do
-        self.schema:validate(t[i])
+        self.e:validate(t[i])
     end
 end
 
 return function (t)
-    local schema = { schema = cast(t) }
-    return setmetatable(schema, Array)
+    return setmetatable({e = cast(t)}, Array)
 end

@@ -5,12 +5,11 @@ Option.__index = Option
 
 function Option:validate(t)
     local ok, err = pcall(function()
-        return self.schema:validate(t)
+        return self.s:validate(t)
     end)
     assert(ok or t == nil, err)
 end
 
 return function (t)
-    local schema = { schema = cast(t) }
-    return setmetatable(schema, Option)
+    return setmetatable({s = cast(t)}, Option)
 end

@@ -1,4 +1,4 @@
--- Catan game state schema v0.2
+-- Catan game state schema v1.0
 
 local schema = require "util.schema"
 
@@ -7,42 +7,34 @@ local Face = schema.Struct{
     r = "number",
 }
 
+local VertexKind = schema.Enum{
+    'left',
+    'right',
+}
+
 local Vertex = schema.Struct{
-    kind = schema.Enum{
-        'left',
-        'right',
-    },
+    kind = VertexKind,
     face = Face,
+}
+
+local EdgeKind = schema.Enum{
+    'northwest',
+    'north',
+    'northeast',
 }
 
 local Edge = schema.Struct{
-    kind = schema.Enum{
-        'northwest',
-        'north',
-        'northeast',
-    },
+    kind = EdgeKind,
     face = Face,
 }
 
-local Hex = schema.Struct{
-    kind = schema.Enum{
-        'hills',
-        'forest',
-        'mountains',
-        'fields',
-        'pasture',
-        'desert',
-    },
-    face = Face,
-}
-
-local NumberToken = schema.Struct{
-    face = Face,
-    number = "number",
-}
-
-local Robber = schema.Struct{
-    face = Face,
+local Hex = schema.Enum{
+    'hills',
+    'forest',
+    'mountains',
+    'fields',
+    'pasture',
+    'desert',
 }
 
 local Player = schema.Enum{
@@ -52,76 +44,72 @@ local Player = schema.Enum{
     'white',
 }
 
-local Settlement = schema.Struct{
+local Building = schema.Struct{
+    kind = schema.Enum{
+        'settlement',
+        'city',
+    },
     player = Player,
-    vertex = schema.Option(Vertex),
 }
 
-local City = schema.Struct{
-    player = Player,
-    vertex = schema.Option(Vertex),
+local Harbor = schema.Enum{
+    'generic',
+    'brick',
+    'lumber',
+    'ore',
+    'grain',
+    'wool',
 }
 
-local Road = schema.Struct{
-    player = Player,
-    edge = schema.Option(Edge),
+local DevelopmentCard = schema.Enum{
+    'knight',
+    'roadbuilding',
+    'yearofplenty',
+    'monopoly',
+    'victorypoint',
 }
 
-local Harbor = schema.Struct{
-    kind = schema.Enum{
-        'generic',
-        'brick',
-        'lumber',
-        'ore',
-        'grain',
-        'wool',
-    },
-    vertex = Vertex,
+local ResourceCard = schema.Enum{
+    'brick',
+    'lumber',
+    'ore',
+    'grain',
+    'wool',
 }
 
-local DevelopmentCard = schema.Struct{
-    kind = schema.Enum{
-        'knight',
-        'roadbuilding',
-        'yearofplenty',
-        'monopoly',
-        'victorypoint',
-    },
-    player = schema.Option(Player),
-    used = "boolean",
-}
+local function FaceMapping (t)
+    return schema.Mapping('number', schema.Mapping('number', t))
+end
 
-local ResourceCard = schema.Struct{
-    kind = schema.Enum{
-        'brick',
-        'lumber',
-        'ore',
-        'grain',
-        'wool',
-    },
-    player = schema.Option(Player),
-}
+local function VertexMapping (t)
+    return schema.Mapping('number', schema.Mapping('number', schema.Mapping(VertexKind, t)))
+end
 
-local SpecialCard = schema.Struct{
-    kind = schema.Enum{
-        'largestroad',
-        'largestarmy',
-    },
-    player = schema.Option(Player),
-}
+local function EdgeMapping (t)
+    return schema.Mapping('number', schema.Mapping('number', schema.Mapping(EdgeKind, t)))
+end
 
-local CardID = "number"
+local function PlayerMapping (t)
+    return schema.Mapping(Player, schema.Array(t))
+end
 
 return schema.Struct{
-    hexes = schema.Array(Hex),
-    numbertokens = schema.Array(NumberToken),
-    robber = Robber,
-    settlements = schema.Array(Settlement),
-    cities = schema.Array(City),
-    roads = schema.Array(Road),
-    harbors = schema.Array(Harbor),
-    developmentcards = schema.Array(DevelopmentCard),
-    resourcecards = schema.Array(ResourceCard),
-    specialcards = schema.Array(SpecialCard),
-    drawpile = schema.Array(CardID),
+    -- map (static)
+    hexmap = FaceMapping(Hex),
+    numbermap = FaceMapping'number',
+    harbormap = VertexMapping(Harbor),
+    -- map (dynamic)
+    buildmap = VertexMapping(Building),
+    roadmap = EdgeMapping(Player),
+    robber = Face,
+    -- player cards
+    devcards = PlayerMapping(schema.Array(DevelopmentCard)),
+    rescards = PlayerMapping(schema.Array(ResourceCard)),
+    largestroad = schema.Option(Player),
+    largestarmy = schema.Option(Player),
+    -- player armies
+    armies = PlayerMapping'number',
+    -- free cards
+    drawpile = schema.Array(DevelopmentCard),
+    bank = schema.Mapping(ResourceCard, 'number'),
 }

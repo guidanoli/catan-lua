@@ -4,37 +4,37 @@ local Face = require "catan.logic.face"
 
 do
     local expected = {
-        {x = -2, y = 2},
-        {x = -1, y = 2},
-        {x = 0, y = 2},
-        {x = -2, y = 1},
-        {x = -1, y = 1},
-        {x = 0, y = 1},
-        {x = 1, y = 1},
-        {x = -2, y = 0},
-        {x = -1, y = 0},
-        {x = 0, y = 0},
-        {x = 1, y = 0},
-        {x = 2, y = 0},
-        {x = -1, y = -1},
-        {x = 0, y = -1},
-        {x = 1, y = -1},
-        {x = 2, y = -1},
-        {x = 0, y = -2},
-        {x = 1, y = -2},
-        {x = 2, y = -2},
+        {q = -2, r = 2},
+        {q = -1, r = 2},
+        {q = 0, r = 2},
+        {q = -2, r = 1},
+        {q = -1, r = 1},
+        {q = 0, r = 1},
+        {q = 1, r = 1},
+        {q = -2, r = 0},
+        {q = -1, r = 0},
+        {q = 0, r = 0},
+        {q = 1, r = 0},
+        {q = 2, r = 0},
+        {q = -1, r = -1},
+        {q = 0, r = -1},
+        {q = 1, r = -1},
+        {q = 2, r = -1},
+        {q = 0, r = -2},
+        {q = 1, r = -2},
+        {q = 2, r = -2},
     }
 
     local obtained = Face:generateFaces()
 
     local function valid (f)
         for k, v in pairs(f) do
-            if not (k == 'x' or k == 'y') then
+            if not (k == 'q' or k == 'r') then
                 return false
             end
         end
-        return type(f.x) == 'number' and
-               type(f.y) == 'number'
+        return type(f.q) == 'number' and
+               type(f.r) == 'number'
     end
 
     for i = 1, #obtained do
@@ -44,10 +44,10 @@ do
     assert(#expected == #obtained)
 
     local function cmp (f1, f2)
-        if f1.x == f2.x then
-            return f1.y < f2.y
+        if f1.q == f2.q then
+            return f1.r < f2.r
         else
-            return f1.x < f2.x
+            return f1.q < f2.q
         end
     end
 
@@ -55,7 +55,7 @@ do
     table.sort(obtained, cmp)
 
     local function eq (f1, f2)
-        return f1.x == f2.x and f1.y == f2.y
+        return f1.q == f2.q and f1.r == f2.r
     end
 
     for i = 1, #expected do

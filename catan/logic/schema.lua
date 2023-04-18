@@ -3,8 +3,8 @@
 local schema = require "util.schema"
 
 local Face = schema.Struct{
-    x = "number",
-    y = "number",
+    q = "number",
+    r = "number",
 }
 
 local Vertex = schema.Struct{

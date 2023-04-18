@@ -2,11 +2,11 @@ local Face = {}
 
 function Face:generateFaces ()
     local t = {}
-    for x = -2, 2 do
-        for y = -2, 2 do
-            local z = x + y
+    for q = -2, 2 do
+        for r = -2, 2 do
+            local z = q + r
             if -2 <= z and z <= 2 then
-                table.insert(t, {x = x, y = y})
+                table.insert(t, {q = q, r = r})
             end
         end
     end

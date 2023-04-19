@@ -6,3 +6,5 @@ file = {
     'catan',
     'util',
 }
+
+backtick_references = true

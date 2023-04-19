@@ -21,7 +21,7 @@ function Game:new (players, t)
     game:_createResourceCards()
     game:_createArmies()
     game:_createDrawPile(t)
-    -- TODO: create the rest of the fields
+    game:_createBank(t)
     return game
 end
 
@@ -105,6 +105,13 @@ function Game:_createDrawPile (t)
         end
     end
     TableUtils:shuffleInPlace(self.drawpile)
+end
+
+function Game:_createBank (t)
+    self.bank = {}
+    for rescard, count in pairs(t.rescards) do
+        self.bank[rescard] = count
+    end
 end
 
 return Game

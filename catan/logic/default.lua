@@ -127,4 +127,12 @@ Default.devcards = {
     victorypoint = 5,
 }
 
+Default.rescards = {
+    brick = 19,
+    lumber = 19,
+    ore = 19,
+    grain = 19,
+    wool = 19,
+}
+
 return Default

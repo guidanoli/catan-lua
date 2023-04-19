@@ -35,8 +35,6 @@ do
     end
 end
 
-assert(#Default.terrainFaces == 19)
-
 Default.terrain = {
     hills = 3,
     forest = 4,

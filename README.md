@@ -22,5 +22,5 @@ ldoc .
 This should load the configurations from the `config.ld` file. You can tinker with the configuration however you like.
 
 [Lua]: https://www.lua.org/
-[Serpent]: https://stevedonovan.github.io/ldoc/
+[Serpent]: https://luarocks.org/modules/paulclinger/serpent
 [LDoc]: https://stevedonovan.github.io/ldoc/

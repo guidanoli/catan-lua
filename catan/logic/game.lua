@@ -4,12 +4,25 @@ local Default = require "catan.logic.default"
 local FaceMap = require "catan.logic.facemap"
 local VertexMap = require "catan.logic.facemap"
 
+--------------------------------
+
 local Game = {}
 Game.__index = Game
+
+--------------------------------
 
 function Game:new (players, t)
     if t == nil then t = Default end
     local game = setmetatable({}, self)
+    game:_init(players, t)
+    return game
+end
+
+--------------------------------
+-- Initialization code
+--------------------------------
+
+function Game:_init (players, t)
     game:_setPlayers(players, t)
     game:_createHexMap(t)
     game:_createNumberMap(t)
@@ -22,7 +35,6 @@ function Game:new (players, t)
     game:_createArmies()
     game:_createDrawPile(t)
     game:_createBank(t)
-    return game
 end
 
 function Game:_setPlayers (players, t)
@@ -113,5 +125,7 @@ function Game:_createBank (t)
         self.bank[rescard] = count
     end
 end
+
+--------------------------------
 
 return Game

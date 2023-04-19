@@ -20,6 +20,7 @@ function Game:new (players, t)
     game:_createDevelopmentCards()
     game:_createResourceCards()
     game:_createArmies()
+    game:_createDrawPile(t)
     -- TODO: create the rest of the fields
     return game
 end
@@ -94,6 +95,16 @@ function Game:_createArmies ()
     for _, player in ipairs(self.players) do
         self.armies[player] = 0
     end
+end
+
+function Game:_createDrawPile (t)
+    self.drawpile = {}
+    for devcard, count in pairs(t.devcards) do
+        for i = 1, count do
+            table.insert(drawpile, devcard)
+        end
+    end
+    TableUtils:shuffleInPlace(self.drawpile)
 end
 
 return Game

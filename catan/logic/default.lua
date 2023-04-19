@@ -119,4 +119,12 @@ do
     end
 end
 
+Default.devcards = {
+    knight = 14,
+    roadbuilding = 2,
+    yearofplenty = 2,
+    monopoly = 2,
+    victorypoint = 5,
+}
+
 return Default

@@ -19,8 +19,9 @@ function Game:new (players, t)
     game.roadmap = {}
     game:_placeRobberInDesert()
     game.players = players
-    game.devcards = {}
-    game.rescards = {}
+    game:_createDevelopmentCards()
+    game:_createResourceCards()
+    game:_createArmies()
     -- TODO: create the rest of the fields
     return game
 end
@@ -68,6 +69,27 @@ function Game:_placeRobberInDesert ()
             return true -- stop iteration
         end
     end)
+end
+
+function Game:_createDevelopmentCards ()
+    self.devcards = {}
+    for _, player in ipairs(self.players) do
+        self.devcards[player] = {}
+    end
+end
+
+function Game:_createResourceCards ()
+    self.rescards = {}
+    for _, player in ipairs(self.players) do
+        self.rescards[player] = {}
+    end
+end
+
+function Game:_createArmies ()
+    self.armies = {}
+    for _, player in ipairs(self.players) do
+        self.armies[player] = 0
+    end
 end
 
 return Game

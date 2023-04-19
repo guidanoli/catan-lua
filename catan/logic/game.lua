@@ -1,7 +1,6 @@
 local TableUtils = require "util.table"
 
 local Default = require "catan.logic.default"
-local Hex = require "catan.logic.hex"
 local FaceMap = require "catan.logic.facemap"
 local VertexMap = require "catan.logic.facemap"
 
@@ -33,7 +32,12 @@ function Game:_setPlayers (players, t)
 end
 
 function Game:_createHexMap (t)
-    local hexes = Hex:arrayFrom(t.terrain)
+    local hexes = {}
+    for kind, count in pairs(t.terrain) do
+        for i = 1, count do
+            table.insert(hexes, kind)
+        end
+    end
     TableUtils:shuffleInPlace(hexes)
     self.hexmap = {}
     for i, hex in ipairs(hexes) do

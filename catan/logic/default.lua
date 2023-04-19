@@ -48,7 +48,6 @@ do
     -- Check if #hexes = #terrainFaces
     local sum = 0
     for kind, count in pairs(Default.terrain) do
-        assert(type(kind) == 'string')
         assert(count >= 0)
         sum = sum + count
     end

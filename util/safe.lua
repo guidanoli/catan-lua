@@ -1,4 +1,10 @@
---- Protects the global table from nil-reads and writes
+--- Protects the global table from writes and misses
+--
+-- Emits a warning whenever one tries to read from or write to an unset key
+-- in the global table `_G`.
+--
+-- This module can be useful to debug, as these events usually go unnoticed.
+--
 -- @module util.safe
 
 setmetatable(_G, {

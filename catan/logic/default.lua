@@ -1,3 +1,6 @@
+local FaceMap = require "catan.logic.facemap"
+local VertexMap = require "catan.logic.vertexmap"
+
 local Default = {}
 
 -- In the same order as the number placement
@@ -25,13 +28,10 @@ Default.terrainFaces = {
 
 do
     -- Check for duplicate coordinates
-    local coords = {}
+    local map = {}
     for _, face in pairs(Default.terrainFaces) do
-        if coords[face.q] == nil then
-            coords[face.q] = {[face.r] = true}
-        else
-            assert(coords[face.q][face.r] == nil)
-        end
+        assert(FaceMap:get(map, face) == nil)
+        FaceMap:set(map, face, true)
     end
 end
 
@@ -95,11 +95,31 @@ Default.harbors = {
     {q = -1, r = -2, vk = 'S', hk = 'lumber'},
 }
 
+do
+    -- Check for duplicate coordinates
+    local map = {}
+    for _, h in pairs(Default.harbors) do
+        local face = {q = h.q, r = h.r}
+        local vertex = {kind = h.vk, face = face}
+        assert(VertexMap:get(map, vertex) == nil)
+        VertexMap:set(map, vertex, true)
+    end
+end
+
 Default.players = {
     'red',
     'blue',
     'yellow',
     'white',
 }
+
+do
+    -- Check for duplicate players
+    local set = {}
+    for _, p in pairs(Default.players) do
+        assert(set[p] == nil)
+        set[p] = true
+    end
+end
 
 return Default

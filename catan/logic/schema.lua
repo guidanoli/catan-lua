@@ -1,4 +1,4 @@
--- Catan game state schema v1.1
+-- Catan game state schema v1.2
 
 local schema = require "util.schema"
 
@@ -72,6 +72,8 @@ local ResourceCard = schema.Enum{
     'wool',
 }
 
+local ResourceCards = schema.Mapping(ResourceCard, 'number')
+
 local function FaceMapping (t)
     return schema.Mapping('number', schema.Mapping('number', t))
 end
@@ -101,12 +103,12 @@ return schema.Struct{
     players = schema.Array(Player),
     -- player cards
     devcards = PlayerMapping(schema.Array(DevelopmentCard)),
-    rescards = PlayerMapping(schema.Array(ResourceCard)),
+    rescards = PlayerMapping(ResourceCards),
     largestroad = schema.Option(Player),
     largestarmy = schema.Option(Player),
     -- player armies
     armies = PlayerMapping'number',
     -- free cards
     drawpile = schema.Array(DevelopmentCard),
-    bank = schema.Mapping(ResourceCard, 'number'),
+    bank = ResourceCards,
 }

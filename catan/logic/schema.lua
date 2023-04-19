@@ -64,6 +64,8 @@ local DevelopmentCard = schema.Enum{
     'victorypoint',
 }
 
+local DevelopmentCards = schema.Mapping(DevelopmentCard, 'number')
+
 local ResourceCard = schema.Enum{
     'brick',
     'lumber',
@@ -102,7 +104,7 @@ return schema.Struct{
     -- players
     players = schema.Array(Player),
     -- player cards
-    devcards = PlayerMapping(schema.Array(DevelopmentCard)),
+    devcards = PlayerMapping(DevelopmentCards),
     rescards = PlayerMapping(ResourceCards),
     largestroad = schema.Option(Player),
     largestarmy = schema.Option(Player),

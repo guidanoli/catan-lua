@@ -93,6 +93,8 @@ local function PlayerMapping (t)
 end
 
 return schema.Struct{
+    -- players (static)
+    players = schema.Array(Player),
     -- map (static)
     hexmap = FaceMapping(Hex),
     numbermap = FaceMapping'number',
@@ -101,8 +103,6 @@ return schema.Struct{
     buildmap = VertexMapping(Building),
     roadmap = EdgeMapping(Player),
     robber = Face,
-    -- players
-    players = schema.Array(Player),
     -- player cards
     devcards = PlayerMapping(DevelopmentCards),
     rescards = PlayerMapping(ResourceCards),

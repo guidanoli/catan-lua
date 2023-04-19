@@ -11,14 +11,13 @@ Game.__index = Game
 function Game:new (players, t)
     if t == nil then t = Default end
     local game = setmetatable({}, self)
-    game:_validatePlayers(players, t)
+    game:_setPlayers(players, t)
     game:_createHexMap(t)
     game:_createNumberMap(t)
     game:_createHarborMap(t)
     game.buildmap = {}
     game.roadmap = {}
     game:_placeRobberInDesert()
-    game.players = players
     game:_createDevelopmentCards()
     game:_createResourceCards()
     game:_createArmies()
@@ -26,10 +25,11 @@ function Game:new (players, t)
     return game
 end
 
-function Game:_validatePlayers (players, t)
+function Game:_setPlayers (players, t)
     assert(TableUtils:isArray(players))
     assert(TableUtils:isContainedIn(players, t.players))
     assert(#players >= 3)
+    self.players = players
 end
 
 function Game:_createHexMap (t)

@@ -10,6 +10,8 @@ local Game = {}
 Game.__index = Game
 
 --------------------------------
+-- Constructor
+--------------------------------
 
 function Game:new (players, t)
     if t == nil then t = Default end

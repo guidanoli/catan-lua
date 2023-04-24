@@ -13,6 +13,7 @@ Game.__index = Game
 
 function Game:new (players, t)
     if t == nil then t = Default end
+    if player == nil then players = t.players end
     local game = setmetatable({}, self)
     game:_init(players, t)
     return game

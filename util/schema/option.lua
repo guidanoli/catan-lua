@@ -3,11 +3,10 @@ local cast = require "util.schema.cast"
 local Option = {}
 Option.__index = Option
 
-function Option:validate(t)
-    local ok, err = pcall(function()
-        return self.s:validate(t)
-    end)
-    assert(ok or t == nil, err)
+function Option:validate(t, msg)
+    if t ~= nil then
+        self.s:validate(t, msg)
+    end
 end
 
 return function (t)

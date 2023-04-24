@@ -1,8 +1,8 @@
 local Value = {}
 Value.__index = Value
 
-function Value:validate(v)
-    assert(type(v) == self.vtype)
+function Value:validate(v, msg)
+    assert(type(v) == self.vtype, msg)
 end
 
 return function (t)

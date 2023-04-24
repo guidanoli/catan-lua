@@ -1,9 +1,9 @@
 local Enum = {}
 Enum.__index = Enum
 
-function Enum:validate(v)
-    assert(type(v) == 'string')
-    assert(self[v] == true)
+function Enum:validate(v, msg)
+    assert(type(v) == 'string', msg)
+    assert(self[v] == true, msg)
 end
 
 return function (t)

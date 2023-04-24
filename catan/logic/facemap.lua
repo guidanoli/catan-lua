@@ -2,7 +2,9 @@ local FaceMap = {}
 
 function FaceMap:get(map, face)
     local q, r = face.q, face.r
-    return map[q][r]
+    if map[q] then
+        return map[q][r]
+    end
 end
 
 function FaceMap:set(map, face, o)

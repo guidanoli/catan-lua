@@ -4,7 +4,9 @@ function VertexMap:get(map, vertex)
     local face = vertex.face
     local kind = vertex.kind
     local q, r = face.q, face.r
-    return map[q][r][kind]
+    if map[q] and map[q][r] then
+        return map[q][r][kind]
+    end
 end
 
 function VertexMap:set(map, vertex, o)

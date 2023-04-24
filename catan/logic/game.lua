@@ -24,18 +24,18 @@ end
 --------------------------------
 
 function Game:_init (players, t)
-    game:_setPlayers(players, t)
-    game:_createHexMap(t)
-    game:_createNumberMap(t)
-    game:_createHarborMap(t)
-    game.buildmap = {}
-    game.roadmap = {}
-    game:_placeRobberInDesert()
-    game:_createDevelopmentCards()
-    game:_createResourceCards()
-    game:_createArmies()
-    game:_createDrawPile(t)
-    game:_createBank(t)
+    self:_setPlayers(players, t)
+    self:_createHexMap(t)
+    self:_createNumberMap(t)
+    self:_createHarborMap(t)
+    self.buildmap = {}
+    self.roadmap = {}
+    self:_placeRobberInDesert()
+    self:_createDevelopmentCards()
+    self:_createResourceCards()
+    self:_createArmies()
+    self:_createDrawPile(t)
+    self:_createBank(t)
 end
 
 function Game:_setPlayers (players, t)

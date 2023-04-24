@@ -13,7 +13,7 @@ function FaceMap:set(map, face, o)
     map[q][r] = o
 end
 
-function FaceMap:iter(map, co)
+function FaceMap:iter(map, f)
     for q in pairs(map) do
         for r in pairs(map[q]) do
             if f(q, r, map[q][r]) then

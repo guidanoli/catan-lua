@@ -41,9 +41,9 @@ function Game:_init (players, t)
 end
 
 function Game:_setPlayers (players, t)
-    assert(TableUtils:isArray(players))
-    assert(TableUtils:isContainedIn(players, t.players))
-    assert(#players >= 3)
+    assert(TableUtils:isArray(players), "players not array")
+    assert(TableUtils:isContainedIn(players, t.players), "invalid players")
+    assert(#players >= 3, "too few players")
     self.players = players
     self.turn = players[1]
 end

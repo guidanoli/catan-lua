@@ -37,7 +37,7 @@ local Hex = schema.Enum{
     'desert',
 }
 
-local Player = 'string'
+local Player = schema.Value'string'
 
 local Building = schema.Struct{
     kind = schema.Enum{

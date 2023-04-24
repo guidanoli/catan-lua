@@ -2,7 +2,7 @@ local TableUtils = require "util.table"
 
 local Default = require "catan.logic.default"
 local FaceMap = require "catan.logic.facemap"
-local VertexMap = require "catan.logic.facemap"
+local VertexMap = require "catan.logic.vertexmap"
 
 --------------------------------
 

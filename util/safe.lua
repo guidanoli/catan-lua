@@ -15,3 +15,5 @@ setmetatable(_G, {
         warn(string.format('set global variable %s to %s', k, v))
     end,
 })
+
+warn('@on')

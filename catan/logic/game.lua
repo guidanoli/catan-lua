@@ -43,6 +43,7 @@ function Game:_setPlayers (players, t)
     assert(TableUtils:isContainedIn(players, t.players))
     assert(#players >= 3)
     self.players = players
+    self.turn = players[1]
 end
 
 function Game:_createHexMap (t)

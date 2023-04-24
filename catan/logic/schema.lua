@@ -1,4 +1,4 @@
--- Catan game state schema v1.2
+-- Catan game state schema v1.3
 
 local schema = require "util.schema"
 
@@ -95,6 +95,7 @@ end
 return schema.Struct{
     -- players (static)
     players = schema.Array(Player),
+    turn = Player,
     -- map (static)
     hexmap = FaceMapping(Hex),
     numbermap = FaceMapping'number',

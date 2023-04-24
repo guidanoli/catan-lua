@@ -1,4 +1,4 @@
--- Catan game state schema v1.3
+-- Catan game state schema v1.4
 
 local schema = require "util.schema"
 
@@ -89,7 +89,7 @@ local function EdgeMapping (t)
 end
 
 local function PlayerMapping (t)
-    return schema.Mapping(Player, schema.Array(t))
+    return schema.Mapping(Player, t)
 end
 
 return schema.Struct{
@@ -105,8 +105,8 @@ return schema.Struct{
     roadmap = EdgeMapping(Player),
     robber = Face,
     -- player cards
-    devcards = PlayerMapping(DevelopmentCards),
-    rescards = PlayerMapping(ResourceCards),
+    devcards = PlayerMapping(schema.Array(DevelopmentCards)),
+    rescards = PlayerMapping(schema.Array(ResourceCards)),
     largestroad = schema.Option(Player),
     largestarmy = schema.Option(Player),
     -- player armies

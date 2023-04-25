@@ -1,10 +1,10 @@
 local FaceMap = require "catan.logic.facemap"
 local VertexMap = require "catan.logic.vertexmap"
 
-local Default = {}
+local Constants = {}
 
 -- In the same order as the number placement
-Default.terrainFaces = {
+Constants.terrainFaces = {
     {q = 0, r = -2},
     {q = -1, r = -1},
     {q = -2, r = 0},
@@ -29,13 +29,13 @@ Default.terrainFaces = {
 do
     -- Check for duplicate coordinates
     local map = {}
-    for _, face in pairs(Default.terrainFaces) do
+    for _, face in pairs(Constants.terrainFaces) do
         assert(FaceMap:get(map, face) == nil)
         FaceMap:set(map, face, true)
     end
 end
 
-Default.terrain = {
+Constants.terrain = {
     hills = 3,
     forest = 4,
     mountains = 3,
@@ -47,14 +47,14 @@ Default.terrain = {
 do
     -- Check if #hexes = #terrainFaces
     local sum = 0
-    for kind, count in pairs(Default.terrain) do
+    for kind, count in pairs(Constants.terrain) do
         assert(count >= 0)
         sum = sum + count
     end
-    assert(sum == #Default.terrainFaces)
+    assert(sum == #Constants.terrainFaces)
 end
 
-Default.numbers = {
+Constants.numbers = {
     5, 2, 6, 3, 8, 10,
     9, 12, 11, 4, 8, 10,
     9, 4, 5, 6, 3, 11,
@@ -63,15 +63,15 @@ Default.numbers = {
 do
     -- Check if #numbers = #non-desert-hexes
     local sum = 0
-    for kind, count in pairs(Default.terrain) do
+    for kind, count in pairs(Constants.terrain) do
         if kind ~= 'desert' then
             sum = sum + count
         end
     end
-    assert(sum == #Default.numbers)
+    assert(sum == #Constants.numbers)
 end
 
-Default.harbors = {
+Constants.harbors = {
     {q = 0, r = -3, vk = 'S', hk = 'generic'},
     {q = 0, r = -2, vk = 'N', hk = 'generic'},
     {q = 1, r = -2, vk = 'N', hk = 'grain'},
@@ -95,7 +95,7 @@ Default.harbors = {
 do
     -- Check for duplicate coordinates
     local map = {}
-    for _, h in pairs(Default.harbors) do
+    for _, h in pairs(Constants.harbors) do
         local face = {q = h.q, r = h.r}
         local vertex = {kind = h.vk, face = face}
         assert(VertexMap:get(map, vertex) == nil)
@@ -103,7 +103,7 @@ do
     end
 end
 
-Default.players = {
+Constants.players = {
     'red',
     'blue',
     'yellow',
@@ -113,13 +113,13 @@ Default.players = {
 do
     -- Check for duplicate players
     local set = {}
-    for _, p in pairs(Default.players) do
+    for _, p in pairs(Constants.players) do
         assert(set[p] == nil)
         set[p] = true
     end
 end
 
-Default.devcards = {
+Constants.devcards = {
     knight = 14,
     roadbuilding = 2,
     yearofplenty = 2,
@@ -127,7 +127,7 @@ Default.devcards = {
     victorypoint = 5,
 }
 
-Default.rescards = {
+Constants.rescards = {
     brick = 19,
     lumber = 19,
     ore = 19,
@@ -135,4 +135,4 @@ Default.rescards = {
     wool = 19,
 }
 
-return Default
+return Constants

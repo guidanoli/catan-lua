@@ -1,6 +1,6 @@
 local TableUtils = require "util.table"
 
-local Default = require "catan.logic.default"
+local Constants = require "catan.logic.constants"
 local FaceMap = require "catan.logic.facemap"
 local VertexMap = require "catan.logic.vertexmap"
 
@@ -13,11 +13,10 @@ Game.__index = Game
 -- Constructor
 --------------------------------
 
-function Game:new (players, t)
-    if t == nil then t = Default end
-    if players == nil then players = t.players end
+function Game:new (players)
+    players = players or Constants.players
     local game = setmetatable({}, self)
-    game:_init(players, t)
+    game:_init(players)
     return game
 end
 
@@ -25,32 +24,32 @@ end
 -- Initialization code
 --------------------------------
 
-function Game:_init (players, t)
-    self:_setPlayers(players, t)
-    self:_createHexMap(t)
-    self:_createNumberMap(t)
-    self:_createHarborMap(t)
+function Game:_init (players)
+    self:_setPlayers(players)
+    self:_createHexMap()
+    self:_createNumberMap()
+    self:_createHarborMap()
     self.buildmap = {}
     self.roadmap = {}
     self:_placeRobberInDesert()
     self:_createDevelopmentCards()
     self:_createResourceCards()
     self:_createArmies()
-    self:_createDrawPile(t)
-    self:_createBank(t)
+    self:_createDrawPile()
+    self:_createBank()
 end
 
-function Game:_setPlayers (players, t)
+function Game:_setPlayers (players)
     assert(TableUtils:isArray(players), "players not array")
-    assert(TableUtils:isContainedIn(players, t.players), "invalid players")
+    assert(TableUtils:isContainedIn(players, Constants.players), "invalid players")
     assert(#players >= 3, "too few players")
     self.players = players
     self.turn = players[1]
 end
 
-function Game:_createHexMap (t)
+function Game:_createHexMap ()
     local hexes = {}
-    for kind, count in pairs(t.terrain) do
+    for kind, count in pairs(Constants.terrain) do
         for i = 1, count do
             table.insert(hexes, kind)
         end
@@ -58,25 +57,25 @@ function Game:_createHexMap (t)
     TableUtils:shuffleInPlace(hexes)
     self.hexmap = {}
     for i, hex in ipairs(hexes) do
-        FaceMap:set(self.hexmap, t.terrainFaces[i], hex)
+        FaceMap:set(self.hexmap, Constants.terrainFaces[i], hex)
     end
 end
 
-function Game:_createNumberMap (t)
+function Game:_createNumberMap ()
     local i = 1
     self.numbermap = {}
-    for _, face in ipairs(t.terrainFaces) do
+    for _, face in ipairs(Constants.terrainFaces) do
         local hex = FaceMap:get(self.hexmap, face)
         if hex ~= 'desert' then
-            FaceMap:set(self.numbermap, face, t.numbers[i])
+            FaceMap:set(self.numbermap, face, Constants.numbers[i])
             i = i + 1
         end
     end
 end
 
-function Game:_createHarborMap (t)
+function Game:_createHarborMap ()
     self.harbormap = {}
-    for _, harbor in ipairs(t.harbors) do
+    for _, harbor in ipairs(Constants.harbors) do
         local face = {q = harbor.q, r = harbor.r}
         local vector = {kind = harbor.vk, face = face}
         VertexMap:set(self.harbormap, vector, harbor.hk)
@@ -113,9 +112,9 @@ function Game:_createArmies ()
     end
 end
 
-function Game:_createDrawPile (t)
+function Game:_createDrawPile ()
     self.drawpile = {}
-    for devcard, count in pairs(t.devcards) do
+    for devcard, count in pairs(Constants.devcards) do
         for i = 1, count do
             table.insert(self.drawpile, devcard)
         end
@@ -123,9 +122,9 @@ function Game:_createDrawPile (t)
     TableUtils:shuffleInPlace(self.drawpile)
 end
 
-function Game:_createBank (t)
+function Game:_createBank ()
     self.bank = {}
-    for rescard, count in pairs(t.rescards) do
+    for rescard, count in pairs(Constants.rescards) do
         self.bank[rescard] = count
     end
 end

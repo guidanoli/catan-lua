@@ -15,3 +15,19 @@ end
 validate(Game:new())
 validate(Game:new{'red', 'blue', 'white'})
 validate(Game:new{'red', 'blue', 'white', 'yellow'})
+
+local function expect (patt, ...)
+    local ok, err = pcall(...)
+    assert(not ok)
+    if type(err) ~= 'string' then
+        error(string.format('expected error object to be string, not "%s"', type(err)))
+    elseif not string.find(err, patt) then
+        error(string.format('error "%s" doesn\'t match pattern "%s"', err, patt))
+    end
+end
+
+expect('too few players', function() Game:new{} end)
+expect('too few players', function() Game:new{'red'} end)
+expect('too few players', function() Game:new{'red', 'blue'} end)
+expect('invalid players', function() Game:new{'red', 'blue', 'xyz'} end)
+expect('players not array', function() Game:new{'red', 'blue', foo='white'} end)

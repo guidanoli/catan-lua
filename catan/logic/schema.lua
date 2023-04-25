@@ -95,7 +95,6 @@ end
 return schema.Struct{
     -- players (static)
     players = schema.Array(Player),
-    playerIndex = 'number',
     -- map (static)
     hexmap = FaceMapping(Hex),
     numbermap = FaceMapping'number',
@@ -104,13 +103,13 @@ return schema.Struct{
     buildmap = VertexMapping(Building),
     roadmap = EdgeMapping(Player),
     robber = Face,
-    -- player cards
+    -- players (dynamic)
+    playerIndex = 'number',
+    armies = PlayerMapping'number',
     devcards = PlayerMapping(schema.Array(DevelopmentCards)),
     rescards = PlayerMapping(schema.Array(ResourceCards)),
     largestroad = schema.Option(Player),
     largestarmy = schema.Option(Player),
-    -- player armies
-    armies = PlayerMapping'number',
     -- free cards
     drawpile = schema.Array(DevelopmentCard),
     bank = ResourceCards,

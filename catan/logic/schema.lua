@@ -95,7 +95,7 @@ end
 return schema.Struct{
     -- players (static)
     players = schema.Array(Player),
-    turn = Player,
+    playerIndex = 'number',
     -- map (static)
     hexmap = FaceMapping(Hex),
     numbermap = FaceMapping'number',

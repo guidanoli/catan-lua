@@ -13,3 +13,5 @@ local function validate(g)
 end
 
 validate(Game:new())
+validate(Game:new{'red', 'blue', 'white'})
+validate(Game:new{'red', 'blue', 'white', 'yellow'})

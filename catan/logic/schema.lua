@@ -1,4 +1,4 @@
--- Catan game state schema v1.4
+-- Catan game state schema v1.5
 
 local schema = require "util.schema"
 
@@ -93,6 +93,8 @@ local function PlayerMapping (t)
 end
 
 return schema.Struct{
+    -- meta
+    round = 'number',
     -- players (static)
     players = schema.Array(Player),
     -- map (static)

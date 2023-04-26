@@ -25,6 +25,7 @@ end
 --------------------------------
 
 function Game:_init (players)
+    self.round = 1
     self:_setPlayers(players)
     self:_createHexMap()
     self:_createNumberMap()

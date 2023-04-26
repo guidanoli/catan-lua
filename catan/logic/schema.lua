@@ -2,6 +2,14 @@
 
 local schema = require "util.schema"
 
+local Phase = schema.Enum{
+    'settingUp',
+    'rollingDie',
+    'discardingHalf',
+    'placingRobber',
+    'choosingVictim',
+}
+
 local Face = schema.Struct{
     q = 'number',
     r = 'number',
@@ -94,6 +102,7 @@ end
 
 return schema.Struct{
     -- meta
+    phase = Phase,
     round = 'number',
     -- players (static)
     players = schema.Array(Player),

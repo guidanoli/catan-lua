@@ -106,7 +106,7 @@ return schema.Struct{
     roadmap = EdgeMapping(Player),
     robber = Face,
     -- players (dynamic)
-    playerIndex = 'number',
+    player = Player,
     armies = PlayerMapping'number',
     devcards = PlayerMapping(schema.Array(DevelopmentCards)),
     rescards = PlayerMapping(schema.Array(ResourceCards)),

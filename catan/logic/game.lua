@@ -45,7 +45,7 @@ function Game:_setPlayers (players)
     assert(TableUtils:isContainedIn(players, Constants.players), "invalid players")
     assert(#players >= 3, "too few players")
     self.players = players
-    self.playerIndex = 1
+    self.player = players[1]
 end
 
 function Game:_createHexMap ()

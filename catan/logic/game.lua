@@ -36,7 +36,6 @@ function Game:_init (players)
     self:_placeRobberInDesert()
     self:_createDevelopmentCards()
     self:_createResourceCards()
-    self:_createArmies()
     self:_createDrawPile()
     self:_createBank()
 end
@@ -104,13 +103,6 @@ function Game:_createResourceCards ()
     self.rescards = {}
     for _, player in ipairs(self.players) do
         self.rescards[player] = {}
-    end
-end
-
-function Game:_createArmies ()
-    self.armies = {}
-    for _, player in ipairs(self.players) do
-        self.armies[player] = 0
     end
 end
 

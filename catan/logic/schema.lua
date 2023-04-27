@@ -118,7 +118,6 @@ return schema.Struct{
     robber = Face,
     -- players (dynamic)
     player = Player,
-    armies = PlayerMapping'number',
     devcards = PlayerMapping(schema.Array(DevelopmentCard)),
     rescards = PlayerMapping(ResourceCards),
     largestroad = schema.Option(Player),

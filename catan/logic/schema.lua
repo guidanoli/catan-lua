@@ -1,4 +1,4 @@
--- Catan game state schema v1.6
+-- Catan game state schema v1.7
 
 local schema = require "util.schema"
 
@@ -64,15 +64,17 @@ local Harbor = schema.Enum{
     'wool',
 }
 
-local DevelopmentCard = schema.Enum{
-    'knight',
-    'roadbuilding',
-    'yearofplenty',
-    'monopoly',
-    'victorypoint',
+local DevelopmentCard = schema.Struct{
+    kind = schema.Enum{
+        'knight',
+        'roadbuilding',
+        'yearofplenty',
+        'monopoly',
+        'victorypoint',
+    },
+    used = schema.Option'boolean',
+    boughtInRound = schema.Option'number',
 }
-
-local DevelopmentCards = schema.Mapping(DevelopmentCard, 'number')
 
 local ResourceCard = schema.Enum{
     'brick',
@@ -117,8 +119,8 @@ return schema.Struct{
     -- players (dynamic)
     player = Player,
     armies = PlayerMapping'number',
-    devcards = PlayerMapping(schema.Array(DevelopmentCards)),
-    rescards = PlayerMapping(schema.Array(ResourceCards)),
+    devcards = PlayerMapping(schema.Array(DevelopmentCard)),
+    rescards = PlayerMapping(ResourceCards),
     largestroad = schema.Option(Player),
     largestarmy = schema.Option(Player),
     -- free cards

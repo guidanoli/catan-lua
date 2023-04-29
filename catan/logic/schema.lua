@@ -1,4 +1,4 @@
--- Catan game state schema v1.8
+-- Catan game state schema v1.9
 
 local schema = require "util.schema"
 
@@ -21,19 +21,21 @@ local VertexKind = schema.Enum{
 }
 
 local Vertex = schema.Struct{
-    kind = VertexKind,
-    face = Face,
+    q = 'number',
+    r = 'number',
+    v = VertexKind,
 }
 
 local EdgeKind = schema.Enum{
     'NW',
     'W',
-    'SW',
+    'NE',
 }
 
 local Edge = schema.Struct{
-    kind = EdgeKind,
-    face = Face,
+    q = 'number',
+    r = 'number',
+    e = EdgeKind,
 }
 
 local Hex = schema.Enum{

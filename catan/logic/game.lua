@@ -77,9 +77,7 @@ end
 function Game:_createHarborMap ()
     self.harbormap = {}
     for _, harbor in ipairs(Constants.harbors) do
-        local face = {q = harbor.q, r = harbor.r}
-        local vector = {kind = harbor.vk, face = face}
-        VertexMap:set(self.harbormap, vector, harbor.hk)
+        VertexMap:set(self.harbormap, harbor, harbor.kind)
     end
 end
 

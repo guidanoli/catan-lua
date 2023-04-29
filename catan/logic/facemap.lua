@@ -2,21 +2,26 @@ local FaceMap = {}
 
 function FaceMap:get(map, face)
     local q, r = face.q, face.r
-    if map[q] then
-        return map[q][r]
+    local mapq = map[q]
+    if mapq then
+        return mapq[r]
     end
 end
 
 function FaceMap:set(map, face, o)
     local q, r = face.q, face.r
-    if map[q] == nil then map[q] = {} end
-    map[q][r] = o
+    local mapq = map[q]
+    if mapq == nil then
+        mapq = {}
+        map[q] = mapq
+    end
+    mapq[r] = o
 end
 
 function FaceMap:iter(map, f)
-    for q in pairs(map) do
-        for r in pairs(map[q]) do
-            if f(q, r, map[q][r]) then
+    for q, mapq in pairs(map) do
+        for r, mapqr in pairs(mapq) do
+            if f(q, r, mapqr) then
                 return
             end
         end

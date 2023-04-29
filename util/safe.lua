@@ -16,4 +16,4 @@ setmetatable(_G, {
     end,
 })
 
-warn('@on')
+warn'@on'

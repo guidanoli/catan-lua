@@ -1,4 +1,4 @@
--- Catan game state schema v1.7
+-- Catan game state schema v1.8
 
 local schema = require "util.schema"
 
@@ -6,7 +6,7 @@ local Phase = schema.Enum{
     'settingUp',
     'idle',
     'discardingHalf',
-    'placingRobber',
+    'movingRobber',
     'choosingVictim',
 }
 

@@ -96,8 +96,7 @@ do
     -- Check for duplicate coordinates
     local map = {}
     for _, h in pairs(Constants.harbors) do
-        local face = {q = h.q, r = h.r}
-        local vertex = {kind = h.v, face = face}
+        local vertex = {q = h.q, r = h.r, v = h.v}
         assert(VertexMap:get(map, vertex) == nil)
         VertexMap:set(map, vertex, true)
     end

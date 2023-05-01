@@ -1,8 +1,8 @@
+local Base = require "util.schema.base"
 local join = require "util.schema.join"
 local cast = require "util.schema.cast"
 
-local Struct = {}
-Struct.__index = Struct
+local Struct = Base()
 
 function Struct:validate(t, msg)
     assert(type(t) == 'table', msg)
@@ -20,5 +20,5 @@ return function (t)
     for field, subschema in pairs(t) do
         schema[field] = cast(subschema)
     end
-    return setmetatable(schema, Struct)
+    return Struct.__new(schema)
 end

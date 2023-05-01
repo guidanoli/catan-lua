@@ -1,5 +1,6 @@
-local Enum = {}
-Enum.__index = Enum
+local Base = require "util.schema.base"
+
+local Enum = Base()
 
 function Enum:validate(v, msg)
     assert(type(v) == 'string', msg)
@@ -13,5 +14,5 @@ return function (t)
         assert(type(field) == 'string')
         schema[field] = true
     end
-    return setmetatable(schema, Enum)
+    return Enum.__new(schema)
 end

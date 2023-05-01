@@ -1,8 +1,8 @@
+local Base = require "util.schema.base"
 local cast = require "util.schema.cast"
 local join = require "util.schema.join"
 
-local Array = {}
-Array.__index = Array
+local Array = Base()
 
 function Array:validate(t, msg)
     msg = msg or ''
@@ -17,5 +17,5 @@ function Array:validate(t, msg)
 end
 
 return function (t)
-    return setmetatable({e = cast(t)}, Array)
+    return Array.__new{e = cast(t)}
 end

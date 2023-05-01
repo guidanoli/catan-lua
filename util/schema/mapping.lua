@@ -1,8 +1,8 @@
+local Base = require "util.schema.base"
 local join = require "util.schema.join"
 local cast = require "util.schema.cast"
 
-local Mapping = {}
-Mapping.__index = Mapping
+local Mapping = Base()
 
 function Mapping:validate(t, msg)
     assert(type(t) == 'table', msg)
@@ -13,5 +13,5 @@ function Mapping:validate(t, msg)
 end
 
 return function (k, v)
-    return setmetatable({k = cast(k), v = cast(v)}, Mapping)
+    return Mapping.__new{k = cast(k), v = cast(v)}
 end

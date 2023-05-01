@@ -1,7 +1,7 @@
+local Base = require "util.schema.base"
 local cast = require "util.schema.cast"
 
-local Option = {}
-Option.__index = Option
+local Option = Base()
 
 function Option:validate(t, msg)
     if t ~= nil then
@@ -10,5 +10,5 @@ function Option:validate(t, msg)
 end
 
 return function (t)
-    return setmetatable({s = cast(t)}, Option)
+    return Option.__new{s = cast(t)}
 end

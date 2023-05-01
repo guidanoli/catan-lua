@@ -1,6 +1,7 @@
 local TableUtils = require "util.table"
 
 local Constants = require "catan.logic.constants"
+local Grid = require "catan.logic.grid"
 local FaceMap = require "catan.logic.facemap"
 local VertexMap = require "catan.logic.vertexmap"
 
@@ -84,7 +85,7 @@ end
 function Game:_placeRobberInDesert ()
     FaceMap:iter(self.hexmap, function (q, r, hex)
         if hex == 'desert' then
-            self.robber = {q = q, r = r}
+            self.robber = Grid:face(q, r)
             return true -- stop iteration
         end
     end)

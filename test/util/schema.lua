@@ -14,13 +14,12 @@ local function pprint(v)
 end
 
 local function ok(v)
-    s:validate(v)
+    assert(schema:validate(s, v))
     print('ok...', pprint(v))
 end
 
 local function fail(v)
-    local ok, err = pcall(s.validate, s, v)
-    assert(not ok, 'test case did not fail as expected')
+    assert(not schema:validate(s, v))
     print('fail (expected)...', pprint(v))
 end
 
@@ -55,10 +54,10 @@ local types = {
     ['table'] = true,
 }
 
--- Values
+-- Types
 
 for t in pairs(types) do
-    s = schema.Value(t)
+    s = schema.Type(t)
     if t ~= 'nil' then
         fail(nil)
     end
@@ -77,22 +76,22 @@ do
     s = schema.Struct{}
 
     ok{}
+    ok{'haha'}
+    ok{x = 'haha'}
     fail(nil)
     fail(123)
-    fail{x = 'haha'}
 
-    s = schema.Struct{x = 'string'}
+    s = schema.Struct{x = schema.Type'string'}
 
     ok{x = 'haha'}
+    ok{x = 'haha', y = 123}
+    ok{x = 'haha', y = 'hehe'}
     fail(nil)
     fail'haha'
     fail{}
     fail{x = 123}
-    fail{x = 'haha', y = 123}
-    fail{x = 'haha', y = 'haha'}
-    fail{x = 'haha', y = 'hehe'}
 
-    s = schema.Struct{x = 'string', y = 'number'}
+    s = schema.Struct{x = schema.Type'string', y = schema.Type'number'}
 
     ok{x = 'haha', y = 123}
     fail(nil)
@@ -109,7 +108,7 @@ do
     fail{x = 123, y = 456}
     fail{x = 123, y = 'haha'}
 
-    s = schema.Struct{c = schema.Struct{x = 'number', y = 'number'}}
+    s = schema.Struct{c = schema.Struct{x = schema.Type'number', y = schema.Type'number'}}
 
     ok{c = {x = 123, y = 456}}
     fail(nil)
@@ -163,23 +162,23 @@ do
 
     ok'foo'
     fail(nil)
-    ok'bar'
+    fail'bar'
 
     s = schema.Enum{foo='bar'}
 
     fail'foo'
-    ok'bar'
+    fail'bar'
 
     s = schema.Enum{[true] = 'bar'}
 
     fail(true)
-    ok'bar'
+    fail'bar'
 end
 
 -- Options
 
 for t in pairs(types) do
-    s = schema.Option(t)
+    s = schema.Option(schema.Type(t))
     ok(nil)
     for _, value in pairs(values) do
         if type(value) == t then
@@ -193,44 +192,46 @@ end
 -- Arrays
 
 do
-    s = schema.Array'nil'
+    s = schema.Array(schema.Type('nil'))
 
     ok{}
+    ok{[true] = 1}
+    ok{[3] = 1}
     ok{nil, nil, nil}
     fail(nil)
     fail(123)
     fail'haha'
     fail{1}
-    fail{[true] = 1}
-    fail{[3] = 1}
 
-    s = schema.Array'number'
+    s = schema.Array(schema.Type'number')
 
     ok{}
+    ok{[777] = {1, 2, 3}}
     ok{1, 2, 3}
+    ok{1, 2, 3, abc = 888}
     fail{{1, 2, 3}, {4, 5, 6}, {7, 8, 9}}
     fail{{1, 2, 3}, nil, {7, 8, 9}}
-    fail{[777] = {1, 2, 3}}
     fail(123)
     fail'haha'
 
-    s = schema.Array(schema.Struct{x = 'number', y = 'number'})
+    s = schema.Array(schema.Struct{x = schema.Type'number', y = schema.Type'number'})
 
     ok{}
     ok{{x = 10, y = 20}}
     ok{{x = 10, y = 20}, {x = 33, y = 66}}
-    fail{x = 10, y = 20}
+    ok{foo = 'blabla'}
+    ok{[123] = 'blabla'}
+    ok{{x = 10, y = 20}, foo = 123}
+    ok{{x = 10, y = 20}, nil, {x = 33, y = 66}}
     fail{{x = 10, y = 20}, 'blabla'}
     fail{{x = 10, y = 20}, {x = 33}}
     fail{{x = 10, y = 20}, {x = 33, y = 'foo'}}
-    fail{{x = 10, y = 20}, nil, {x = 33, y = 66}}
-    fail{[123] = {x = 10, y = 20}}
 end
 
--- Mappings
+-- Maps
 
 do
-    s = schema.Mapping('number', 'string')
+    s = schema.Map(schema.Type'number', schema.Type'string')
 
     ok{}
     ok{"a", "b", "c"}
@@ -241,7 +242,7 @@ do
     fail{"a", "b", [77] = 123}
     fail{"a", "b", [3.14] = 123}
 
-    s = schema.Mapping(schema.Struct{x = 'number', y = 'number'}, schema.Struct{a = 'string', b = 'boolean'})
+    s = schema.Map(schema.Struct{x = schema.Type'number', y = schema.Type'number'}, schema.Struct{a = schema.Type'string', b = schema.Type'boolean'})
 
     ok{}
     ok{[{x=1,y=2}] = {a='foo', b=false}}

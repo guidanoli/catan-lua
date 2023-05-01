@@ -1,11 +1,15 @@
 require "util.safe"
 local serpent = require "serpent"
 
+local schema = require "util.schema"
+
 local Game = require "catan.logic.game"
-local GameSchema = require "catan.logic.schema"
+local Catan = require "catan.logic.schema"
 
 local function validate(g)
-    local ok, err = pcall(function() GameSchema:validate(g) end)
+    local ok, err = pcall(function()
+        schema:validate(Catan.GameState, g)
+    end)
     if not ok then
         print(serpent.block(g))
         error(err)

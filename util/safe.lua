@@ -1,9 +1,13 @@
---- Protects the global table from writes and misses
+---
+-- Protects the global table from writes and misses.
 --
 -- Emits a warning whenever one tries to read from or write to an unset key
 -- in the global table `_G`.
 --
--- This module can be useful to debug, as these events usually go unnoticed.
+--    require "util.safe"
+--
+--    print(foo) --> Lua warning: unset global variable foo
+--    bar = 123  --> Lua warning: set global variable bar to 123
 --
 -- @module util.safe
 

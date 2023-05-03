@@ -2,6 +2,8 @@
 
 project = 'Catan in Lua'
 
+format = 'markdown'
+
 file = {
     'catan',
     'util',

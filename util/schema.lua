@@ -93,11 +93,24 @@ function Schema:validate (t)
 end
 
 function Schema:_validateType (t)
-    return type(t) == self.child
+    if type(t) == self.child then
+        return true
+    else
+        return false, "", "not " .. self.child
+    end
 end
 
 function Schema:_validateOption (t)
-    return t == nil or self.child:validate(t)
+    if t == nil then
+        return true
+    else
+        local ok, path, err = self.child:validate(t)
+        if ok then
+            return true
+        else
+            return false, "!" .. path, err
+        end
+    end
 end
 
 function Schema:_validateEnum (t)
@@ -106,46 +119,52 @@ function Schema:_validateEnum (t)
             return true
         end
     end
-    return false
+    return false, "", "not in enum"
 end
 
 function Schema:_validateStruct (t)
     if type(t) == 'table' then
         for k, v in pairs(self.child) do
-            if not v:validate(t[k]) then
-                return false
+            local ok, path, err = v:validate(t[k])
+            if not ok then
+                return false, "." .. k .. path, err
             end
         end
         return true
     else
-        return false
+        return false, "", "not table"
     end
 end
 
 function Schema:_validateArray (t)
     if type(t) == 'table' then
         for i, v in ipairs(t) do
-            if not self.child:validate(v) then
-                return false
+            local ok, path, err = self.child:validate(v)
+            if not ok then
+                return false, "[" .. i .. "]" .. path, err
             end
         end
         return true
     else
-        return false
+        return false, "", "not table"
     end
 end
 
 function Schema:_validateMap (t)
     if type(t) == 'table' then
         for k, v in pairs(t) do
-            if not (self.key:validate(k) and
-                    self.value:validate(v)) then
-                return false
+            local ok1, path1, err1 = self.key:validate(k)
+            if not ok1 then
+                return false, "[k]" .. path1, err1
+            end
+            local ok2, path2, err2 = self.value:validate(v)
+            if not ok2 then
+                return false, "[v]" .. path2, err2
             end
         end
         return true
     else
-        return false
+        return false, "", "not table"
     end
 end
 
@@ -176,11 +195,12 @@ end
 
 ---
 -- Construct a "struct" schema.
--- @tparam table T a record of schemas
+-- @tparam table T a record of schemas with string keys
 -- @treturn Schema a schema that only accepts tables `t`,
 -- s.t. for all key-value pairs `(k,S)` in `T`, `S` accepts `t[k]`.
 function schema.Struct (T)
     assert(type(T) == "table", "not table")
+    for k in pairs(T) do assert(type(k) == "string", "non-string key") end
     return Schema:__new{ tag = 'STRUCT', child = T }
 end
 

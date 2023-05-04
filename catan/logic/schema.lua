@@ -132,12 +132,12 @@ m.GameState = s.Struct{
     -- players (dynamic)
     player = m.Player,
     devcards = PlayerMap(s.Array(m.DevelopmentCard)),
-    rescards = PlayerMap(m.ResourceCardHistogram),
+    rescards = PlayerMap(ResourceCardHistogram),
     largestroad = s.Option(m.Player),
     largestarmy = s.Option(m.Player),
     -- free cards
     drawpile = s.Array(m.DevelopmentCardKind),
-    bank = m.ResourceCardHistogram,
+    bank = ResourceCardHistogram,
 }
 
 return m

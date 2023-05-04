@@ -8,7 +8,7 @@ local Catan = require "catan.logic.schema"
 
 local function validate(g)
     local ok, err = pcall(function()
-        schema:validate(Catan.GameState, g)
+        Catan.GameState:validate(g)
     end)
     if not ok then
         print(serpent.block(g))

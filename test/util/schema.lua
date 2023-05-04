@@ -14,12 +14,12 @@ local function pprint(v)
 end
 
 local function ok(v)
-    assert(schema:validate(s, v))
+    assert(s:validate(v))
     print('ok...', pprint(v))
 end
 
 local function fail(v)
-    assert(not schema:validate(s, v))
+    assert(not s:validate(v))
     print('fail (expected)...', pprint(v))
 end
 

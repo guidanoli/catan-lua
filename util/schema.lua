@@ -161,6 +161,7 @@ local schema = {}
 -- @tparam string T the type string
 -- @treturn Schema a schema that only accepts objects of type `T`
 function schema.Type (T)
+    assert(type(T) == "string", "not string")
     return Schema:__new{ tag = 'TYPE', child = T }
 end
 
@@ -169,6 +170,7 @@ end
 -- @tparam table T an array of values
 -- @treturn Schema a schema that only accepts values in array `T`
 function schema.Enum (T)
+    assert(type(T) == "table", "not table")
     return Schema:__new{ tag = 'ENUM', child = T }
 end
 
@@ -178,6 +180,7 @@ end
 -- @treturn Schema a schema that only accepts tables `t`,
 -- s.t. for all key-value pairs `(k,S)` in `T`, `S` accepts `t[k]`.
 function schema.Struct (T)
+    assert(type(T) == "table", "not table")
     return Schema:__new{ tag = 'STRUCT', child = T }
 end
 
@@ -186,6 +189,7 @@ end
 -- @tparam Schema S
 -- @treturn Schema a schema that accepts `nil` and anything accepted by `S`.
 function schema.Option (S)
+    assert(Schema:__isinstance(S), "invalid schema")
     return Schema:__new{ tag = 'OPTION', child = S }
 end
 
@@ -195,6 +199,7 @@ end
 -- @treturn Schema a schema that only accepts tables `t`,
 -- s.t. for all index-value pairs `(i,v)` in `t`, `S` accepts `v`.
 function schema.Array (S)
+    assert(Schema:__isinstance(S), "invalid schema")
     return Schema:__new{ tag = 'ARRAY', child = S }
 end
 
@@ -206,6 +211,8 @@ end
 -- s.t. for all key-value pairs `(k,v)` in `t`,
 -- `Sk` accepts `k` and `Sv` accepts `v`.
 function schema.Map (Sk, Sv)
+    assert(Schema:__isinstance(Sk), "invalid key schema")
+    assert(Schema:__isinstance(Sv), "invalid value schema")
     return Schema:__new{ tag = 'MAP', key = Sk, value = Sv }
 end
 

@@ -13,10 +13,15 @@ local function new(Class, t)
     return setmetatable(t, Class)
 end
 
+local function isinstance(Class, t)
+    return Class == getmetatable(t)
+end
+
 return function (name)
     local Class = {}
     Class.__index = Class
     Class.__name = name
     Class.__new = new
+    Class.__isinstance = isinstance
     return Class
 end

@@ -7,8 +7,8 @@
 --
 --    print(Number:validate(10))   --> true
 --    print(Number:validate(3.14)) --> true
---    print(Number:validate"foo")  --> false
---    print(Number:validate(nil))  --> false
+--    print(Number:validate"foo")  --> false "" "not number"
+--    print(Number:validate(nil))  --> false "" "not number"
 --
 --    local Season = schema.Enum{
 --      "winter",
@@ -19,24 +19,24 @@
 --
 --    print(Season:validate"winter") --> true
 --    print(Season:validate"summer") --> true
---    print(Season:validate"frog")   --> false
---    print(Season:validate(123))    --> false
+--    print(Season:validate"frog")   --> false "" "not in enum"
+--    print(Season:validate(123))    --> false "" "not in enum"
 --
 --    local Point = schema.Struct{
 --      x = Number,
 --      y = Number,
 --    }
 --
---    print(Point:validate{x = 10, y = -20})            --> true
---    print(Point:validate{x = 10, y = -20, z = "foo"}) --> true
---    print(Point:validate{x = 10, y = 'foo'})          --> false
---    print(Point:validate{x = 10})                     --> false
+--    print(Point:validate{x = 10, y = -20})         --> true
+--    print(Point:validate{x = 10, y = -20, z = 0})  --> true
+--    print(Point:validate{x = 10, y = 'foo'})       --> false ".y" "not number"
+--    print(Point:validate{x = 10})                  --> false ".y" "not number"
 --
 --    local OptionalNumber = schema.Option(Number)
 --
 --    print(OptionalNumber:validate(10))   --> true
 --    print(OptionalNumber:validate(3.14)) --> true
---    print(OptionalNumber:validate"foo")  --> false
+--    print(OptionalNumber:validate"foo")  --> false "!" "not number"
 --    print(OptionalNumber:validate(nil))  --> true
 --
 --    local Points = schema.Array(Point)
@@ -45,20 +45,19 @@
 --    local p2 = {x = 30, y = 50}
 --    local p3 = {x = -40, y = 70}
 --
---    print(Points:validate{})                      --> true
---    print(Points:validate{p1})                    --> true
---    print(Points:validate{p1, p2, p3})            --> true
---    print(Points:validate{p1, p2, p3, foo = 123}) --> true
---    print(Points:validate{p1, nil, p3})           --> true
---    print(Points:validate{p1, 123, p3})           --> false
+--    print(Points:validate{})                  --> true
+--    print(Points:validate{p1})                --> true
+--    print(Points:validate{p1, p2, p3})        --> true
+--    print(Points:validate{p1, p2, p3, a = 1}) --> true
+--    print(Points:validate{p1, nil, p3})       --> true
+--    print(Points:validate{p1, 123, p3})       --> false "[2]" "not table"
 --
 --    local MinTemp = schema.Map(Season, Number)
 --
---    print(MinTemp:validate{})                             --> true
---    print(MinTemp:validate{winter = -10})                 --> true
---    print(MinTemp:validate{winter = -20, summer = 20})    --> true
---    print(MinTemp:validate{winter = -20, frog = 7})       --> false
---    print(MinTemp:validate{winter = -20, summer = "foo"}) --> false
+--    print(MinTemp:validate{})               --> true
+--    print(MinTemp:validate{winter = -10})   --> true
+--    print(MinTemp:validate{frog = 7})       --> false "[k]" "not in enum"
+--    print(MinTemp:validate{summer = "foo"}) --> false "[v]" "not number"
 --
 -- @module util.schema
 
@@ -86,6 +85,8 @@ local validator = {
 -- Validate an input against a schema
 -- @param t input
 -- @treturn boolean whether the schema accepted or rejected the input
+-- @treturn ?string the schema path where the error occurred (if first return is `false`)
+-- @treturn ?string the error message (if first return is `false`)
 function Schema:validate (t)
     local methodname = rawget(validator, self.tag)
     local method = self[methodname]

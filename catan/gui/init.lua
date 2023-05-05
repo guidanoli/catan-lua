@@ -2,14 +2,21 @@ local Game = require "catan.logic.game"
 
 local catan = {}
 
+-- Platform constants
+catan.PATHSEP = package.config:sub(1, 1)
+
 -- Environment variables
 catan.debug = os.getenv "DEBUG" ~= nil
 
+local function rgb (r, g, b)
+    return {r/255, g/255, b/255}
+end
+
 -- GUI Constants
-catan.DWIDTH = 1280
-catan.DHEIGHT = 720
+catan.DWIDTH = 900
+catan.DHEIGHT = 900
 catan.TITLE = "Settlers of Catan"
-catan.BGCOLOR = {0, 0, 1}
+catan.BGCOLOR = rgb(17, 78, 232)
 
 -- Rendering to-do list:
 --
@@ -23,6 +30,24 @@ catan.BGCOLOR = {0, 0, 1}
 -- 8) Settlements/Cities
 -- 9) Die
 
+function catan:loadImgDir (dir)
+    local t = {}
+    for i, item in ipairs(love.filesystem.getDirectoryItems(dir)) do
+        local path = dir .. self.PATHSEP .. item
+        local info = love.filesystem.getInfo(path)
+        local filetype = info.type
+        if filetype == 'file' then
+            local name, ext = item:match"(.-)%.?([^%.]*)$"
+            if ext:lower() == 'png' then
+                t[name] = love.graphics.newImage(path)
+            end
+        elseif filetype == 'directory' then
+            t[item] = self:loadImgDir(path)
+        end
+    end
+    return t
+end
+
 function catan:load ()
     love.window.setMode(self.DWIDTH, self.DHEIGHT)
     love.window.setTitle(self.TITLE)
@@ -33,8 +58,7 @@ function catan:load ()
     -- TODO: loading screen (choose players)
     self.game = Game:new()
 
-    self.images = {}
-    -- TODO: load images
+    self.images = self:loadImgDir"images"
 
     self.updatePending = true
 end

@@ -1,4 +1,5 @@
 local Game = require "catan.logic.game"
+local FaceMap = require "catan.logic.facemap"
 
 -- Lua 5.1 compat
 table.unpack = table.unpack or unpack
@@ -17,6 +18,7 @@ catan.DWIDTH = 900
 catan.DHEIGHT = 900
 catan.TITLE = "Settlers of Catan"
 catan.BGCOLOR = rgb(17, 78, 232)
+catan.HEXSIZE = 75
 
 -- Environment variables
 catan.debug = os.getenv "DEBUG" ~= nil
@@ -24,9 +26,9 @@ catan.debug = os.getenv "DEBUG" ~= nil
 -- Rendering to-do list:
 --
 -- 1) Sea background - OK
--- 2) Harbor ships
--- 3) Harbors
--- 4) Hex tiles
+-- 2) Hex tiles - OK
+-- 3) Harbor ships
+-- 4) Harbors
 -- 5) Numbers
 -- 6) Robber
 -- 7) Roads
@@ -67,7 +69,9 @@ function catan:load ()
 end
  
 function catan:draw ()
-    -- TODO: use cached info to draw stuff on the window
+    for i, sprite in ipairs(self.sprites) do
+        love.graphics.draw(table.unpack(sprite))
+    end
 end
 
 function catan:mousepressed (...)
@@ -78,9 +82,32 @@ function catan:keypressed (key)
     -- TODO: process key strokes
 end
 
+function catan:getFaceCenter (q, r)
+    local x0 = self.DWIDTH / 2
+    local y0 = self.DHEIGHT / 2
+    local size = self.HEXSIZE
+    local sqrt3 = math.sqrt(3)
+    local x = x0 + size * (sqrt3 * q + sqrt3 / 2 * r)
+    local y = y0 + size * (3. / 2 * r)
+    return x, y
+end
+
+function catan:updateSprites ()
+    self.sprites = {}
+    FaceMap:iter(self.game.hexmap, function (q, r, hex)
+        local xcenter, ycenter = self:getFaceCenter(q, r)
+        local img = assert(self.images.hex[hex], "missing hex sprite")
+        local w, h = img:getDimensions()
+        local s = self.HEXSIZE / (h / 2)
+        local x = xcenter - s * w / 2
+        local y = ycenter - s * h / 2
+        table.insert(self.sprites, {img, x, y, 0, s})
+    end)
+end
+
 function catan:update (dt)
     if self.updatePending then
-        -- TODO: update whatever needs to be updated
+        self:updateSprites()
         self.updatePending = false
     end
 

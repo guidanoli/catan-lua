@@ -14,7 +14,7 @@ local function rgb (r, g, b)
 end
 
 -- GUI Constants
-catan.DWIDTH = 900
+catan.DWIDTH = 1200
 catan.DHEIGHT = 900
 catan.TITLE = "Settlers of Catan"
 catan.BGCOLOR = rgb(17, 78, 232)

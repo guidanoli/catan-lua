@@ -2,11 +2,31 @@ local Game = require "catan.logic.game"
 
 local catan = {}
 
+-- Environment variables
 catan.debug = os.getenv "DEBUG" ~= nil
 
+-- GUI Constants
+catan.DWIDTH = 1280
+catan.DHEIGHT = 720
+catan.TITLE = "Settlers of Catan"
+catan.BGCOLOR = {0, 0, 1}
+
+-- Rendering to-do list:
+--
+-- 1) Sea background - OK
+-- 2) Harbor ships
+-- 3) Harbors
+-- 4) Hex tiles
+-- 5) Numbers
+-- 6) Robber
+-- 7) Roads
+-- 8) Settlements/Cities
+-- 9) Die
+
 function catan:load ()
-    love.window.setMode(1280, 720)
-    love.window.setTitle("Settlers of Catan")
+    love.window.setMode(self.DWIDTH, self.DHEIGHT)
+    love.window.setTitle(self.TITLE)
+    love.graphics.setBackgroundColor(self.BGCOLOR)
 
     math.randomseed(os.time())
 

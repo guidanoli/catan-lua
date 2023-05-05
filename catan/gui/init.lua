@@ -1,5 +1,8 @@
 local Game = require "catan.logic.game"
 
+-- Lua 5.1 compat
+table.unpack = table.unpack or unpack
+
 local catan = {}
 
 -- Platform constants

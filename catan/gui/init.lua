@@ -5,9 +5,6 @@ local catan = {}
 -- Platform constants
 catan.PATHSEP = package.config:sub(1, 1)
 
--- Environment variables
-catan.debug = os.getenv "DEBUG" ~= nil
-
 local function rgb (r, g, b)
     return {r/255, g/255, b/255}
 end
@@ -17,6 +14,9 @@ catan.DWIDTH = 900
 catan.DHEIGHT = 900
 catan.TITLE = "Settlers of Catan"
 catan.BGCOLOR = rgb(17, 78, 232)
+
+-- Environment variables
+catan.debug = os.getenv "DEBUG" ~= nil
 
 -- Rendering to-do list:
 --

@@ -5,6 +5,7 @@
 For end-users and developers:
 
 * [Lua] 5.4
+* [LÖVE] 11.4
 
 For developers:
 
@@ -34,6 +35,7 @@ This should load the configurations from the `config.ld` file. You can tinker wi
 * [Article "Amit's Thoughts on Grids" by Amit Patel (2006)](http://www-cs-students.stanford.edu/~amitp/game-programming/grids/)
 
 [Lua]: https://www.lua.org/
+[LÖVE]: https://love2d.org/
 [Serpent]: https://luarocks.org/modules/paulclinger/serpent
 [LDoc]: https://stevedonovan.github.io/ldoc/
 [LuaRocks]: https://luarocks.org/

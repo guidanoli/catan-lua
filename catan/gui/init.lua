@@ -68,7 +68,7 @@ catan.debug = os.getenv "DEBUG" ~= nil
 -- 3) Harbor ships - OK
 -- 4) Hex tiles - OK
 -- 5) Numbers - OK
--- 6) Robber
+-- 6) Robber - OK
 -- 7) Roads
 -- 8) Settlements/Cities
 -- 9) Die
@@ -280,6 +280,14 @@ function catan:constructSpriteList ()
         local s = (0.6 * self.HEXSIZE) / img:getHeight()
         addCentralizedSprite{img=img, x=x, y=y, sx=s}
     end)
+
+    -- Robber
+    do
+        local x, y = self:getFaceCenter(Grid:unpack(self.game.robber))
+        local img = self.images.robber
+        local s = (0.8 * self.HEXSIZE) / img:getHeight()
+        addCentralizedSprite{img=img, x=x, y=y, sx=s}
+    end
     
     return sprites
 end

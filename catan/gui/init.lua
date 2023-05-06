@@ -102,7 +102,7 @@ function catan:getVertexPos (q, r, v)
 end
 
 -- Returns angles for north-vertex and south-vertex in CCW degrees
-function catan:harbourAnglesFromOrientation (o)
+function catan:harborAnglesFromOrientation (o)
     if o == 'NE' then
         return 30, 90
     elseif o == 'NW' then
@@ -127,7 +127,7 @@ function catan:getJoinedFaceWithHex (edge)
     end
 end
 
-function catan:getHarbourAngles (vertex1, vertex2, edge)
+function catan:getHarborAngles (vertex1, vertex2, edge)
     -- First, we get the face joined by the edge
     -- which has a hex on top of it
     local face = self:getJoinedFaceWithHex(edge)
@@ -137,7 +137,7 @@ function catan:getHarbourAngles (vertex1, vertex2, edge)
     -- depending on the orientation of the edge
     -- in the neighbouring face with a hex
     local o = Grid:edgeOrientationInFace(face, edge)
-    local r1, r2 = self:harbourAnglesFromOrientation(o)
+    local r1, r2 = self:harborAnglesFromOrientation(o)
 
     -- Above, we assume vertex1 is a north-vertex and
     -- vertex2 is a south-vertex. If this is not true,
@@ -174,7 +174,7 @@ function catan:updateSprites ()
                     local x1, y1 = self:getVertexPos(q1, r1, v1)
                     local x2, y2 = self:getVertexPos(Grid:unpack(vertex2))
                     local edge = Grid:edgeInBetween(vertex1, vertex2)
-                    local a1, a2 = self:getHarbourAngles(vertex1, vertex2, edge)
+                    local a1, a2 = self:getHarborAngles(vertex1, vertex2, edge)
                     table.insert(self.sprites, {boardImg, x1, y1, a1, nil, nil, nil, oy})
                     table.insert(self.sprites, {boardImg, x2, y2, a2, nil, nil, nil, oy})
                 end

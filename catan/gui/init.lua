@@ -220,11 +220,11 @@ function catan:constructSpriteList ()
     local sprites = {}
 
     local function addSprite(t)
-        table.insert(sprites, {t.img, t.x, t.y, t.r, t.sx, t.sy, t.ox or 0, t.oy or 0})
+        table.insert(sprites, {t[1], t.x, t.y, t.r, t.sx, t.sy, t.ox or 0, t.oy or 0})
     end
 
     local function addCentralizedSprite(t)
-        local w, h = t.img:getDimensions()
+        local w, h = t[1]:getDimensions()
         local ox, oy = w/2, h/2
         t.ox = ox
         t.oy = oy
@@ -246,19 +246,19 @@ function catan:constructSpriteList ()
                     local x1, y1 = self:getVertexPos(q1, r1, v1)
                     local x2, y2 = self:getVertexPos(Grid:unpack(vertex2))
                     local a1, a2, edge = self:getHarborAngles(vertex1, vertex2)
-                    addSprite{img=boardImg, x=x1, y=y1, r=a1, oy=oy}
-                    addSprite{img=boardImg, x=x2, y=y2, r=a2, oy=oy}
+                    addSprite{boardImg, x=x1, y=y1, r=a1, oy=oy}
+                    addSprite{boardImg, x=x2, y=y2, r=a2, oy=oy}
 
                     local seaFace = self:getJoinedFaceWithoutHex(edge)
                     local x3, y3 = self:getFaceCenter(Grid:unpack(seaFace))
                     local shipImg = self:getShipImageFromHarbor(harbor)
-                    local shipOX, shipOY = addCentralizedSprite{img=shipImg, x=x3, y=y3}
+                    local shipOX, shipOY = addCentralizedSprite{shipImg, x=x3, y=y3}
                     local resImg = self.images.resource[harbor]
                     if resImg ~= nil then
                         local s = self.RESSIZE / resImg:getHeight()
                         local x4 = x3 - shipOX + self.RESOFFSET.x
                         local y4 = y3 - shipOY + self.RESOFFSET.y
-                        addSprite{img=resImg, x=x4, y=y4, sx=s}
+                        addSprite{resImg, x=x4, y=y4, sx=s}
                     end
                 end
             end
@@ -270,7 +270,7 @@ function catan:constructSpriteList ()
         local x, y = self:getFaceCenter(q, r)
         local img = assert(self.images.hex[hex], "missing hex sprite")
         local s = self.HEXSIZE / (img:getHeight() / 2)
-        addCentralizedSprite{img=img, x=x, y=y, sx=s}
+        addCentralizedSprite{img, x=x, y=y, sx=s}
     end)
 
     -- Number tokens
@@ -278,7 +278,7 @@ function catan:constructSpriteList ()
         local x, y = self:getFaceCenter(q, r)
         local img = assert(self.images.number[tostring(number)], "missing hex sprite")
         local s = (0.6 * self.HEXSIZE) / img:getHeight()
-        addCentralizedSprite{img=img, x=x, y=y, sx=s}
+        addCentralizedSprite{img, x=x, y=y, sx=s}
     end)
 
     -- Robber
@@ -286,9 +286,9 @@ function catan:constructSpriteList ()
         local x, y = self:getFaceCenter(Grid:unpack(self.game.robber))
         local img = self.images.robber
         local s = (0.8 * self.HEXSIZE) / img:getHeight()
-        addCentralizedSprite{img=img, x=x, y=y, sx=s}
+        addCentralizedSprite{img, x=x, y=y, sx=s}
     end
-    
+
     return sprites
 end
 

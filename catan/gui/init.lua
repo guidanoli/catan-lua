@@ -297,8 +297,6 @@ function catan:constructSpriteList ()
         addSprite{img, x=x, y=y, sx=s}
     end
 
-    addSprite{self.bottomText, x=10, y=(self.DWIDTH-10)}
-
     return sprites
 end
 

@@ -158,8 +158,8 @@ function catan:updateSprites ()
     -- Harbors
     do
         local visited = {}
-        local harborImg = self.images.harbor
-        local oy = harborImg:getHeight() / 2
+        local boardImg = self.images.harbor.board
+        local oy = boardImg:getHeight() / 2
         VertexMap:iter(self.game.harbormap, function (q1, r1, v1, harbor)
             local vertex1 = Grid:vertex(q1, r1, v1)
             VertexMap:set(visited, vertex1, true)
@@ -169,8 +169,8 @@ function catan:updateSprites ()
                     local x1, y1 = self:getVertexPos(q1, r1, v1)
                     local x2, y2 = self:getVertexPos(Grid:unpack(vertex2))
                     local a1, a2 = self:getHarbourAngles(vertex1, vertex2)
-                    table.insert(self.sprites, {harborImg, x1, y1, a1, nil, nil, nil, oy})
-                    table.insert(self.sprites, {harborImg, x2, y2, a2, nil, nil, nil, oy})
+                    table.insert(self.sprites, {boardImg, x1, y1, a1, nil, nil, nil, oy})
+                    table.insert(self.sprites, {boardImg, x2, y2, a2, nil, nil, nil, oy})
                 end
             end
         end)

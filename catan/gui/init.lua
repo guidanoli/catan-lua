@@ -28,8 +28,8 @@ catan.debug = os.getenv "DEBUG" ~= nil
 -- Rendering to-do list:
 --
 -- 1) Sea background - OK
--- 2) Hex tiles - OK
--- 3) Harbors - OK
+-- 2) Harbors - OK
+-- 3) Hex tiles - OK
 -- 4) Harbor ships
 -- 5) Numbers
 -- 6) Robber
@@ -166,16 +166,6 @@ end
 function catan:updateSprites ()
     self.sprites = {}
 
-    -- Hexes
-    FaceMap:iter(self.game.hexmap, function (q, r, hex)
-        local x, y = self:getFaceCenter(q, r)
-        local img = assert(self.images.hex[hex], "missing hex sprite")
-        local w, h = img:getDimensions()
-        local ox, oy = w / 2, h / 2
-        local s = self.HEXSIZE / (h / 2)
-        table.insert(self.sprites, {img, x, y, nil, s, nil, ox, oy})
-    end)
-
     -- Harbors
     do
         local visited = {}
@@ -196,6 +186,16 @@ function catan:updateSprites ()
             end
         end)
     end
+
+    -- Hexes
+    FaceMap:iter(self.game.hexmap, function (q, r, hex)
+        local x, y = self:getFaceCenter(q, r)
+        local img = assert(self.images.hex[hex], "missing hex sprite")
+        local w, h = img:getDimensions()
+        local ox, oy = w / 2, h / 2
+        local s = self.HEXSIZE / (h / 2)
+        table.insert(self.sprites, {img, x, y, nil, s, nil, ox, oy})
+    end)
 end
 
 function catan:update (dt)

@@ -157,8 +157,8 @@ function catan:getHarborAngles (vertex1, vertex2, edge)
     return r1, r2
 end
 
-function catan:updateSprites ()
-    self.sprites = {}
+function catan:constructSpriteList ()
+    local sprites = {}
 
     -- Harbors
     do
@@ -175,8 +175,8 @@ function catan:updateSprites ()
                     local x2, y2 = self:getVertexPos(Grid:unpack(vertex2))
                     local edge = Grid:edgeInBetween(vertex1, vertex2)
                     local a1, a2 = self:getHarborAngles(vertex1, vertex2, edge)
-                    table.insert(self.sprites, {boardImg, x1, y1, a1, nil, nil, nil, oy})
-                    table.insert(self.sprites, {boardImg, x2, y2, a2, nil, nil, nil, oy})
+                    table.insert(sprites, {boardImg, x1, y1, a1, nil, nil, nil, oy})
+                    table.insert(sprites, {boardImg, x2, y2, a2, nil, nil, nil, oy})
                 end
             end
         end)
@@ -189,13 +189,15 @@ function catan:updateSprites ()
         local w, h = img:getDimensions()
         local ox, oy = w / 2, h / 2
         local s = self.HEXSIZE / (h / 2)
-        table.insert(self.sprites, {img, x, y, nil, s, nil, ox, oy})
+        table.insert(sprites, {img, x, y, nil, s, nil, ox, oy})
     end)
+    
+    return sprites
 end
 
 function catan:update (dt)
     if self.updatePending then
-        self:updateSprites()
+        self.sprites = self:constructSpriteList()
         self.updatePending = false
     end
 

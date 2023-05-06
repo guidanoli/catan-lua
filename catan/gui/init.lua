@@ -40,11 +40,11 @@ function catan:loadImgDir (dir)
         local info = love.filesystem.getInfo(path)
         local filetype = info.type
         if filetype == 'file' then
-            local name, ext = item:match"(.-)%.?([^%.]*)$"
-            if ext:lower() == 'png' then
-                t[name] = love.graphics.newImage(path)
-            end
+            local name = item:match"(.-)%.?[^%.]*$"
+            assert(t[name] == nil, "key conflict")
+            t[name] = love.graphics.newImage(path)
         elseif filetype == 'directory' then
+            assert(t[item] == nil, "key conflict")
             t[item] = self:loadImgDir(path)
         end
     end

@@ -67,7 +67,7 @@ catan.debug = os.getenv "DEBUG" ~= nil
 -- 2) Harbors - OK
 -- 3) Harbor ships - OK
 -- 4) Hex tiles - OK
--- 5) Numbers
+-- 5) Numbers - OK
 -- 6) Robber
 -- 7) Roads
 -- 8) Settlements/Cities
@@ -270,6 +270,14 @@ function catan:constructSpriteList ()
         local x, y = self:getFaceCenter(q, r)
         local img = assert(self.images.hex[hex], "missing hex sprite")
         local s = self.HEXSIZE / (img:getHeight() / 2)
+        addCentralizedSprite{img=img, x=x, y=y, sx=s}
+    end)
+
+    -- Number tokens
+    FaceMap:iter(self.game.numbermap, function (q, r, number)
+        local x, y = self:getFaceCenter(q, r)
+        local img = assert(self.images.number[tostring(number)], "missing hex sprite")
+        local s = (0.6 * self.HEXSIZE) / img:getHeight()
         addCentralizedSprite{img=img, x=x, y=y, sx=s}
     end)
     

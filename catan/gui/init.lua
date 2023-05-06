@@ -119,17 +119,19 @@ function catan:harbourAnglesFromOrientation (o)
     end
 end
 
-function catan:getHarbourAngles (vertex1, vertex2)
-    local edge = Grid:edgeInBetween(vertex1, vertex2)
-
-    -- Here, we find the neighbouring face with a hex
-    local face
+function catan:getJoinedFaceWithHex (edge)
     for i, joinedFace in ipairs(Grid:joins(edge)) do
         if FaceMap:get(self.game.hexmap, joinedFace) then
-            face = joinedFace
+            return joinedFace
         end
     end
-    assert(face ~= nil, "no neighbouring hex")
+end
+
+function catan:getHarbourAngles (vertex1, vertex2, edge)
+    -- First, we get the face joined by the edge
+    -- which has a hex on top of it
+    local face = self:getJoinedFaceWithHex(edge)
+    assert(face ~= nil, "no joined face with hex")
 
     -- Now we calculate the angle of each harbor
     -- depending on the orientation of the edge
@@ -168,7 +170,8 @@ function catan:updateSprites ()
                 if VertexMap:get(visited, vertex2) then
                     local x1, y1 = self:getVertexPos(q1, r1, v1)
                     local x2, y2 = self:getVertexPos(Grid:unpack(vertex2))
-                    local a1, a2 = self:getHarbourAngles(vertex1, vertex2)
+                    local edge = Grid:edgeInBetween(vertex1, vertex2)
+                    local a1, a2 = self:getHarbourAngles(vertex1, vertex2, edge)
                     table.insert(self.sprites, {boardImg, x1, y1, a1, nil, nil, nil, oy})
                     table.insert(self.sprites, {boardImg, x2, y2, a2, nil, nil, nil, oy})
                 end

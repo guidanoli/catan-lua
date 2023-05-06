@@ -160,6 +160,10 @@ end
 function catan:constructSpriteList ()
     local sprites = {}
 
+    local function addSprite(t)
+        table.insert(sprites, {t.img, t.x, t.y, t.r, t.sx or t.s, t.sy, t.ox, t.oy})
+    end
+
     -- Harbors
     do
         local visited = {}
@@ -175,8 +179,8 @@ function catan:constructSpriteList ()
                     local x2, y2 = self:getVertexPos(Grid:unpack(vertex2))
                     local edge = Grid:edgeInBetween(vertex1, vertex2)
                     local a1, a2 = self:getHarborAngles(vertex1, vertex2, edge)
-                    table.insert(sprites, {boardImg, x1, y1, a1, nil, nil, nil, oy})
-                    table.insert(sprites, {boardImg, x2, y2, a2, nil, nil, nil, oy})
+                    addSprite{img=boardImg, x=x1, y=y1, r=a1, oy=oy}
+                    addSprite{img=boardImg, x=x2, y=y2, r=a2, oy=oy}
                 end
             end
         end)
@@ -189,7 +193,7 @@ function catan:constructSpriteList ()
         local w, h = img:getDimensions()
         local ox, oy = w / 2, h / 2
         local s = self.HEXSIZE / (h / 2)
-        table.insert(sprites, {img, x, y, nil, s, nil, ox, oy})
+        addSprite{img=img, x=x, y=y, s=s, ox=ox, oy=oy}
     end)
     
     return sprites

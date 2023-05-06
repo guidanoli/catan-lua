@@ -167,6 +167,13 @@ function catan:constructSpriteList ()
         table.insert(sprites, {t.img, t.x, t.y, t.r, t.sx or t.s, t.sy, t.ox, t.oy})
     end
 
+    local function addCentralizedSprite(t)
+        local w, h = t.img:getDimensions()
+        t.ox = w / 2
+        t.oy = h / 2
+        addSprite(t)
+    end
+
     -- Harbors
     do
         local visited = {}
@@ -192,10 +199,8 @@ function catan:constructSpriteList ()
     FaceMap:iter(self.game.hexmap, function (q, r, hex)
         local x, y = self:getFaceCenter(q, r)
         local img = assert(self.images.hex[hex], "missing hex sprite")
-        local w, h = img:getDimensions()
-        local ox, oy = w / 2, h / 2
-        local s = self.HEXSIZE / (h / 2)
-        addSprite{img=img, x=x, y=y, s=s, ox=ox, oy=oy}
+        local s = self.HEXSIZE / (img:getHeight() / 2)
+        addCentralizedSprite{img=img, x=x, y=y, s=s}
     end)
     
     return sprites

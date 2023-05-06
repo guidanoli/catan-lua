@@ -127,8 +127,11 @@ function catan:getJoinedFaceWithHex (edge)
     end
 end
 
-function catan:getHarborAngles (vertex1, vertex2, edge)
-    -- First, we get the face joined by the edge
+function catan:getHarborAngles (vertex1, vertex2)
+    -- First, we get the edge between the vertices
+    local edge = Grid:edgeInBetween(vertex1, vertex2)
+
+    -- Then, we get the face joined by the edge
     -- which has a hex on top of it
     local face = self:getJoinedFaceWithHex(edge)
     assert(face ~= nil, "no joined face with hex")
@@ -154,7 +157,7 @@ function catan:getHarborAngles (vertex1, vertex2, edge)
     r1 = gutil:ccwdeg2cwrad(r1)
     r2 = gutil:ccwdeg2cwrad(r2)
 
-    return r1, r2
+    return r1, r2, edge
 end
 
 function catan:constructSpriteList ()
@@ -177,8 +180,7 @@ function catan:constructSpriteList ()
                 if VertexMap:get(visited, vertex2) then
                     local x1, y1 = self:getVertexPos(q1, r1, v1)
                     local x2, y2 = self:getVertexPos(Grid:unpack(vertex2))
-                    local edge = Grid:edgeInBetween(vertex1, vertex2)
-                    local a1, a2 = self:getHarborAngles(vertex1, vertex2, edge)
+                    local a1, a2, edge = self:getHarborAngles(vertex1, vertex2)
                     addSprite{img=boardImg, x=x1, y=y1, r=a1, oy=oy}
                     addSprite{img=boardImg, x=x2, y=y2, r=a2, oy=oy}
                 end

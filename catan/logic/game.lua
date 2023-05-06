@@ -4,6 +4,7 @@ local Constants = require "catan.logic.constants"
 local Grid = require "catan.logic.grid"
 local FaceMap = require "catan.logic.facemap"
 local VertexMap = require "catan.logic.vertexmap"
+local EdgeMap = require "catan.logic.edgemap"
 
 --------------------------------
 
@@ -120,6 +121,112 @@ function Game:_createBank ()
     for rescard, count in pairs(Constants.rescards) do
         self.bank[rescard] = count
     end
+end
+
+--------------------------------
+-- Actions
+--------------------------------
+
+function Game:placeSettlement (vertex)
+    self:_assertPhaseIs"settingUp"
+    self:_assertHasntPlacedSettlementYet()
+    self:_assertCanBuildInVertex(vertex)
+
+    local building = {}
+    VertexMap:set(self.buildmap, vertex, {})
+end
+
+--------------------------------
+-- Checks
+--------------------------------
+
+function Game:_assertPhaseIs (expectedPhase)
+    if not (self.phase == expectedPhase) then
+        error{
+            kind = "InvalidPhase",
+            expected = expectedPhase,
+            obtained = self.phase,
+        }
+    end
+end
+
+function Game:_assertHasntPlacedSettlementYet (n)
+    if not (self:_numberOfBuildings() < self.round) then
+        error{
+            kind = "AlreadyPlacedSettlement",
+        }
+    end
+end
+
+function Game:_assertCanBuildInVertex (vertex)
+    if not self:_isVertexCornerOfSomeHex(vertex) then
+        error{
+            kind = "VertexNotCornerOfHex",
+            vertex = vertex,
+        }
+    end
+    if VertexMap:get(self.buildmap, vertex) then
+        error{
+            kind = "VertexHasBuilding",
+            vertex = vertex,
+        }
+    end
+    if self:_isVertexAdjacentToSomeBuilding(vertex) then
+        error{
+            kind = "VertexAdjacentToBuilding",
+            vertex = vertex,
+        }
+    end
+end
+
+--------------------------------
+-- Auxiliary functions
+--------------------------------
+
+function Game:_numberOfBuildings ()
+    local n = 0
+    VertexMap:iter(self.buildmap, function (q, r, v, building)
+        if building.player == self.player then
+            n = n + 1
+        end
+    end)
+    return n
+end
+
+function Game:_isVertexCornerOfSomeHex (vertex)
+    local found = false
+    FaceMap:iter(self.hexmap, function (q, r, hex)
+        local face = Grid:face(q, r)
+        local corners = Grid:corners(face)
+        for _, corner in ipairs(corners) do
+            if Grid:vertexEq(corner, vertex) then
+                found = true
+                return true -- stop iteration
+            end
+        end
+    end)
+    return found
+end
+
+function Game:_isVertexAdjacentToSomeBuilding (vertex)
+    local adjacentVertices = Grid:adjacentVertices(vertex)
+    for _, adjacentVertex in ipairs(adjacentVertices) do
+        if VertexMap:get(self.buildmap, adjacentVertex) then
+            return true -- stop iteration
+        end
+    end
+    return false
+end
+
+function Game:_isVertexNearPlayersRoad (vertex)
+    local protrudingEdges = Grid:protrudingEdges(vertex)
+    for _, protrudingEdge in ipairs(protrudingEdges) do
+        local road = EdgeMap:get(self.roadmap, protrudingEdge)
+        if road == self.player then
+            return true -- stop iteration
+        end
+    end
+    return false
 end
 
 --------------------------------

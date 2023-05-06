@@ -289,6 +289,16 @@ function catan:constructSpriteList ()
         addCentralizedSprite{img, x=x, y=y, sx=s}
     end
 
+    -- Sidebar
+    do
+        local x, y = self.DWIDTH * 0.65, 0
+        local img = self.images.sidebar
+        local s = self.DHEIGHT / img:getHeight()
+        addSprite{img, x=x, y=y, sx=s}
+    end
+
+    addSprite{self.bottomText, x=10, y=(self.DWIDTH-10)}
+
     return sprites
 end
 

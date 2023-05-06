@@ -22,7 +22,7 @@ local catan = {}
 
 ---
 -- Display width
-catan.DWIDTH = 1200
+catan.DWIDTH = 1400
 
 ---
 -- Display height
@@ -121,8 +121,8 @@ function catan:keypressed (key)
 end
 
 function catan:getFaceCenter (q, r)
-    local x0 = self.DWIDTH / 2
-    local y0 = self.DHEIGHT / 2
+    local x0 = self.DWIDTH * 0.3
+    local y0 = self.DHEIGHT * 0.5
     local size = self.HEXSIZE
     local sqrt3 = math.sqrt(3)
     local x = x0 + size * (sqrt3 * q + sqrt3 / 2 * r)

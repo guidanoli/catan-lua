@@ -25,8 +25,8 @@ catan.debug = os.getenv "DEBUG" ~= nil
 --
 -- 1) Sea background - OK
 -- 2) Harbors - OK
--- 3) Hex tiles - OK
--- 4) Harbor ships
+-- 3) Harbor ships
+-- 4) Hex tiles - OK
 -- 5) Numbers
 -- 6) Robber
 -- 7) Roads
@@ -127,6 +127,14 @@ function catan:getJoinedFaceWithHex (edge)
     end
 end
 
+function catan:getJoinedFaceWithoutHex (edge)
+    for i, joinedFace in ipairs(Grid:joins(edge)) do
+        if not FaceMap:get(self.game.hexmap, joinedFace) then
+            return joinedFace
+        end
+    end
+end
+
 function catan:getHarborAngles (vertex1, vertex2)
     -- First, we get the edge between the vertices
     local edge = Grid:edgeInBetween(vertex1, vertex2)
@@ -160,6 +168,14 @@ function catan:getHarborAngles (vertex1, vertex2)
     return r1, r2, edge
 end
 
+function catan:getShipImageFromHarbor (harbor)
+    if harbor == 'generic' then
+        return self.images.harbor.ship3to1
+    else
+        return self.images.harbor.ship2to1
+    end
+end
+
 function catan:constructSpriteList ()
     local sprites = {}
 
@@ -190,6 +206,11 @@ function catan:constructSpriteList ()
                     local a1, a2, edge = self:getHarborAngles(vertex1, vertex2)
                     addSprite{img=boardImg, x=x1, y=y1, r=a1, oy=oy}
                     addSprite{img=boardImg, x=x2, y=y2, r=a2, oy=oy}
+
+                    local seaFace = self:getJoinedFaceWithoutHex(edge)
+                    local x3, y3 = self:getFaceCenter(Grid:unpack(seaFace))
+                    local shipImg = self:getShipImageFromHarbor(harbor)
+                    addCentralizedSprite{img=shipImg, x=x3, y=y3, s=0.75}
                 end
             end
         end)

@@ -95,13 +95,12 @@ end
 function catan:updateSprites ()
     self.sprites = {}
     FaceMap:iter(self.game.hexmap, function (q, r, hex)
-        local xcenter, ycenter = self:getFaceCenter(q, r)
+        local x, y = self:getFaceCenter(q, r)
         local img = assert(self.images.hex[hex], "missing hex sprite")
         local w, h = img:getDimensions()
+        local ox, oy = w / 2, h / 2
         local s = self.HEXSIZE / (h / 2)
-        local x = xcenter - s * w / 2
-        local y = ycenter - s * h / 2
-        table.insert(self.sprites, {img, x, y, 0, s})
+        table.insert(self.sprites, {img, x, y, nil, s, nil, ox, oy})
     end)
 end
 

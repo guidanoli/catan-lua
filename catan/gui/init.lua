@@ -1,3 +1,8 @@
+---
+-- Renders a game of Catan using LÖVE2D.
+--
+-- @module catan.gui
+
 require "util.compat"
 
 local platform = require "util.platform"
@@ -11,23 +16,56 @@ local gutil = require "catan.gui.util"
 
 local catan = {}
 
+-------------------------
 -- GUI Constants
+-------------------------
+
+---
+-- Display width
 catan.DWIDTH = 1200
+
+---
+-- Display height
 catan.DHEIGHT = 900
+
+---
+-- Display title
 catan.TITLE = "Settlers of Catan"
+
+---
+-- Background color
+-- @tfield number r red component
+-- @tfield number g green component
+-- @tfield number b blue component
 catan.BGCOLOR = gutil:rgb(17, 78, 232)
+
+---
+-- Hexagon size (radius of the circumscribed circle)
 catan.HEXSIZE = 75
+
+---
+-- Size of resource inside ship
 catan.RESSIZE = 25
+
+---
+-- Offset of resource inside ship
+-- @tfield number x horizontal offset
+-- @tfield number y vertical offset
 catan.RESOFFSET = {x = 30, y = 15}
 
+-------------------------
 -- Environment variables
+-------------------------
+
+---
+-- Debug mode
 catan.debug = os.getenv "DEBUG" ~= nil
 
 -- Rendering to-do list:
 --
 -- 1) Sea background - OK
 -- 2) Harbors - OK
--- 3) Harbor ships
+-- 3) Harbor ships - OK
 -- 4) Hex tiles - OK
 -- 5) Numbers
 -- 6) Robber

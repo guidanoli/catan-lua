@@ -1,25 +1,21 @@
+require "util.compat"
+
+local platform = require "util.platform"
+
 local Game = require "catan.logic.game"
 local FaceMap = require "catan.logic.facemap"
 local VertexMap = require "catan.logic.vertexmap"
 local Grid = require "catan.logic.grid"
 
--- Lua 5.1 compat
-table.unpack = table.unpack or unpack
+local gutil = require "catan.gui.util"
 
 local catan = {}
-
--- Platform constants
-catan.PATHSEP = package.config:sub(1, 1)
-
-local function rgb (r, g, b)
-    return {r/255, g/255, b/255}
-end
 
 -- GUI Constants
 catan.DWIDTH = 1200
 catan.DHEIGHT = 900
 catan.TITLE = "Settlers of Catan"
-catan.BGCOLOR = rgb(17, 78, 232)
+catan.BGCOLOR = gutil:rgb(17, 78, 232)
 catan.HEXSIZE = 75
 
 -- Environment variables
@@ -40,7 +36,7 @@ catan.debug = os.getenv "DEBUG" ~= nil
 function catan:loadImgDir (dir)
     local t = {}
     for i, item in ipairs(love.filesystem.getDirectoryItems(dir)) do
-        local path = dir .. self.PATHSEP .. item
+        local path = dir .. platform.PATH_SEPARATOR .. item
         local info = love.filesystem.getInfo(path)
         local filetype = info.type
         if filetype == 'file' then
@@ -105,14 +101,7 @@ function catan:getVertexPos (q, r, v)
     return x, y
 end
 
--- Convert degrees to radians (x pi/180) and
--- corrects the direction of increasing angles (x -1)
-function catan:deg2rad (a)
-    return - math.pi * a / 180.
-end
-
--- Returns angles for north-vertex and south-vertex
--- in degrees (and assuming anti-clockwise direction)
+-- Returns angles for north-vertex and south-vertex in CCW degrees
 function catan:harbourAnglesFromOrientation (o)
     if o == 'NE' then
         return 30, 90
@@ -156,9 +145,9 @@ function catan:getHarbourAngles (vertex1, vertex2)
         r1, r2 = r2, r1
     end
 
-    -- Now, we convert degrees to radians
-    r1 = self:deg2rad(r1)
-    r2 = self:deg2rad(r2)
+    -- Now, we convert CCW degrees to CW radians
+    r1 = gutil:ccwdeg2cwrad(r1)
+    r2 = gutil:ccwdeg2cwrad(r2)
 
     return r1, r2
 end

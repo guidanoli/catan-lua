@@ -144,7 +144,10 @@ function catan:getHarbourAngles (vertex1, vertex2, edge)
     -- we swap r1 and r2.
     if vertex1.v ~= 'N' then
         assert(vertex1.v == 'S')
+        assert(vertex2.v == 'N')
         r1, r2 = r2, r1
+    else
+        assert(vertex2.v == 'S')
     end
 
     -- Now, we convert CCW degrees to CW radians

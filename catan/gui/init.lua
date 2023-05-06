@@ -17,6 +17,8 @@ catan.DHEIGHT = 900
 catan.TITLE = "Settlers of Catan"
 catan.BGCOLOR = gutil:rgb(17, 78, 232)
 catan.HEXSIZE = 75
+catan.RESSIZE = 25
+catan.RESOFFSET = {x = 30, y = 15}
 
 -- Environment variables
 catan.debug = os.getenv "DEBUG" ~= nil
@@ -180,7 +182,7 @@ function catan:constructSpriteList ()
     local sprites = {}
 
     local function addSprite(t)
-        table.insert(sprites, {t.img, t.x, t.y, t.r, t.sx or t.s, t.sy, t.ox, t.oy})
+        table.insert(sprites, {t.img, t.x, t.y, t.r, t.sx, t.sy, t.ox or 0, t.oy or 0})
     end
 
     local function addCentralizedSprite(t)
@@ -210,7 +212,14 @@ function catan:constructSpriteList ()
                     local seaFace = self:getJoinedFaceWithoutHex(edge)
                     local x3, y3 = self:getFaceCenter(Grid:unpack(seaFace))
                     local shipImg = self:getShipImageFromHarbor(harbor)
-                    addCentralizedSprite{img=shipImg, x=x3, y=y3, s=0.75}
+                    addCentralizedSprite{img=shipImg, x=x3, y=y3}
+                    local resImg = self.images.resource[harbor]
+                    if resImg ~= nil then
+                        local s = self.RESSIZE / resImg:getHeight()
+                        local x4 = x3 - shipImg:getWidth() / 2 + self.RESOFFSET.x
+                        local y4 = y3 - shipImg:getHeight() / 2 + self.RESOFFSET.y
+                        addSprite{img=resImg, x=x4, y=y4, sx=s}
+                    end
                 end
             end
         end)
@@ -221,7 +230,7 @@ function catan:constructSpriteList ()
         local x, y = self:getFaceCenter(q, r)
         local img = assert(self.images.hex[hex], "missing hex sprite")
         local s = self.HEXSIZE / (img:getHeight() / 2)
-        addCentralizedSprite{img=img, x=x, y=y, s=s}
+        addCentralizedSprite{img=img, x=x, y=y, sx=s}
     end)
     
     return sprites

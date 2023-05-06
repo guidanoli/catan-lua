@@ -225,9 +225,11 @@ function catan:constructSpriteList ()
 
     local function addCentralizedSprite(t)
         local w, h = t.img:getDimensions()
-        t.ox = w / 2
-        t.oy = h / 2
+        local ox, oy = w/2, h/2
+        t.ox = ox
+        t.oy = oy
         addSprite(t)
+        return ox, oy
     end
 
     -- Harbors
@@ -250,12 +252,12 @@ function catan:constructSpriteList ()
                     local seaFace = self:getJoinedFaceWithoutHex(edge)
                     local x3, y3 = self:getFaceCenter(Grid:unpack(seaFace))
                     local shipImg = self:getShipImageFromHarbor(harbor)
-                    addCentralizedSprite{img=shipImg, x=x3, y=y3}
+                    local shipOX, shipOY = addCentralizedSprite{img=shipImg, x=x3, y=y3}
                     local resImg = self.images.resource[harbor]
                     if resImg ~= nil then
                         local s = self.RESSIZE / resImg:getHeight()
-                        local x4 = x3 - shipImg:getWidth() / 2 + self.RESOFFSET.x
-                        local y4 = y3 - shipImg:getHeight() / 2 + self.RESOFFSET.y
+                        local x4 = x3 - shipOX + self.RESOFFSET.x
+                        local y4 = y3 - shipOY + self.RESOFFSET.y
                         addSprite{img=resImg, x=x4, y=y4, sx=s}
                     end
                 end

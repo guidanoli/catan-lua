@@ -267,10 +267,11 @@ function catan:constructSpriteList ()
 
     -- Sidebar
     do
-        local x, y = W * 0.65, 0
+        local x, y = W, 0
         local img = self.images.sidebar
-        local s = H / img:getHeight()
-        addSprite{img, x=x, y=y, sx=s}
+        local w, h = img:getDimensions()
+        local s = H / h
+        addSprite{img, x=W, y=0, sx=s, ox=w}
     end
 
     return sprites

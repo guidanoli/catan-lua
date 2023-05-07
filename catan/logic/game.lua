@@ -1,3 +1,4 @@
+local Class = require "util.class"
 local TableUtils = require "util.table"
 
 local Constants = require "catan.logic.constants"
@@ -8,8 +9,7 @@ local EdgeMap = require "catan.logic.edgemap"
 
 --------------------------------
 
-local Game = {}
-Game.__index = Game
+local Game = Class "Game"
 
 --------------------------------
 -- Constructor
@@ -17,7 +17,7 @@ Game.__index = Game
 
 function Game:new (players)
     players = players or Constants.players
-    local game = setmetatable({}, self)
+    local game = Game:__new{}
     game:_init(players)
     return game
 end

@@ -243,7 +243,7 @@ function catan:constructSpriteList ()
 
     -- Number tokens
     FaceMap:iter(self.game.numbermap, function (q, r, number)
-        local img = assert(self.images.number[tostring(number)], "missing hex sprite")
+        local img = assert(self.images.number[tostring(number)], "missing token sprite")
         local x, y = self:getFaceCenter(q, r)
         local s = (0.6 * hexsize) / img:getHeight()
         addSprite{img, x=x, y=y, sx=s, center=true}

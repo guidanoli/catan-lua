@@ -65,6 +65,8 @@ function catan:load ()
 
     self.images = self:loadImgDir"images"
 
+    self.font = love.graphics.newFont(20)
+
     self.updatePending = true
 end
 
@@ -273,13 +275,15 @@ function catan:constructSpriteList ()
 
         local function addItemSprite (img)
             local sprite = addSprite{img, x=itemX, y=itemY, xalign='center'}
+            local x = itemX
             itemX = itemX + sprite:getWidth() + ITEM_XSEP
+            return x
         end
 
-        addItemSprite(self.images.card.res.back)
-        addItemSprite(self.images.card.dev.back)
-        addItemSprite(self.images.card.dev.knight)
-        addItemSprite(self.images.card.dev.road)
+        local RES_X = addItemSprite(self.images.card.res.back)
+        local DEV_X = addItemSprite(self.images.card.dev.back)
+        local KNIGHT_X = addItemSprite(self.images.card.dev.knight)
+        local ROAD_X = addItemSprite(self.images.card.dev.road)
 
         local PLAYERS_OX = 57
         local PLAYERS_OY = 48
@@ -290,6 +294,16 @@ function catan:constructSpriteList ()
 
         local boxImg = self.images.playerbox
 
+        local TEXT_OY = boxImg:getHeight() / 2
+
+        local BLACK = {0, 0, 0}
+
+        local function addCenteredTextSprite (textstring, x)
+            local text = love.graphics.newText(self.font, {BLACK, textstring})
+            local y = playerY + TEXT_OY
+            addSprite{text, x=x, y=y, center=true}
+        end
+
         for i, player in ipairs(self.game.players) do
             if player == self.game.player then
                 addSprite{boxImg, x=playerX, y=playerY}
@@ -297,6 +311,10 @@ function catan:constructSpriteList ()
 
             local circleImg = assert(self.images.circle[player], "missing circle sprite")
             local sprite = addSprite{circleImg, x=playerX, y=playerY}
+            addCenteredTextSprite("0", RES_X)
+            addCenteredTextSprite("0", DEV_X)
+            addCenteredTextSprite("0", KNIGHT_X)
+            addCenteredTextSprite("0", ROAD_X)
 
             playerY = playerY + sprite:getHeight() + PLAYERS_YSEP
         end

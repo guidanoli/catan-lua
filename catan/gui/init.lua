@@ -207,8 +207,8 @@ function catan:constructSpriteList ()
 
     -- Harbors
     do
-        local visited = {}
         local boardImg = self.images.harbor.board
+        local visited = {}
         local oy = boardImg:getHeight() / 2
         local RES_SIZE = 25 -- size of resource
         local RES_OX = 30 -- x-offset of resource
@@ -243,32 +243,32 @@ function catan:constructSpriteList ()
 
     -- Hexes
     FaceMap:iter(self.game.hexmap, function (q, r, hex)
-        local x, y = self:getFaceCenter(q, r)
         local img = assert(self.images.hex[hex], "missing hex sprite")
+        local x, y = self:getFaceCenter(q, r)
         local s = hexsize / (img:getHeight() / 2)
         addCentralizedSprite{img, x=x, y=y, sx=s}
     end)
 
     -- Number tokens
     FaceMap:iter(self.game.numbermap, function (q, r, number)
-        local x, y = self:getFaceCenter(q, r)
         local img = assert(self.images.number[tostring(number)], "missing hex sprite")
+        local x, y = self:getFaceCenter(q, r)
         local s = (0.6 * hexsize) / img:getHeight()
         addCentralizedSprite{img, x=x, y=y, sx=s}
     end)
 
     -- Robber
     do
-        local x, y = self:getFaceCenter(Grid:unpack(self.game.robber))
         local img = self.images.robber
+        local x, y = self:getFaceCenter(Grid:unpack(self.game.robber))
         local s = (0.8 * hexsize) / img:getHeight()
         addCentralizedSprite{img, x=x, y=y, sx=s}
     end
 
     -- Sidebar
     do
-        local x, y = W, 0
         local img = self.images.sidebar
+        local x, y = W, 0
         local w, h = img:getDimensions()
         local s = H / h
         addSprite{img, x=W, y=0, sx=s, ox=w}

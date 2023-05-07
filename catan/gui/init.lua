@@ -259,10 +259,47 @@ function catan:constructSpriteList ()
 
     -- Sidebar
     do
-        local img = self.images.sidebar
-        local x, y = W, 0
-        local s = H / img:getHeight()
-        addSprite{img, x=W, y=0, sx=s, xalign='right'}
+        local sidebarImg = self.images.sidebar
+        local s = H / sidebarImg:getHeight()
+        local sidebarSprite = addSprite{sidebarImg, x=W, y=0, sx=s, xalign='right'}
+        local sidebarX, sidebarY = sidebarSprite:getCoords()
+
+        local ITEM_OX = 120
+        local ITEM_OY = 5
+        local ITEM_XSEP = 26
+
+        local itemX = sidebarX + ITEM_OX * s
+        local itemY = sidebarY + ITEM_OY * s
+
+        local function addItemSprite (img)
+            local sprite = addSprite{img, x=itemX, y=itemY, xalign='center'}
+            itemX = itemX + sprite:getWidth() + ITEM_XSEP
+        end
+
+        addItemSprite(self.images.card.res.back)
+        addItemSprite(self.images.card.dev.back)
+        addItemSprite(self.images.card.dev.knight)
+        addItemSprite(self.images.card.dev.road)
+
+        local PLAYERS_OX = 57
+        local PLAYERS_OY = 48
+        local PLAYERS_YSEP = 14
+
+        local playerX = sidebarX + PLAYERS_OX * s
+        local playerY = sidebarY + PLAYERS_OY * s
+
+        local boxImg = self.images.playerbox
+
+        for i, player in ipairs(self.game.players) do
+            if player == self.game.player then
+                addSprite{boxImg, x=playerX, y=playerY}
+            end
+
+            local circleImg = assert(self.images.circle[player], "missing circle sprite")
+            local sprite = addSprite{circleImg, x=playerX, y=playerY}
+
+            playerY = playerY + sprite:getHeight() + PLAYERS_YSEP
+        end
     end
 
     return sprites

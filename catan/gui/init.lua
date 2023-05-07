@@ -21,29 +21,6 @@ local catan = {}
 -------------------------
 
 ---
--- Display width
-catan.DWIDTH = 1400
-
----
--- Display height
-catan.DHEIGHT = 900
-
----
--- Display title
-catan.TITLE = "Settlers of Catan"
-
----
--- Background color
--- @tfield number r red component
--- @tfield number g green component
--- @tfield number b blue component
-catan.BGCOLOR = gutil:rgb(17, 78, 232)
-
----
--- Hexagon size (radius of the circumscribed circle)
-catan.HEXSIZE = 75
-
----
 -- Size of resource inside ship
 catan.RESSIZE = 25
 
@@ -92,9 +69,9 @@ function catan:loadImgDir (dir)
 end
 
 function catan:load ()
-    love.window.setMode(self.DWIDTH, self.DHEIGHT)
-    love.window.setTitle(self.TITLE)
-    love.graphics.setBackgroundColor(self.BGCOLOR)
+    love.window.setMode(1400, 900)
+    love.window.setTitle"Settlers of Catan"
+    love.graphics.setBackgroundColor(gutil:rgb(17, 78, 232))
 
     math.randomseed(os.time())
 
@@ -120,23 +97,30 @@ function catan:keypressed (key)
     -- TODO: process key strokes
 end
 
+function catan:getHexSize ()
+    local W, H = love.window.getMode()
+    return H / 12
+end
+
 function catan:getFaceCenter (q, r)
-    local x0 = self.DWIDTH * 0.3
-    local y0 = self.DHEIGHT * 0.5
-    local size = self.HEXSIZE
+    local W, H = love.window.getMode()
+    local x0 = W * 0.3
+    local y0 = H * 0.5
+    local hexsize = self:getHexSize()
     local sqrt3 = math.sqrt(3)
-    local x = x0 + size * (sqrt3 * q + sqrt3 / 2 * r)
-    local y = y0 + size * (3. / 2 * r)
+    local x = x0 + hexsize * (sqrt3 * q + sqrt3 / 2 * r)
+    local y = y0 + hexsize * (3. / 2 * r)
     return x, y
 end
 
 function catan:getVertexPos (q, r, v)
     local x, y = self:getFaceCenter(q, r)
+    local hexsize = self:getHexSize()
     if v == 'N' then
-        y = y - self.HEXSIZE
+        y = y - hexsize
     else
         assert(v == 'S')
-        y = y + self.HEXSIZE
+        y = y + hexsize
     end
     return x, y
 end
@@ -232,6 +216,9 @@ function catan:constructSpriteList ()
         return ox, oy
     end
 
+    local W, H = love.window.getMode()
+    local hexsize = self:getHexSize()
+
     -- Harbors
     do
         local visited = {}
@@ -269,7 +256,7 @@ function catan:constructSpriteList ()
     FaceMap:iter(self.game.hexmap, function (q, r, hex)
         local x, y = self:getFaceCenter(q, r)
         local img = assert(self.images.hex[hex], "missing hex sprite")
-        local s = self.HEXSIZE / (img:getHeight() / 2)
+        local s = hexsize / (img:getHeight() / 2)
         addCentralizedSprite{img, x=x, y=y, sx=s}
     end)
 
@@ -277,7 +264,7 @@ function catan:constructSpriteList ()
     FaceMap:iter(self.game.numbermap, function (q, r, number)
         local x, y = self:getFaceCenter(q, r)
         local img = assert(self.images.number[tostring(number)], "missing hex sprite")
-        local s = (0.6 * self.HEXSIZE) / img:getHeight()
+        local s = (0.6 * hexsize) / img:getHeight()
         addCentralizedSprite{img, x=x, y=y, sx=s}
     end)
 
@@ -285,15 +272,15 @@ function catan:constructSpriteList ()
     do
         local x, y = self:getFaceCenter(Grid:unpack(self.game.robber))
         local img = self.images.robber
-        local s = (0.8 * self.HEXSIZE) / img:getHeight()
+        local s = (0.8 * hexsize) / img:getHeight()
         addCentralizedSprite{img, x=x, y=y, sx=s}
     end
 
     -- Sidebar
     do
-        local x, y = self.DWIDTH * 0.65, 0
+        local x, y = W * 0.65, 0
         local img = self.images.sidebar
-        local s = self.DHEIGHT / img:getHeight()
+        local s = H / img:getHeight()
         addSprite{img, x=x, y=y, sx=s}
     end
 

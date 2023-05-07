@@ -5,11 +5,8 @@ local s = require "util.schema"
 local m = {}
 
 m.Phase = s.Enum{
-    'settingUp',
-    'idle',
-    'discardingHalf',
-    'movingRobber',
-    'choosingVictim',
+    'placingInitialSettlement',
+    'placingInitialRoad',
 }
 
 m.Face = s.Struct{

@@ -27,7 +27,7 @@ end
 --------------------------------
 
 function Game:_init (players)
-    self.phase = 'settingUp'
+    self.phase = 'placingInitialSettlement'
     self:_setPlayers(players)
     self:_createHexMap()
     self:_createNumberMap()
@@ -126,13 +126,16 @@ end
 -- Actions
 --------------------------------
 
-function Game:placeSettlement (vertex)
-    self:_assertPhaseIs"settingUp"
-    self:_assertHasntPlacedSettlementYet()
+function Game:placeInitialSettlement (vertex)
+    self:_assertPhaseIs"placingInitialSettlement"
     self:_assertCanBuildInVertex(vertex)
 
-    local building = {}
-    VertexMap:set(self.buildmap, vertex, {})
+    VertexMap:set(self.buildmap, vertex, {
+        kind = "settlement",
+        player = self.player,
+    })
+
+    self.phase = "placingInitialRoad"
 end
 
 --------------------------------
@@ -144,15 +147,6 @@ function Game:_assertPhaseIs (expectedPhase)
         error{
             "UnexpectedPhase",
             expected = expectedPhase,
-            obtained = self.phase,
-        }
-    end
-end
-
-function Game:_assertHasntPlacedSettlementYet (n)
-    if not (self:_numberOfBuildings() < self.round) then
-        error{
-            "AlreadyPlacedSettlement",
         }
     end
 end

@@ -118,7 +118,6 @@ end
 m.GameState = s.Struct{
     -- meta
     phase = m.Phase,
-    round = s.Type'number',
     -- players (static)
     players = s.Array(m.Player),
     -- map (static)

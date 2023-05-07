@@ -28,7 +28,6 @@ end
 
 function Game:_init (players)
     self.phase = 'settingUp'
-    self.round = 1
     self:_setPlayers(players)
     self:_createHexMap()
     self:_createNumberMap()

@@ -67,7 +67,7 @@ function catan:load ()
 
     self.updatePending = true
 end
- 
+
 function catan:draw ()
     for i, sprite in ipairs(self.sprites) do sprite:draw() end
 end
@@ -75,7 +75,7 @@ end
 function catan:mousepressed (...)
     -- TODO: process mouse clicks
 end
- 
+
 function catan:keypressed (key)
     -- TODO: process key strokes
 end

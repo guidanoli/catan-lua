@@ -3,8 +3,6 @@
 --
 -- @module catan.gui
 
-require "util.compat"
-
 local platform = require "util.platform"
 
 local Game = require "catan.logic.game"
@@ -13,6 +11,7 @@ local VertexMap = require "catan.logic.vertexmap"
 local Grid = require "catan.logic.grid"
 
 local gutil = require "catan.gui.util"
+local Sprite = require "catan.gui.sprite"
 
 local catan = {}
 
@@ -70,9 +69,7 @@ function catan:load ()
 end
  
 function catan:draw ()
-    for i, sprite in ipairs(self.sprites) do
-        love.graphics.draw(table.unpack(sprite))
-    end
+    for i, sprite in ipairs(self.sprites) do sprite:draw() end
 end
 
 function catan:mousepressed (...)
@@ -190,16 +187,9 @@ function catan:constructSpriteList ()
     local sprites = {}
 
     local function addSprite(t)
-        table.insert(sprites, {t[1], t.x, t.y, t.r, t.sx, t.sy, t.ox or 0, t.oy or 0})
-    end
-
-    local function addCentralizedSprite(t)
-        local w, h = t[1]:getDimensions()
-        local ox, oy = w/2, h/2
-        t.ox = ox
-        t.oy = oy
-        addSprite(t)
-        return t.x - ox, t.y - oy
+        local sprite = Sprite.new(t)
+        table.insert(sprites, sprite)
+        return sprite
     end
 
     local W, H = love.window.getMode()
@@ -213,6 +203,7 @@ function catan:constructSpriteList ()
         local RES_SIZE = 25 -- size of resource
         local RES_OX = 30 -- x-offset of resource
         local RES_OY = 15 -- y-offset of resource
+
         VertexMap:iter(self.game.harbormap, function (q1, r1, v1, harbor)
             local vertex1 = Grid:vertex(q1, r1, v1)
             VertexMap:set(visited, vertex1, true)
@@ -228,7 +219,8 @@ function catan:constructSpriteList ()
                     local seaFace = self:getJoinedFaceWithoutHex(edge)
                     local x3, y3 = self:getFaceCenter(Grid:unpack(seaFace))
                     local shipImg = self:getShipImageFromHarbor(harbor)
-                    local shipX, shipY = addCentralizedSprite{shipImg, x=x3, y=y3}
+                    local shipSprite = addSprite{shipImg, x=x3, y=y3, center=true}
+                    local shipX, shipY = shipSprite:getCoords()
                     local resImg = self.images.resource[harbor]
                     if resImg ~= nil then
                         local s = RES_SIZE / resImg:getHeight()
@@ -246,7 +238,7 @@ function catan:constructSpriteList ()
         local img = assert(self.images.hex[hex], "missing hex sprite")
         local x, y = self:getFaceCenter(q, r)
         local s = hexsize / (img:getHeight() / 2)
-        addCentralizedSprite{img, x=x, y=y, sx=s}
+        addSprite{img, x=x, y=y, sx=s, center=true}
     end)
 
     -- Number tokens
@@ -254,7 +246,7 @@ function catan:constructSpriteList ()
         local img = assert(self.images.number[tostring(number)], "missing hex sprite")
         local x, y = self:getFaceCenter(q, r)
         local s = (0.6 * hexsize) / img:getHeight()
-        addCentralizedSprite{img, x=x, y=y, sx=s}
+        addSprite{img, x=x, y=y, sx=s, center=true}
     end)
 
     -- Robber
@@ -262,16 +254,15 @@ function catan:constructSpriteList ()
         local img = self.images.robber
         local x, y = self:getFaceCenter(Grid:unpack(self.game.robber))
         local s = (0.8 * hexsize) / img:getHeight()
-        addCentralizedSprite{img, x=x, y=y, sx=s}
+        addSprite{img, x=x, y=y, sx=s, center=true}
     end
 
     -- Sidebar
     do
         local img = self.images.sidebar
         local x, y = W, 0
-        local w, h = img:getDimensions()
-        local s = H / h
-        addSprite{img, x=W, y=0, sx=s, ox=w}
+        local s = H / img:getHeight()
+        addSprite{img, x=W, y=0, sx=s, xalign='right'}
     end
 
     return sprites

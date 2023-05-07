@@ -17,20 +17,6 @@ local gutil = require "catan.gui.util"
 local catan = {}
 
 -------------------------
--- GUI Constants
--------------------------
-
----
--- Size of resource inside ship
-catan.RESSIZE = 25
-
----
--- Offset of resource inside ship
--- @tfield number x horizontal offset
--- @tfield number y vertical offset
-catan.RESOFFSET = {x = 30, y = 15}
-
--------------------------
 -- Environment variables
 -------------------------
 
@@ -213,7 +199,7 @@ function catan:constructSpriteList ()
         t.ox = ox
         t.oy = oy
         addSprite(t)
-        return ox, oy
+        return t.x - ox, t.y - oy
     end
 
     local W, H = love.window.getMode()
@@ -224,6 +210,9 @@ function catan:constructSpriteList ()
         local visited = {}
         local boardImg = self.images.harbor.board
         local oy = boardImg:getHeight() / 2
+        local RES_SIZE = 25 -- size of resource
+        local RES_OX = 30 -- x-offset of resource
+        local RES_OY = 15 -- y-offset of resource
         VertexMap:iter(self.game.harbormap, function (q1, r1, v1, harbor)
             local vertex1 = Grid:vertex(q1, r1, v1)
             VertexMap:set(visited, vertex1, true)
@@ -239,12 +228,12 @@ function catan:constructSpriteList ()
                     local seaFace = self:getJoinedFaceWithoutHex(edge)
                     local x3, y3 = self:getFaceCenter(Grid:unpack(seaFace))
                     local shipImg = self:getShipImageFromHarbor(harbor)
-                    local shipOX, shipOY = addCentralizedSprite{shipImg, x=x3, y=y3}
+                    local shipX, shipY = addCentralizedSprite{shipImg, x=x3, y=y3}
                     local resImg = self.images.resource[harbor]
                     if resImg ~= nil then
-                        local s = self.RESSIZE / resImg:getHeight()
-                        local x4 = x3 - shipOX + self.RESOFFSET.x
-                        local y4 = y3 - shipOY + self.RESOFFSET.y
+                        local s = RES_SIZE / resImg:getHeight()
+                        local x4 = shipX + RES_OX
+                        local y4 = shipY + RES_OY
                         addSprite{resImg, x=x4, y=y4, sx=s}
                     end
                 end

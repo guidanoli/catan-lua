@@ -140,9 +140,9 @@ end
 --------------------------------
 
 function Game:_assertPhaseIs (expectedPhase)
-    if not (self.phase == expectedPhase) then
+    if self.phase ~= expectedPhase then
         error{
-            kind = "InvalidPhase",
+            "UnexpectedPhase",
             expected = expectedPhase,
             obtained = self.phase,
         }
@@ -152,7 +152,7 @@ end
 function Game:_assertHasntPlacedSettlementYet (n)
     if not (self:_numberOfBuildings() < self.round) then
         error{
-            kind = "AlreadyPlacedSettlement",
+            "AlreadyPlacedSettlement",
         }
     end
 end
@@ -160,20 +160,17 @@ end
 function Game:_assertCanBuildInVertex (vertex)
     if not self:_isVertexCornerOfSomeHex(vertex) then
         error{
-            kind = "VertexNotCornerOfHex",
-            vertex = vertex,
+            "VertexNotCornerOfHex",
         }
     end
     if VertexMap:get(self.buildmap, vertex) then
         error{
-            kind = "VertexHasBuilding",
-            vertex = vertex,
+            "VertexHasBuilding",
         }
     end
     if self:_isVertexAdjacentToSomeBuilding(vertex) then
         error{
-            kind = "VertexAdjacentToBuilding",
-            vertex = vertex,
+            "VertexAdjacentToBuilding",
         }
     end
 end

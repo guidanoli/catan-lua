@@ -42,9 +42,26 @@ function Game:_init (players)
 end
 
 function Game:_setPlayers (players)
-    assert(TableUtils:isArray(players), "players not array")
-    assert(TableUtils:isContainedIn(players, Constants.players), "invalid players")
-    assert(#players >= 3, "too few players")
+    do
+        -- Register all valid player colors
+        local taken = {}
+        for i, player in ipairs(Constants.players) do
+            taken[player] = false
+        end
+
+        -- Count the number of players and check
+        -- if there are invalid or repeated ones
+        local n = 0
+        for i, player in ipairs(players) do
+            local v = taken[player]
+            assert(v ~= nil, "invalid player")
+            assert(v ~= true, "repeated player")
+            taken[player] = true
+            n = n + 1
+        end
+        assert(n >= 3, "too few players")
+    end
+
     self.players = players
     self.player = players[1]
 end

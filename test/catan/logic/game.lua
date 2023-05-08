@@ -33,5 +33,5 @@ end
 expect('too few players', function() Game:new{} end)
 expect('too few players', function() Game:new{'red'} end)
 expect('too few players', function() Game:new{'red', 'blue'} end)
-expect('invalid players', function() Game:new{'red', 'blue', 'xyz'} end)
-expect('players not array', function() Game:new{'red', 'blue', foo='white'} end)
+expect('invalid player', function() Game:new{'red', 'blue', 'xyz'} end)
+expect('repeated player', function() Game:new{'red', 'blue', 'red'} end)

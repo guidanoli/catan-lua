@@ -310,9 +310,9 @@ function catan:constructSpriteList ()
 
             local circleImg = assert(self.images.circle[player], "missing circle sprite")
             local sprite = addSprite{circleImg, x=playerX, y=playerY}
-            addCenteredTextSprite("0", RES_X)
-            addCenteredTextSprite("0", DEV_X)
-            addCenteredTextSprite("0", KNIGHT_X)
+            addCenteredTextSprite(self.game:getNumberOfResourceCards(player), RES_X)
+            addCenteredTextSprite(self.game:getNumberOfDevelopmentCards(player), DEV_X)
+            addCenteredTextSprite(self.game:getArmySize(player), KNIGHT_X)
             addCenteredTextSprite("0", ROAD_X)
 
             playerY = playerY + sprite:getHeight()

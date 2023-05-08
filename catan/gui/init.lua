@@ -313,7 +313,7 @@ function catan:constructSpriteList ()
             addCenteredTextSprite(self.game:getNumberOfResourceCards(player), RES_X)
             addCenteredTextSprite(self.game:getNumberOfDevelopmentCards(player), DEV_X)
             addCenteredTextSprite(self.game:getArmySize(player), KNIGHT_X)
-            addCenteredTextSprite("0", ROAD_X)
+            addCenteredTextSprite("?", ROAD_X)
 
             playerY = playerY + sprite:getHeight()
         end

@@ -123,6 +123,38 @@ function Game:_createBank ()
 end
 
 --------------------------------
+-- Getters
+--------------------------------
+
+function Game:getNumberOfDevelopmentCards (player)
+    local n = 0
+    for i, devcard in ipairs(self.devcards[player]) do
+        if not devcard.used then
+            n = n + 1
+        end
+    end
+    return n
+end
+
+function Game:getNumberOfResourceCards (player)
+    local n = 0
+    for res, count in pairs(self.rescards[player]) do
+        n = n + count
+    end
+    return n
+end
+
+function Game:getArmySize (player)
+    local n = 0
+    for i, devcard in ipairs(self.devcards[player]) do
+        if devcard.kind == 'knight' and devcard.used then
+            n = n + 1
+        end
+    end
+    return n
+end
+
+--------------------------------
 -- Actions
 --------------------------------
 

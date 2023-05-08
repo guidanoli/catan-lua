@@ -287,7 +287,6 @@ function catan:constructSpriteList ()
 
         local PLAYERS_OX = 57
         local PLAYERS_OY = 48
-        local PLAYERS_YSEP = 14
 
         local playerX = sidebarX + PLAYERS_OX * s
         local playerY = sidebarY + PLAYERS_OY * s
@@ -316,7 +315,7 @@ function catan:constructSpriteList ()
             addCenteredTextSprite("0", KNIGHT_X)
             addCenteredTextSprite("0", ROAD_X)
 
-            playerY = playerY + sprite:getHeight() + PLAYERS_YSEP
+            playerY = playerY + sprite:getHeight()
         end
     end
 

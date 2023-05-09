@@ -204,7 +204,7 @@ function catan:getShipImageFromHarbor (harbor)
     end
 end
 
-function catan:constructBoard ()
+function catan:renderBoard ()
     local layer = {}
 
     local function addSprite(t)
@@ -281,7 +281,7 @@ function catan:constructBoard ()
     return layer
 end
 
-function catan:constructSidebar ()
+function catan:renderSidebar ()
     local layer = {}
 
     local function addSprite(t)
@@ -354,18 +354,18 @@ function catan:constructSidebar ()
     return layer
 end
 
-function catan:constructLayer (layername)
+function catan:renderLayer (layername)
     if layername == "board" then
-        return self:constructBoard()
+        return self:renderBoard()
     elseif layername == "sidebar" then
-        return self:constructSidebar()
+        return self:renderSidebar()
     end
 end
 
 function catan:update (dt)
     for layername in pairs(self.updatePending) do
-        local layer = self:constructLayer(layername)
-        assert(layer, string.format('could not construct layer "%s"', layername))
+        local layer = self:renderLayer(layername)
+        assert(layer, string.format('could not render layer "%s"', layername))
         self.layers[layername] = layer
         self.updatePending[layername] = nil
     end

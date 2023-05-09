@@ -62,6 +62,12 @@ function catan:requestLayerUpdate (layername)
     self.layersPendingUpdate[layername] = true
 end
 
+function catan:requestAllLayersUpdate ()
+    for i, layername in ipairs(self.LAYER_NAMES) do
+        self:requestLayerUpdate(layername)
+    end
+end
+
 function catan:load ()
     love.window.setMode(1400, 900)
     love.window.setTitle"Settlers of Catan"
@@ -79,9 +85,8 @@ function catan:load ()
     self.layers = {}
 
     self.layersPendingUpdate = {}
-    for i, layername in ipairs(self.LAYER_NAMES) do
-        self:requestLayerUpdate(layername)
-    end
+
+    self:requestAllLayersUpdate()
 end
 
 function catan:draw ()

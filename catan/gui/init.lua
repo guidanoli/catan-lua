@@ -37,17 +37,19 @@ catan.debug = os.getenv "DEBUG" ~= nil
 
 function catan:loadImgDir (dir)
     local t = {}
+    local function setifnil (key, value)
+        assert(rawget(t, key) == nil, "key conflict")
+        rawset(t, key, value)
+    end
     for i, item in ipairs(love.filesystem.getDirectoryItems(dir)) do
         local path = dir .. platform.PATH_SEPARATOR .. item
         local info = love.filesystem.getInfo(path)
         local filetype = info.type
         if filetype == 'file' then
             local name = item:match"(.-)%.?[^%.]*$"
-            assert(t[name] == nil, "key conflict")
-            t[name] = love.graphics.newImage(path)
+            setifnil(name, love.graphics.newImage(path))
         elseif filetype == 'directory' then
-            assert(t[item] == nil, "key conflict")
-            t[item] = self:loadImgDir(path)
+            setifnil(item, self:loadImgDir(path))
         end
     end
     return t

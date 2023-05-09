@@ -15,13 +15,9 @@ local Sprite = require "catan.gui.sprite"
 
 local catan = {}
 
--------------------------
 -- Environment variables
--------------------------
 
----
--- Debug mode
-catan.debug = os.getenv "DEBUG" ~= nil
+catan.DEBUG = os.getenv "DEBUG" ~= nil
 
 -- Rendering to-do list:
 --

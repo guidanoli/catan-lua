@@ -19,6 +19,13 @@ local catan = {}
 
 catan.DEBUG = os.getenv "DEBUG" ~= nil
 
+-- GUI constants
+
+catan.LAYER_NAMES = {
+    "board",
+    "sidebar"
+}
+
 -- Rendering to-do list:
 --
 -- 1) Sea background - OK
@@ -51,6 +58,10 @@ function catan:loadImgDir (dir)
     return t
 end
 
+function catan:requestUpdate (layername)
+    self.updatePending[layername] = true
+end
+
 function catan:load ()
     love.window.setMode(1400, 900)
     love.window.setTitle"Settlers of Catan"
@@ -65,11 +76,21 @@ function catan:load ()
 
     self.font = love.graphics.newFont(20)
 
-    self.updatePending = true
+    self.layers = {}
+
+    self.updatePending = {}
+
+    for i, layername in ipairs(self.LAYER_NAMES) do
+        self:requestUpdate(layername)
+    end
 end
 
 function catan:draw ()
-    for i, sprite in ipairs(self.sprites) do sprite:draw() end
+    for i, layername in ipairs(self.LAYER_NAMES) do
+        for j, sprite in ipairs(self.layers[layername]) do
+            sprite:draw()
+        end
+    end
 end
 
 function catan:mousepressed (...)
@@ -183,12 +204,12 @@ function catan:getShipImageFromHarbor (harbor)
     end
 end
 
-function catan:constructSpriteList ()
-    local sprites = {}
+function catan:constructBoard ()
+    local layer = {}
 
     local function addSprite(t)
         local sprite = Sprite.new(t)
-        table.insert(sprites, sprite)
+        table.insert(layer, sprite)
         return sprite
     end
 
@@ -257,7 +278,20 @@ function catan:constructSpriteList ()
         addSprite{img, x=x, y=y, sx=s, center=true}
     end
 
-    -- Sidebar
+    return layer
+end
+
+function catan:constructSidebar ()
+    local layer = {}
+
+    local function addSprite(t)
+        local sprite = Sprite.new(t)
+        table.insert(layer, sprite)
+        return sprite
+    end
+
+    local W, H = love.window.getMode()
+
     do
         local sidebarImg = self.images.sidebar
         local s = H / sidebarImg:getHeight()
@@ -317,13 +351,23 @@ function catan:constructSpriteList ()
         end
     end
 
-    return sprites
+    return layer
+end
+
+function catan:constructLayer (layername)
+    if layername == "board" then
+        return self:constructBoard()
+    elseif layername == "sidebar" then
+        return self:constructSidebar()
+    end
 end
 
 function catan:update (dt)
-    if self.updatePending then
-        self.sprites = self:constructSpriteList()
-        self.updatePending = false
+    for layername in pairs(self.updatePending) do
+        local layer = self:constructLayer(layername)
+        assert(layer, string.format('could not construct layer "%s"', layername))
+        self.layers[layername] = layer
+        self.updatePending[layername] = nil
     end
 
     -- TODO: update animations using `dt`

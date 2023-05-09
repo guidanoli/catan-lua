@@ -58,8 +58,8 @@ function catan:loadImgDir (dir)
     return t
 end
 
-function catan:requestUpdate (layername)
-    self.updatePending[layername] = true
+function catan:requestLayerUpdate (layername)
+    self.layersPendingUpdate[layername] = true
 end
 
 function catan:load ()
@@ -78,10 +78,9 @@ function catan:load ()
 
     self.layers = {}
 
-    self.updatePending = {}
-
+    self.layersPendingUpdate = {}
     for i, layername in ipairs(self.LAYER_NAMES) do
-        self:requestUpdate(layername)
+        self:requestLayerUpdate(layername)
     end
 end
 
@@ -363,11 +362,11 @@ function catan:renderLayer (layername)
 end
 
 function catan:update (dt)
-    for layername in pairs(self.updatePending) do
+    for layername in pairs(self.layersPendingUpdate) do
         local layer = self:renderLayer(layername)
         assert(layer, string.format('could not render layer "%s"', layername))
         self.layers[layername] = layer
-        self.updatePending[layername] = nil
+        self.layersPendingUpdate[layername] = nil
     end
 
     -- TODO: update animations using `dt`

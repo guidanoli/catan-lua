@@ -23,7 +23,7 @@ catan.DEBUG = os.getenv "DEBUG" ~= nil
 
 catan.LAYER_NAMES = {
     "board",
-    "sidebar"
+    "sidebar",
 }
 
 -- Rendering to-do list:

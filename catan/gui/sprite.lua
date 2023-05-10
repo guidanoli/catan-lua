@@ -30,7 +30,8 @@ local Sprite = Class "Sprite"
 -- * `.center`: center image, same as `{.xalign = "center", .yalign = "center"}` (`boolean`)
 -- * `.xalign`: how to align the image horizontally, overwrites `.ox` (`"left"`, `"center"`, or `"right"`)
 -- * `.yalign`: how to align the image vertically, overwrites `.oy` (`"top"`, `"center"`, or `"bottom"`)
--- * `.onclick`: callback for when sprite is clicked
+-- * `.onleftclick`: callback for when sprite is clicked with left mouse button
+-- * `.onrightclick`: callback for when sprite is clicked with right mouse button
 --
 -- @tparam table s sprite information
 -- @treturn Sprite new sprite
@@ -87,7 +88,8 @@ function Sprite.new (s)
         oy = oy,
         img = img,
         transform = transform,
-        onclick = s.onclick
+        onleftclick = s.onleftclick,
+        onrightclick = s.onrightclick,
     }
 end
 
@@ -126,6 +128,41 @@ end
 -- Draw sprite on screen
 function Sprite:draw ()
     love.graphics.draw(self.img, self.transform)
+end
+
+---
+-- Check if (x, y) is inside sprite
+-- @tparam number x x-coordinate
+-- @tparam number y y-coordinate
+-- @treturn boolean whether point is inside sprite
+function Sprite:contains (localX, localY)
+    local globalX, globalY = self.transform:inverseTransformPoint(localX, localY)
+    return globalX >= 0 and globalX <= self.w and
+           globalY >= 0 and globalY <= self.h
+end
+
+---
+-- If (x, y) is inside sprite, trigger any "left click" callback
+-- @tparam number x x-coordinate
+-- @tparam number y y-coordinate
+-- @param ... forwarded to the callback
+-- @return whatever the callback returns
+function Sprite:leftclick (x, y, ...)
+    if self.onleftclick and self:contains(x, y) then
+        return self.onleftclick(...)
+    end
+end
+
+---
+-- If (x, y) is inside sprite, trigger any "right click" callback
+-- @tparam number x x-coordinate
+-- @tparam number y y-coordinate
+-- @param ... forwarded to the callback
+-- @return whatever the callback returns
+function Sprite:rightclick (x, y, ...)
+    if self.onrightclick and self:contains(x, y) then
+        return self.onrightclick(...)
+    end
 end
 
 return Sprite

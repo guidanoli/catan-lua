@@ -89,16 +89,26 @@ function catan:load ()
     self:requestAllLayersUpdate()
 end
 
-function catan:draw ()
+function catan:iterSprites (f)
     for i, layername in ipairs(self.LAYER_NAMES) do
         for j, sprite in ipairs(self.layers[layername]) do
-            sprite:draw()
+            if f(sprite) then
+                return
+            end
         end
     end
 end
 
-function catan:mousepressed (...)
-    -- TODO: process mouse clicks
+function catan:draw ()
+    self:iterSprites(function (sprite) sprite:draw() end)
+end
+
+function catan:mousepressed (x, y, button)
+    if button == 1 then
+        self:iterSprites(function (sprite) sprite:leftclick(x, y) end)
+    elseif button == 2 then
+        self:iterSprites(function (sprite) sprite:rightclick(x, y) end)
+    end
 end
 
 function catan:keypressed (key)

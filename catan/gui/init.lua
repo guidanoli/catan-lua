@@ -71,7 +71,7 @@ end
 function catan:load ()
     love.window.setMode(1400, 900)
     love.window.setTitle"Settlers of Catan"
-    love.graphics.setBackgroundColor(gutil:rgb(17, 78, 232))
+    love.graphics.setBackgroundColor(love.math.colorFromBytes(17, 78, 232))
 
     math.randomseed(os.time())
 

@@ -78,6 +78,8 @@ function Sprite.new (s)
     return Sprite:__new{
         x = x,
         y = y,
+        w = w,
+        h = h,
         r = r,
         sx = sx,
         sy = sy,
@@ -90,42 +92,26 @@ function Sprite.new (s)
 end
 
 ---
--- Get x-scale factor
--- @treturn number x-scale factor
-function Sprite:getScaleX ()
-    return self.sx or 1
-end
-
----
--- Get y-scale factor
--- @treturn number y-scale factor
-function Sprite:getScaleY ()
-    return self.sy or self:getScaleX()
-end
-
----
 -- Get top-left corner coordinates
 -- @treturn number x-coordinate
 -- @treturn number y-coordinate
 function Sprite:getCoords ()
-    return self.x - self.ox * self:getScaleX(),
-           self.y - self.oy * self:getScaleY()
+    return self.x - self.ox * self.sx,
+           self.y - self.oy * self.sy
 end
 
 ---
 -- Get sprite width
 -- @treturn number width
 function Sprite:getWidth ()
-    local w = self.img:getWidth()
-    return w * self:getScaleX()
+    return self.w * self.sx
 end
 
 ---
 -- Get sprite height
 -- @treturn number height
 function Sprite:getHeight ()
-    local h = self.img:getHeight()
-    return h * self:getScaleY()
+    return self.h * self.sy
 end
 
 ---
@@ -133,8 +119,7 @@ end
 -- @treturn number width
 -- @treturn number height
 function Sprite:getDimensions ()
-    local w, h = self.img:getDimensions()
-    return w * self.sx, h * self.sy
+    return self:getWidth(), self:getHeight()
 end
 
 ---

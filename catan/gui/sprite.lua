@@ -14,7 +14,7 @@ local Sprite = Class "Sprite"
 ---
 -- Create a new sprite
 --
--- Table parameter `t` MUST have the following fields:
+-- Table parameter `s` MUST have the following fields:
 --
 -- * `[1]`: drawable object (Image, Text, etc)
 -- * `.x`: x-coordinate (`number`)
@@ -30,38 +30,63 @@ local Sprite = Class "Sprite"
 -- * `.center`: center image, same as `{.xalign = "center", .yalign = "center"}` (`boolean`)
 -- * `.xalign`: how to align the image horizontally, overwrites `.ox` (`"left"`, `"center"`, or `"right"`)
 -- * `.yalign`: how to align the image vertically, overwrites `.oy` (`"top"`, `"center"`, or `"bottom"`)
+-- * `.onclick`: callback for when sprite is clicked
 --
--- @tparam table t sprite information
+-- @tparam table s sprite information
 -- @treturn Sprite new sprite
-function Sprite.new (t)
-    local img = t[1]
-    local w, h = img:getDimensions()
+function Sprite.new (s)
+    local img = s[1]
 
-    local xalign = t.xalign
-    local yalign = t.yalign
+    local x = assert(s.x, "missing x")
+    local y = assert(s.y, "missing y")
 
-    if t.center then
+    local r = s.r or 0
+
+    local sx = s.sx or 1
+    local sy = s.sy or sx
+
+    local xalign = s.xalign
+    local yalign = s.yalign
+
+    if s.center then
         xalign = 'center'
         yalign = 'center'
     end
 
+    local w, h = img:getDimensions()
+
+    local ox
     if xalign == 'right' then
-        t.ox = w
+        ox = w
     elseif xalign == 'center' then
-        t.ox = w/2
-    elseif t.ox == nil then
-        t.ox = 0
+        ox = w/2
+    else
+        ox = s.ox or 0
     end
 
+    local oy
     if yalign == 'top' then
-        t.oy = h
+        oy = h
     elseif yalign == 'center' then
-        t.oy = h/2
-    elseif t.oy == nil then
-        t.oy = 0
+        oy = h/2
+    else
+        oy = s.oy or 0
     end
 
-    return Sprite:__new(t)
+    local transform = love.math.newTransform(x, y, r, sx, sy, ox, oy)
+
+    return Sprite:__new{
+        x = x,
+        y = y,
+        r = r,
+        sx = sx,
+        sy = sy,
+        ox = ox,
+        oy = oy,
+        img = img,
+        transform = transform,
+        onclick = s.onclick
+    }
 end
 
 ---
@@ -91,7 +116,7 @@ end
 -- Get sprite width
 -- @treturn number width
 function Sprite:getWidth ()
-    local w = self[1]:getWidth()
+    local w = self.img:getWidth()
     return w * self:getScaleX()
 end
 
@@ -99,7 +124,7 @@ end
 -- Get sprite height
 -- @treturn number height
 function Sprite:getHeight ()
-    local h = self[1]:getHeight()
+    local h = self.img:getHeight()
     return h * self:getScaleY()
 end
 
@@ -108,23 +133,14 @@ end
 -- @treturn number width
 -- @treturn number height
 function Sprite:getDimensions ()
-    local w, h = self[1]:getDimensions()
+    local w, h = self.img:getDimensions()
     return w * self.sx, h * self.sy
 end
 
 ---
 -- Draw sprite on screen
 function Sprite:draw ()
-    love.graphics.draw(
-        self[1],
-        self.x,
-        self.y,
-        self.r,
-        self.sx,
-        self.sy,
-        self.ox,
-        self.oy
-    )
+    love.graphics.draw(self.img, self.transform)
 end
 
 return Sprite

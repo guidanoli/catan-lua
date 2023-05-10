@@ -235,9 +235,7 @@ end
 function Game:_isVertexCornerOfSomeHex (vertex)
     local found = false
     FaceMap:iter(self.hexmap, function (q, r, hex)
-        local face = Grid:face(q, r)
-        local corners = Grid:corners(face)
-        for _, corner in ipairs(corners) do
+        for _, corner in ipairs(Grid:corners(q, r)) do
             if Grid:vertexEq(corner, vertex) then
                 found = true
                 return true -- stop iteration
@@ -248,7 +246,7 @@ function Game:_isVertexCornerOfSomeHex (vertex)
 end
 
 function Game:_isVertexAdjacentToSomeBuilding (vertex)
-    local adjacentVertices = Grid:adjacentVertices(vertex)
+    local adjacentVertices = Grid:adjacentVertices(Grid:unpack(vertex))
     for _, adjacentVertex in ipairs(adjacentVertices) do
         if VertexMap:get(self.buildmap, adjacentVertex) then
             return true -- stop iteration
@@ -258,7 +256,7 @@ function Game:_isVertexAdjacentToSomeBuilding (vertex)
 end
 
 function Game:_isVertexNearPlayersRoad (vertex)
-    local protrudingEdges = Grid:protrudingEdges(vertex)
+    local protrudingEdges = Grid:protrudingEdges(Grid:unpack(vertex))
     for _, protrudingEdge in ipairs(protrudingEdges) do
         local road = EdgeMap:get(self.roadmap, protrudingEdge)
         if road == self.player then

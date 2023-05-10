@@ -162,7 +162,7 @@ function catan:harborAnglesFromOrientation (o)
 end
 
 function catan:getJoinedFaceWithHex (edge)
-    for i, joinedFace in ipairs(Grid:joins(edge)) do
+    for i, joinedFace in ipairs(Grid:joins(Grid:unpack(edge))) do
         if FaceMap:get(self.game.hexmap, joinedFace) then
             return joinedFace
         end
@@ -170,7 +170,7 @@ function catan:getJoinedFaceWithHex (edge)
 end
 
 function catan:getJoinedFaceWithoutHex (edge)
-    for i, joinedFace in ipairs(Grid:joins(edge)) do
+    for i, joinedFace in ipairs(Grid:joins(Grid:unpack(edge))) do
         if not FaceMap:get(self.game.hexmap, joinedFace) then
             return joinedFace
         end
@@ -242,7 +242,7 @@ function catan:renderBoard ()
         VertexMap:iter(self.game.harbormap, function (q1, r1, v1, harbor)
             local vertex1 = Grid:vertex(q1, r1, v1)
             VertexMap:set(visited, vertex1, true)
-            local adjvertices = Grid:adjacentVertices(vertex1)
+            local adjvertices = Grid:adjacentVertices(q1, r1, v1)
             for _, vertex2 in ipairs(adjvertices) do
                 if VertexMap:get(visited, vertex2) then
                     local x1, y1 = self:getVertexPos(q1, r1, v1)

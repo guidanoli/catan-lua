@@ -35,8 +35,7 @@ function Grid:unpack (x)
     return x.q, x.r, x.v or x.e
 end
 
-function Grid:neighbors (face)
-    local q, r = self:unpack(face)
+function Grid:neighbors (q, r)
     return {
         self:face(q, r+1),
         self:face(q+1, r),
@@ -47,8 +46,7 @@ function Grid:neighbors (face)
     }
 end
 
-function Grid:borders (face)
-    local q, r = self:unpack(face)
+function Grid:borders (q, r)
     return {
         self:edge(q, r, 'NE'),
         self:edge(q, r, 'NW'),
@@ -59,8 +57,7 @@ function Grid:borders (face)
     }
 end
 
-function Grid:corners (face)
-    local q, r = self:unpack(face)
+function Grid:corners (q, r)
     return {
         self:vertex(q, r, 'N'),
         self:vertex(q, r-1, 'S'),
@@ -71,8 +68,7 @@ function Grid:corners (face)
     }
 end
 
-function Grid:protrudingEdges (vertex)
-    local q, r, v = self:unpack(vertex)
+function Grid:protrudingEdges (q, r, v)
     if v == 'N' then
         return {
             self:edge(q, r, 'NE'),
@@ -89,8 +85,7 @@ function Grid:protrudingEdges (vertex)
     end
 end
 
-function Grid:adjacentVertices (vertex)
-    local q, r, v = self:unpack(vertex)
+function Grid:adjacentVertices (q, r, v)
     if v == 'N' then
         return {
             self:vertex(q+1, r-2, 'S'),
@@ -107,8 +102,7 @@ function Grid:adjacentVertices (vertex)
     end
 end
 
-function Grid:joins (edge)
-    local q, r, e = self:unpack(edge)
+function Grid:joins (q, r, e)
     if e == 'NE' then
         return {
             self:face(q+1, r-1),
@@ -129,8 +123,8 @@ function Grid:joins (edge)
 end
 
 function Grid:edgeInBetween (vertex1, vertex2)
-    local edges1 = self:protrudingEdges(vertex1)
-    local edges2 = self:protrudingEdges(vertex2)
+    local edges1 = self:protrudingEdges(Grid:unpack(vertex1))
+    local edges2 = self:protrudingEdges(Grid:unpack(vertex2))
     for i, edge1 in ipairs(edges1) do
         for j, edge2 in ipairs(edges2) do
             if self:edgeEq(edge1, edge2) then

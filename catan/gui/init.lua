@@ -218,6 +218,27 @@ function catan:getShipImageFromHarbor (harbor)
     end
 end
 
+function catan:getAvailableVertices ()
+    local available = {}
+
+    -- Add all vertices to the set
+    FaceMap:iter(self.game.hexmap, function (q, r)
+        for i, vertex in ipairs(Grid:corners(q, r)) do
+            VertexMap:set(available, vertex, true)
+        end
+    end)
+
+    -- Remove all vertices occupied by some building or next to one
+    VertexMap:iter(self.game.buildmap, function (q, r, v)
+        VertexMap:set(available, Grid:vertex(q, r, v), nil)
+        for i, vertex in ipairs(Grid:adjacentVertices(q, r, v)) do
+            VertexMap:set(available, vertex, nil)
+        end
+    end)
+
+    return available
+end
+
 function catan:renderBoard ()
     local layer = {}
 
@@ -283,6 +304,16 @@ function catan:renderBoard ()
         local s = (0.6 * hexsize) / img:getHeight()
         addSprite{img, x=x, y=y, sx=s, center=true}
     end)
+
+    -- Vertex selection
+    if self.game.phase == "placingInitialSettlement" then
+        local available = self:getAvailableVertices()
+        local img = self.images.vertexselect
+        VertexMap:iter(available, function (q, r, v)
+            local x, y = self:getVertexPos(q, r, v)
+            addSprite{img, x=x, y=y, sx=0.5, center=true}
+        end)
+    end
 
     -- Robber
     do

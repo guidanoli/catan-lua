@@ -239,6 +239,18 @@ function catan:getAvailableVertices ()
     return available
 end
 
+function catan:placeInitialSettlement (q, r, v)
+    local ok, err = pcall(function()
+        self.game:placeInitialSettlement(Grid:vertex(q, r, v))
+    end)
+    if ok then
+        self:requestAllLayersUpdate()
+    else
+        -- TODO: Display error nicely
+        print(err[1])
+    end
+end
+
 function catan:renderBoard ()
     local layer = {}
 
@@ -311,7 +323,16 @@ function catan:renderBoard ()
         local img = self.images.vertexselect
         VertexMap:iter(available, function (q, r, v)
             local x, y = self:getVertexPos(q, r, v)
-            addSprite{img, x=x, y=y, sx=0.5, center=true}
+            addSprite{
+                img,
+                x = x,
+                y = y,
+                sx = 0.5,
+                center = true,
+                onleftclick = function ()
+                    self:placeInitialSettlement(q, r, v)
+                end,
+            }
         end)
     end
 

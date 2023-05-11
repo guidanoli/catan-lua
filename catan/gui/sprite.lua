@@ -94,12 +94,25 @@ function Sprite.new (s)
 end
 
 ---
+-- Get top-left corner x-coordinate
+-- @treturn number x-coordinate
+function Sprite:getX ()
+    return self.x - self.ox * self.sx
+end
+
+---
+-- Get top-left corner y-coordinate
+-- @treturn number y-coordinate
+function Sprite:getY ()
+    return self.y - self.oy * self.sy
+end
+
+---
 -- Get top-left corner coordinates
 -- @treturn number x-coordinate
 -- @treturn number y-coordinate
 function Sprite:getCoords ()
-    return self.x - self.ox * self.sx,
-           self.y - self.oy * self.sy
+    return self:getX(), self:getY()
 end
 
 ---

@@ -28,9 +28,12 @@ ldoc .
 
 This should load the configurations from the `config.ld` file. You can tinker with the configuration however you like.
 
-## Resources
+## User Resources
 
 * [Catan 5th Edition Base Rules (2020)](https://www.catan.com/sites/default/files/2021-06/catan_base_rules_2020_200707.pdf)
+
+## Developer Resources
+
 * [Article "Hexagonal Grids" by Red Blob Games (2021)](https://www.redblobgames.com/grids/hexagons)
 * [Article "Grid parts and relationships" by Red Blob Games (2021)](https://www.redblobgames.com/grids/parts/)
 * [Article "Amit's Thoughts on Grids" by Amit Patel (2006)](http://www-cs-students.stanford.edu/~amitp/game-programming/grids/)

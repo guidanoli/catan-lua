@@ -238,7 +238,7 @@ function Game:_isVertexAdjacentToSomeBuilding (vertex)
     local adjacentVertices = Grid:adjacentVertices(Grid:unpack(vertex))
     for _, adjacentVertex in ipairs(adjacentVertices) do
         if VertexMap:get(self.buildmap, adjacentVertex) then
-            return true -- stop iteration
+            return true
         end
     end
     return false
@@ -249,7 +249,7 @@ function Game:_isVertexNearPlayersRoad (vertex)
     for _, protrudingEdge in ipairs(protrudingEdges) do
         local road = EdgeMap:get(self.roadmap, protrudingEdge)
         if road == self.player then
-            return true -- stop iteration
+            return true
         end
     end
     return false

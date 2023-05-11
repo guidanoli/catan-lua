@@ -396,14 +396,17 @@ function catan:renderSidebar ()
         local playerX = sidebarX + PLAYERS_OX * s
         local playerY = sidebarY + PLAYERS_OY * s
 
+        local scoreX = playerX + 37
+
         local boxImg = self.images.playerbox
 
         local TEXT_OY = boxImg:getHeight() / 2
 
         local BLACK = {0, 0, 0}
+        local WHITE = {1, 1, 1}
 
-        local function addCenteredTextSprite (textstring, x)
-            local text = love.graphics.newText(self.font, {BLACK, textstring})
+        local function addCenteredTextSprite (textstring, x, color)
+            local text = love.graphics.newText(self.font, {color, textstring})
             local y = playerY + TEXT_OY
             addSprite{text, x=x, y=y, center=true}
         end
@@ -415,10 +418,14 @@ function catan:renderSidebar ()
 
             local circleImg = assert(self.images.circle[player], "missing circle sprite")
             local sprite = addSprite{circleImg, x=playerX, y=playerY}
-            addCenteredTextSprite(self.game:getNumberOfResourceCards(player), RES_X)
-            addCenteredTextSprite(self.game:getNumberOfDevelopmentCards(player), DEV_X)
-            addCenteredTextSprite(self.game:getArmySize(player), KNIGHT_X)
-            addCenteredTextSprite("?", ROAD_X)
+
+            local scoreColor = (player == "white") and BLACK or WHITE
+
+            addCenteredTextSprite(self.game:getNumberOfPublicVictoryPoints(player), scoreX, scoreColor)
+            addCenteredTextSprite(self.game:getNumberOfResourceCards(player), RES_X, BLACK)
+            addCenteredTextSprite(self.game:getNumberOfDevelopmentCards(player), DEV_X, BLACK)
+            addCenteredTextSprite(self.game:getArmySize(player), KNIGHT_X, BLACK)
+            addCenteredTextSprite("?", ROAD_X, BLACK)
 
             playerY = playerY + sprite:getHeight()
         end

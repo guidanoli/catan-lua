@@ -8,6 +8,7 @@ local platform = require "util.platform"
 local Game = require "catan.logic.game"
 local FaceMap = require "catan.logic.facemap"
 local VertexMap = require "catan.logic.vertexmap"
+local EdgeMap = require "catan.logic.edgemap"
 local Grid = require "catan.logic.grid"
 
 local gutil = require "catan.gui.util"
@@ -143,6 +144,15 @@ function catan:getVertexPos (q, r, v)
     return x, y
 end
 
+function catan:getEdgeCenter (q, r, e)
+    local endpoints = Grid:endpoints(q, r, e)
+    assert(#endpoints == 2)
+    local x1, y1 = self:getVertexPos(Grid:unpack(endpoints[1]))
+    local x2, y2 = self:getVertexPos(Grid:unpack(endpoints[2]))
+    return (x1 + x2) / 2, (y1 + y2) / 2
+end
+
+
 -- Returns angles for north-vertex and south-vertex in CCW degrees
 function catan:harborAnglesFromOrientation (o)
     if o == 'NE' then
@@ -239,6 +249,31 @@ function catan:getAvailableVerticesForInitialSettlement ()
     return available
 end
 
+function catan:getAvailableEdgesForInitialRoad ()
+    local available = {}
+
+    -- Find the player's building with no protruding roads and
+    -- add to the set only those edges that join some face with hex
+    VertexMap:iter(self.game.buildmap, function (q, r, v, building)
+        if building.player == self.game.player then
+            local protrudingEdges = Grid:protrudingEdges(q, r, v)
+            for i, edge in ipairs(protrudingEdges) do
+                if EdgeMap:get(self.game.roadmap, edge) then
+                    return false -- skip to next iteration
+                end
+            end
+            for i, edge in ipairs(protrudingEdges) do
+                if self:getJoinedFaceWithHex(edge) then
+                    EdgeMap:set(available, edge, true)
+                end
+            end
+            return true -- quit iteration
+        end
+    end)
+
+    return available
+end
+
 function catan:placeInitialSettlement (q, r, v)
     self.game:placeInitialSettlement(Grid:vertex(q, r, v))
     self:requestAllLayersUpdate()
@@ -325,6 +360,25 @@ function catan:renderBoard ()
                 onleftclick = function ()
                     self:placeInitialSettlement(q, r, v)
                 end,
+            }
+        end)
+    end
+
+    -- Edge selection
+    if self.game.phase == "placingInitialRoad" then
+        local available = self:getAvailableEdgesForInitialRoad()
+        local img = self.images.selection
+        EdgeMap:iter(available, function (q, r, e)
+            local x, y = self:getEdgeCenter(q, r, e)
+            addSprite{
+                img,
+                x = x,
+                y = y,
+                sx = 0.5,
+                center = true,
+                onleftclick = function ()
+                    print('clicked on edge', q, r, e)
+                end
             }
         end)
     end

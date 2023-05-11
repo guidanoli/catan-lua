@@ -335,7 +335,7 @@ function catan:renderBoard ()
             local x, y = self:getVertexPos(q, r, v)
             if building.kind == "settlement" then
                 local img = assert(self.images.settlement[building.player], "missing settlement image")
-                addSprite{img, x=x, y=y, sx=0.6, center=true}
+                addSprite{img, x=x, y=y, sx=0.5, center=true}
             else
                 assert(building.kind == "city")
                 -- TODO: render cities

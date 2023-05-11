@@ -214,7 +214,10 @@ end
 
 function Game:placeInitialSettlement (vertex)
     self:_assertPhaseIs"placingInitialSettlement"
-    self:_assertCanBuildInVertex(vertex)
+
+    assert(self:_isVertexCornerOfSomeHex(vertex), "vertex not corner of some hex")
+    assert(VertexMap:get(self.buildmap, vertex) == nil, "vertex has building")
+    assert(not self:_isVertexAdjacentToSomeBuilding(vertex), "vertex adjacent to building")
 
     VertexMap:set(self.buildmap, vertex, {
         kind = "settlement",
@@ -224,20 +227,16 @@ function Game:placeInitialSettlement (vertex)
     self.phase = "placingInitialRoad"
 end
 
+function Game:placeInitialRoad (edge)
+    self:_assertPhaseIs"placingInitialRoad"
+end
+
 --------------------------------
 -- Checks
 --------------------------------
 
 function Game:_assertPhaseIs (expectedPhase)
-    if self.phase ~= expectedPhase then
-        error(('expected phase "%s", not "%s"'):format(expectedPhase, self.phase))
-    end
-end
-
-function Game:_assertCanBuildInVertex (vertex)
-    assert(self:_isVertexCornerOfSomeHex(vertex), "vertex not corner of some hex")
-    assert(VertexMap:get(self.buildmap, vertex) == nil, "vertex has building")
-    assert(not self:_isVertexAdjacentToSomeBuilding(vertex), "vertex adjacent to building")
+    assert(self.phase == expectedPhase, "not " .. expectedPhase)
 end
 
 --------------------------------

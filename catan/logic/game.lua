@@ -145,8 +145,7 @@ end
 --------------------------------
 
 function Game:getNumberOfVictoryPoints (player)
-    -- Publicly known VPs
-    local n = self:getNumberOfPublicVictoryPoints(player)
+    local n = 0
 
     -- 1 VP for every VP card bought by the player
     for i, devcard in ipairs(self.devcards[player]) do
@@ -154,12 +153,6 @@ function Game:getNumberOfVictoryPoints (player)
             n = n + 1
        end
     end
-
-    return n
-end
-
-function Game:getNumberOfPublicVictoryPoints (player)
-    local n = 0
 
     -- 1 VP for every settlement built by the player
     -- 2 VPs for every city built by the player

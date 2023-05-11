@@ -122,6 +122,26 @@ function Grid:joins (q, r, e)
     end
 end
 
+function Grid:endpoints (q, r, e)
+    if e == 'NE' then
+        return {
+            self:vertex(q+1, r-1, 'S'),
+            self:vertex(q, r, 'N'),
+        }
+    elseif e == 'NW' then
+        return {
+            self:vertex(q, r, 'N'),
+            self:vertex(q, r-1, 'S'),
+        }
+    else
+        assert(e == 'W')
+        return {
+            self:vertex(q, r-1, 'S'),
+            self:vertex(q-1, r+1, 'N'),
+        }
+    end
+end
+
 function Grid:edgeInBetween (vertex1, vertex2)
     local edges1 = self:protrudingEdges(Grid:unpack(vertex1))
     local edges2 = self:protrudingEdges(Grid:unpack(vertex2))

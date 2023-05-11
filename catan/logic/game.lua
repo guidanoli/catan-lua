@@ -235,13 +235,9 @@ function Game:_assertPhaseIs (expectedPhase)
 end
 
 function Game:_assertCanBuildInVertex (vertex)
-    if not self:_isVertexCornerOfSomeHex(vertex) then
-        error"vertex not corner of some hex"
-    elseif VertexMap:get(self.buildmap, vertex) then
-        error"vertex has building"
-    elseif self:_isVertexAdjacentToSomeBuilding(vertex) then
-        error"vertex adjacent to building"
-    end
+    assert(self:_isVertexCornerOfSomeHex(vertex), "vertex not corner of some hex")
+    assert(VertexMap:get(self.buildmap, vertex) == nil, "vertex has building")
+    assert(not self:_isVertexAdjacentToSomeBuilding(vertex), "vertex adjacent to building")
 end
 
 --------------------------------

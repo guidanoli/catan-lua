@@ -193,28 +193,17 @@ end
 
 function Game:_assertPhaseIs (expectedPhase)
     if self.phase ~= expectedPhase then
-        error{
-            "UnexpectedPhase",
-            expected = expectedPhase,
-        }
+        error(('expected phase "%s", not "%s"'):format(expectedPhase, self.phase))
     end
 end
 
 function Game:_assertCanBuildInVertex (vertex)
     if not self:_isVertexCornerOfSomeHex(vertex) then
-        error{
-            "VertexNotCornerOfHex",
-        }
-    end
-    if VertexMap:get(self.buildmap, vertex) then
-        error{
-            "VertexHasBuilding",
-        }
-    end
-    if self:_isVertexAdjacentToSomeBuilding(vertex) then
-        error{
-            "VertexAdjacentToBuilding",
-        }
+        error"vertex not corner of some hex"
+    elseif VertexMap:get(self.buildmap, vertex) then
+        error"vertex has building"
+    elseif self:_isVertexAdjacentToSomeBuilding(vertex) then
+        error"vertex adjacent to building"
     end
 end
 

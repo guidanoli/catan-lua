@@ -218,7 +218,7 @@ function catan:getShipImageFromHarbor (harbor)
     end
 end
 
-function catan:getAvailableVertices ()
+function catan:getAvailableVerticesForInitialSettlement ()
     local available = {}
 
     -- Add all vertices to the set
@@ -312,7 +312,7 @@ function catan:renderBoard ()
 
     -- Vertex selection
     if self.game.phase == "placingInitialSettlement" then
-        local available = self:getAvailableVertices()
+        local available = self:getAvailableVerticesForInitialSettlement()
         local img = self.images.vertexselect
         VertexMap:iter(available, function (q, r, v)
             local x, y = self:getVertexPos(q, r, v)

@@ -421,7 +421,7 @@ function catan:renderSidebar ()
 
             local scoreColor = (player == "white") and BLACK or WHITE
 
-            addCenteredTextSprite(self.game:getNumberOfPublicVictoryPoints(player), scoreX, scoreColor)
+            addCenteredTextSprite(self.game:getNumberOfVictoryPoints(player), scoreX, scoreColor)
             addCenteredTextSprite(self.game:getNumberOfResourceCards(player), RES_X, BLACK)
             addCenteredTextSprite(self.game:getNumberOfDevelopmentCards(player), DEV_X, BLACK)
             addCenteredTextSprite(self.game:getArmySize(player), KNIGHT_X, BLACK)

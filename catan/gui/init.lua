@@ -313,7 +313,7 @@ function catan:renderBoard ()
     -- Vertex selection
     if self.game.phase == "placingInitialSettlement" then
         local available = self:getAvailableVerticesForInitialSettlement()
-        local img = self.images.vertexselect
+        local img = self.images.selection
         VertexMap:iter(available, function (q, r, v)
             local x, y = self:getVertexPos(q, r, v)
             addSprite{

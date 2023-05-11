@@ -240,15 +240,8 @@ function catan:getAvailableVertices ()
 end
 
 function catan:placeInitialSettlement (q, r, v)
-    local ok, err = pcall(function()
-        self.game:placeInitialSettlement(Grid:vertex(q, r, v))
-    end)
-    if ok then
-        self:requestAllLayersUpdate()
-    else
-        -- TODO: Display error nicely
-        print(err[1])
-    end
+    self.game:placeInitialSettlement(Grid:vertex(q, r, v))
+    self:requestAllLayersUpdate()
 end
 
 function catan:renderBoard ()

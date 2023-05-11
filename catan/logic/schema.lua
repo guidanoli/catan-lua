@@ -130,7 +130,7 @@ m.GameState = s.Struct{
     player = m.Player,
     devcards = PlayerMap(s.Array(m.DevelopmentCard)),
     rescards = PlayerMap(ResourceCardHistogram),
-    largestroad = s.Option(m.Player),
+    longestroad = s.Option(m.Player),
     largestarmy = s.Option(m.Player),
     -- free cards
     drawpile = s.Array(m.DevelopmentCardKind),

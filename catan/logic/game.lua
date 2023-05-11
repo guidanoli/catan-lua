@@ -144,6 +144,49 @@ end
 -- Getters
 --------------------------------
 
+function Game:getNumberOfVictoryPoints (player)
+    -- Publicly known VPs
+    local n = self:getNumberOfPublicVictoryPoints(player)
+
+    -- 1 VP for every VP card bought by the player
+    for i, devcard in ipairs(self.devcards[player]) do
+        if devcard.kind == "victorypoint" and devcard.round < self.round then
+            n = n + 1
+       end
+    end
+
+    return n
+end
+
+function Game:getNumberOfPublicVictoryPoints (player)
+    local n = 0
+
+    -- 1 VP for every settlement built by the player
+    -- 2 VPs for every city built by the player
+    VertexMap:iter(self.buildmap, function (q, r, v, building)
+        if building.player == player then
+            if building.kind == "settlement" then
+                n = n + 1
+            else
+                assert(building.kind == "city")
+                n = n + 2
+            end
+        end
+    end)
+
+    -- 2 VP if player has the longest road
+    if self.longestroad == player then
+        n = n + 2
+    end
+
+    -- 2 VP if player has the largest army
+    if self.largestarmy == player then
+        n = n + 2
+    end
+
+    return n
+end
+
 function Game:getNumberOfDevelopmentCards (player)
     local n = 0
     for i, devcard in ipairs(self.devcards[player]) do

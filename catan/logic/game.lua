@@ -104,7 +104,7 @@ function Game:_placeRobberInDesert ()
     FaceMap:iter(self.hexmap, function (q, r, hex)
         if hex == 'desert' then
             self.robber = Grid:face(q, r)
-            return true -- stop iteration
+            return true -- quit iteration
         end
     end)
 end
@@ -264,7 +264,7 @@ function Game:_isVertexCornerOfSomeHex (vertex)
         for _, corner in ipairs(Grid:corners(q, r)) do
             if Grid:vertexEq(corner, vertex) then
                 found = true
-                return true -- stop iteration
+                return true -- quit iteration
             end
         end
     end)

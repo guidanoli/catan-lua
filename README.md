@@ -2,13 +2,13 @@
 
 ## Dependencies
 
-For end-users and developers:
+For users:
 
-* [Lua] 5.4
 * [LÖVE] 11.4
 
 For developers:
 
+* [Lua] 5.4
 * [Serpent] 0.30-2
 * [LDoc] 1.4.6
 

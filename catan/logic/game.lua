@@ -174,9 +174,17 @@ end
 
 function Game:_validateBuildMap ()
     local numOfLonelySettlements = 0
+    local numOfBuildings = {}
+
+    for _, player in ipairs(self.players) do
+        numOfBuildings[player] = 0
+    end
 
     -- for every building...
     VertexMap:iter(self.buildmap, function (q, r, v, building)
+
+        -- increment the building counter for that player
+        numOfBuildings[building.player] = numOfBuildings[building.player] + 1
 
         -- the vertex must touch a face with hex
         local touchesFaceWithHex = false
@@ -214,6 +222,49 @@ function Game:_validateBuildMap ()
 
     -- there must not be more than one lonely settlement
     assert(numOfLonelySettlements <= 1)
+
+    if self.round == 1 then
+        -- in round 1, every player that has played must have 1 building
+        -- and every player that hasn't played must have 0 buildings
+        local j = self:_getCurrentPlayerIndex()
+        for i, player in ipairs(self.players) do
+            if i < j then
+                assert(numOfBuildings[player] == 1)
+            elseif i == j then
+                if self.phase == "placingInitialRoad" then
+                    assert(numOfBuildings[player] == 1)
+                else
+                    assert(self.phase == "placingInitialSettlement")
+                    assert(numOfBuildings[player] == 0)
+                end
+            else
+                assert(numOfBuildings[player] == 0)
+            end
+        end
+    elseif self.round == 2 then
+        -- in round 2, every player that has played must have 2 building
+        -- and every player that hasn't played must have 1 building
+        local j = self:_getCurrentPlayerIndex()
+        for i, player in ipairs(self.players) do
+            if i < j then
+                assert(numOfBuildings[player] == 1)
+            elseif i == j then
+                if self.phase == "placingInitialRoad" then
+                    assert(numOfBuildings[player] == 2)
+                else
+                    assert(self.phase == "placingInitialSettlement")
+                    assert(numOfBuildings[player] == 1)
+                end
+            else
+                assert(numOfBuildings[player] == 2)
+            end
+        end
+    else
+        -- after round 2, each player must have at least 2 buildings
+        for _, player in ipairs(self.players) do
+            assert(numOfBuildings[player] >= 2)
+        end
+    end
 end
 
 --------------------------------

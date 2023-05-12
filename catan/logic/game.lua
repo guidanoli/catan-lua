@@ -1,3 +1,5 @@
+require "util.compat"
+
 local Class = require "util.class"
 local TableUtils = require "util.table"
 
@@ -142,11 +144,31 @@ function Game:_createBank ()
 end
 
 --------------------------------
--- Validator
+-- Validation
 --------------------------------
 
 function Game:validate ()
     CatanSchema.GameState:validate(self)
+
+    -- We only validate dynamic fields, since
+    -- the static fields are checked during construction
+
+    self:_validateRound()
+end
+
+function Game:_validateRound ()
+    assert(math.type(self.round) == "integer")
+    assert(self.round >= 1)
+
+    -- set of initial rounds and phases
+    local initialRounds = {[1] = true, [2] = true}
+    local initialPhases = {placingInitialSettlement = true, placingInitialRoad = true}
+
+    -- Lua 5.1 doesn't have exclusive or...
+    local function iff(a, b) return (a and b) or (not a and not b) end
+
+    -- round in [1,2] iff phase is placing initial settlement or road
+    assert(iff(initialRounds[self.round], initialPhases[self.phase]))
 end
 
 --------------------------------

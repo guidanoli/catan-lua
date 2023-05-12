@@ -39,9 +39,8 @@ function EdgeMap:iter(map, f)
     for q, mapq in pairs(map) do
         for r, mapqr in pairs(mapq) do
             for e, mapqre in pairs(mapqr) do
-                if f(q, r, e, mapqre) then
-                    return
-                end
+                ret = f(q, r, e, mapqre)
+                if ret then return ret end
             end
         end
     end

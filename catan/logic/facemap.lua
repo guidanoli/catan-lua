@@ -29,9 +29,8 @@ end
 function FaceMap:iter(map, f)
     for q, mapq in pairs(map) do
         for r, mapqr in pairs(mapq) do
-            if f(q, r, mapqr) then
-                return
-            end
+            ret = f(q, r, mapqr)
+            if ret then return ret end
         end
     end
 end

@@ -229,6 +229,33 @@ end
 
 function Game:placeInitialRoad (edge)
     self:_assertPhaseIs"placingInitialRoad"
+
+    assert(self:_isEdgeEndpointOfPlayerLonelySettlement(edge), "edge not endpoint from player's lonely building")
+    assert(self:_doesEdgeJoinFaceWithHex(edge), "edge does not join face with hex")
+
+    EdgeMap:set(self.roadmap, edge, self.player)
+
+    local i = self:_getCurrentPlayerIndex()
+
+    if self.round == 1 then
+        if i == #self.players then
+            self.round = 2
+        else
+            self.player = self:_getPlayerAfterIndex(i)
+        end
+
+        self.phase = "placingInitialSettlement"
+    else
+        assert(self.round == 2)
+
+        if i == 1 then
+            self.round = 3
+            self.phase = "playingTurns"
+        else
+            self.player = self:_getPlayerBeforeIndex(i)
+            self.phase = "placingInitialSettlement"
+        end
+    end
 end
 
 --------------------------------
@@ -242,6 +269,55 @@ end
 --------------------------------
 -- Auxiliary functions
 --------------------------------
+
+function Game:_getCurrentPlayerIndex ()
+    for i, player in ipairs(self.players) do
+        if player == self.player then
+            return i
+        end
+    end
+    error"player not in players"
+end
+
+function Game:_getPlayerAfterIndex (i)
+    local n = #self.players
+    return self.players[i % n + 1]
+end
+
+function Game:_getPlayerBeforeIndex (i)
+    local n = #self.players
+    return self.players[(i + n - 2) % n + 1]
+end
+
+-- We say a settlement is lonely when it has no protruding roads
+function Game:_isEdgeEndpointOfPlayerLonelySettlement (edge)
+    for _, endpoint in ipairs(Grid:endpoints(Grid:unpack(edge))) do
+        local building = VertexMap:get(self.buildmap, endpoint)
+        if building and building.player == self.player then
+            assert(building.kind == "settlement")
+            local isSettlementLonely = true
+            for _, protrudingEdge in ipairs(Grid:protrudingEdges(Grid:unpack(endpoint))) do
+                if EdgeMap:get(self.roadmap, protrudingEdge) then
+                    isSettlementLonely = false
+                    break
+                end
+            end
+            if isSettlementLonely then
+                return true
+            end
+        end
+    end
+    return false
+end
+
+function Game:_doesEdgeJoinFaceWithHex (edge)
+    for i, joinedFace in ipairs(Grid:joins(Grid:unpack(edge))) do
+        if FaceMap:get(self.hexmap, joinedFace) then
+            return true
+        end
+    end
+    return false
+end
 
 function Game:_numberOfBuildings ()
     local n = 0

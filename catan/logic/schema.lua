@@ -7,6 +7,7 @@ local m = {}
 m.Phase = s.Enum{
     'placingInitialSettlement',
     'placingInitialRoad',
+    'playingTurns',
 }
 
 m.Face = s.Struct{

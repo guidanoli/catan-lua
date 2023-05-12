@@ -1,6 +1,7 @@
 local Class = require "util.class"
 local TableUtils = require "util.table"
 
+local CatanSchema = require "catan.logic.schema"
 local Constants = require "catan.logic.constants"
 local Grid = require "catan.logic.grid"
 local FaceMap = require "catan.logic.facemap"
@@ -138,6 +139,14 @@ function Game:_createBank ()
     for rescard, count in pairs(Constants.rescards) do
         self.bank[rescard] = count
     end
+end
+
+--------------------------------
+-- Validator
+--------------------------------
+
+function Game:validate ()
+    CatanSchema.GameState:validate(self)
 end
 
 --------------------------------

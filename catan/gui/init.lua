@@ -69,6 +69,10 @@ function catan:requestAllLayersUpdate ()
     end
 end
 
+function catan:requestValidation ()
+    self.validationPending = true
+end
+
 function catan:load ()
     love.window.setMode(1400, 900)
     love.window.setTitle"Settlers of Catan"
@@ -88,6 +92,7 @@ function catan:load ()
     self.layersPendingUpdate = {}
 
     self:requestAllLayersUpdate()
+    self:requestValidation()
 end
 
 function catan:iterSprites (f)
@@ -290,11 +295,13 @@ end
 function catan:placeInitialSettlement (q, r, v)
     self.game:placeInitialSettlement(Grid:vertex(q, r, v))
     self:requestAllLayersUpdate()
+    self:requestValidation()
 end
 
 function catan:placeInitialRoad (q, r, e)
     self.game:placeInitialRoad(Grid:edge(q, r, e))
     self:requestAllLayersUpdate()
+    self:requestValidation()
 end
 
 function catan:renderBoard ()
@@ -530,6 +537,11 @@ function catan:update (dt)
         assert(layer, string.format('could not render layer "%s"', layername))
         self.layers[layername] = layer
         self.layersPendingUpdate[layername] = nil
+    end
+
+    if self.validationPending then
+        self.game:validate()
+        self.validationPending = false
     end
 
     -- TODO: update animations using `dt`

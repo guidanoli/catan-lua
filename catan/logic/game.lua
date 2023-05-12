@@ -154,6 +154,7 @@ function Game:validate ()
     -- the static fields are checked during construction
 
     self:_validateRound()
+    self:_validateBuildMap()
 end
 
 function Game:_validateRound ()
@@ -169,6 +170,27 @@ function Game:_validateRound ()
 
     -- round in [1,2] iff phase is placing initial settlement or road
     assert(iff(initialRounds[self.round], initialPhases[self.phase]))
+end
+
+function Game:_validateBuildMap ()
+    -- for every building...
+    VertexMap:iter(self.buildmap, function (q, r, v)
+
+        -- the vertex must touch a face with hex, and...
+        local touchesFaceWithHex = false
+        for _, touchingFace in ipairs(Grid:touches(q, r, v)) do
+            if FaceMap:get(self.hexmap, touchingFace) then
+                touchesFaceWithHex = true
+                break
+            end
+        end
+        assert(touchesFaceWithHex)
+
+        -- every adjacent vertex must be empty
+        for _, adjacentVertex in ipairs(Grid:adjacentVertices(q, r, v)) do
+            assert(not VertexMap:get(self.buildmap, adjacentVertex))
+        end
+    end)
 end
 
 --------------------------------

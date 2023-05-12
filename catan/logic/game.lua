@@ -173,10 +173,12 @@ function Game:_validateRound ()
 end
 
 function Game:_validateBuildMap ()
-    -- for every building...
-    VertexMap:iter(self.buildmap, function (q, r, v)
+    local numOfLonelySettlements = 0
 
-        -- the vertex must touch a face with hex, and...
+    -- for every building...
+    VertexMap:iter(self.buildmap, function (q, r, v, building)
+
+        -- the vertex must touch a face with hex
         local touchesFaceWithHex = false
         for _, touchingFace in ipairs(Grid:touches(q, r, v)) do
             if FaceMap:get(self.hexmap, touchingFace) then
@@ -186,11 +188,32 @@ function Game:_validateBuildMap ()
         end
         assert(touchesFaceWithHex)
 
-        -- every adjacent vertex must be empty
+        -- the vertex must have a protruding edge with a road of same color
+        -- (in other words, the vertex must be a road endpoint of same color)
+        local isRoadEndpoint = false
+        for _, protrudingEdge in ipairs(Grid:protrudingEdges(q, r, v)) do
+            local player = EdgeMap:get(self.roadmap, protrudingEdge)
+            if building.player == player then
+                isRoadEndpoint = true
+                break
+            end
+        end
+        -- unless the current player is still placing the road...
+        if not isRoadEndpoint then
+            assert(self.phase == "placingInitialRoad")
+            assert(self.player == building.player)
+            assert(building.kind == "settlement")
+            numOfLonelySettlements = numOfLonelySettlements + 1
+        end
+
+        -- every adjacent vertex must have no building
         for _, adjacentVertex in ipairs(Grid:adjacentVertices(q, r, v)) do
             assert(not VertexMap:get(self.buildmap, adjacentVertex))
         end
     end)
+
+    -- there must not be more than one lonely settlement
+    assert(numOfLonelySettlements <= 1)
 end
 
 --------------------------------

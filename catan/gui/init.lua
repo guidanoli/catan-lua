@@ -35,8 +35,8 @@ catan.LAYER_NAMES = {
 -- 4) Hex tiles - OK
 -- 5) Numbers - OK
 -- 6) Robber - OK
--- 7) Roads
--- 8) Settlements/Cities
+-- 7) Roads - OK
+-- 8) Settlements/Cities - WIP
 -- 9) Die
 
 function catan:loadImgDir (dir)
@@ -274,8 +274,26 @@ function catan:getAvailableEdgesForInitialRoad ()
     return available
 end
 
+function catan:getRoadAngleForEdge (e)
+    local r
+    if e == 'NE' then
+        r = 150
+    elseif e == 'NW' then
+        r = 210
+    else
+        assert(e == 'W')
+        r = 270
+    end
+    return gutil:ccwdeg2cwrad(r)
+end
+
 function catan:placeInitialSettlement (q, r, v)
     self.game:placeInitialSettlement(Grid:vertex(q, r, v))
+    self:requestAllLayersUpdate()
+end
+
+function catan:placeInitialRoad (q, r, e)
+    self.game:placeInitialRoad(Grid:edge(q, r, e))
     self:requestAllLayersUpdate()
 end
 
@@ -377,9 +395,19 @@ function catan:renderBoard ()
                 sx = 0.5,
                 center = true,
                 onleftclick = function ()
-                    print('clicked on edge', q, r, e)
+                    self:placeInitialRoad(q, r, e)
                 end
             }
+        end)
+    end
+
+    -- Roads
+    do
+        EdgeMap:iter(self.game.roadmap, function (q, r, e, player)
+            local x, y = self:getEdgeCenter(q, r, e)
+            local r = self:getRoadAngleForEdge(e)
+            local img = assert(self.images.road[player], "missing road image")
+            addSprite{img, x=x, y=y, r=r, sx=0.25, center=true}
         end)
     end
 

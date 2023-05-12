@@ -1,7 +1,11 @@
+require "util.compat"
+
+local Grid = require "catan.logic.grid"
+
 local FaceMap = {}
 
 function FaceMap:get(map, face)
-    local q, r = face.q, face.r
+    local q, r = Grid:unpack(face)
     local mapq = map[q]
     if mapq then
         return mapq[r]
@@ -9,7 +13,11 @@ function FaceMap:get(map, face)
 end
 
 function FaceMap:set(map, face, o)
-    local q, r = face.q, face.r
+    local q, r = Grid:unpack(face)
+    assert(type(q) == 'number')
+    assert(math.type(q) == 'integer')
+    assert(type(r) == 'number')
+    assert(math.type(r) == 'integer')
     local mapq = map[q]
     if mapq == nil then
         mapq = {}

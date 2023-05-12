@@ -1,7 +1,11 @@
+require "util.compat"
+
+local Grid = require "catan.logic.grid"
+
 local EdgeMap = {}
 
 function EdgeMap:get(map, edge)
-    local q, r, e = edge.q, edge.r, edge.e
+    local q, r, e = Grid:unpack(edge)
     local mapq = map[q]
     if mapq then
         local mapqr = mapq[r]
@@ -12,7 +16,12 @@ function EdgeMap:get(map, edge)
 end
 
 function EdgeMap:set(map, edge, o)
-    local q, r, e = edge.q, edge.r, edge.e
+    local q, r, e = Grid:unpack(edge)
+    assert(type(q) == 'number')
+    assert(math.type(q) == 'integer')
+    assert(type(r) == 'number')
+    assert(math.type(r) == 'integer')
+    assert(e == 'NE' or e == 'NW' or e == 'W')
     local mapq = map[q]
     if mapq == nil then
         mapq = {}

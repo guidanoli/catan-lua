@@ -68,6 +68,23 @@ function Grid:corners (q, r)
     }
 end
 
+function Grid:touches (q, r, v)
+    if v == 'N' then
+        return {
+            self:face(q+1, r-1),
+            self:face(q, r),
+            self:face(q, r-1),
+        }
+    else
+        assert(v == 'S')
+        return {
+            self:face(q, r),
+            self:face(q, r+1),
+            self:face(q-1, r+1),
+        }
+    end
+end
+
 function Grid:protrudingEdges (q, r, v)
     if v == 'N' then
         return {

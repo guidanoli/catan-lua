@@ -1,11 +1,16 @@
-require "util.compat"
-
 local Grid = require "catan.logic.grid"
+local CatanSchema = require "catan.logic.schema"
+
+local Vertex = CatanSchema.Vertex
 
 local VertexMap = {}
 
-function VertexMap:get(map, vertex)
-    local q, r, v = Grid:unpack(vertex)
+function VertexMap:get (map, vertex)
+    assert(Vertex:isValid(vertex))
+    return self:_get(map, Grid:unpack(vertex))
+end
+
+function VertexMap:_get (map, q, r, v)
     local mapq = map[q]
     if mapq then
         local mapqr = mapq[r]
@@ -15,13 +20,12 @@ function VertexMap:get(map, vertex)
     end
 end
 
-function VertexMap:set(map, vertex, o)
-    local q, r, v = Grid:unpack(vertex)
-    assert(type(q) == 'number')
-    assert(math.type(q) == 'integer')
-    assert(type(r) == 'number')
-    assert(math.type(r) == 'integer')
-    assert(v == 'N' or v == 'S')
+function VertexMap:set (map, vertex, o)
+    assert(Vertex:isValid(vertex))
+    self:_set(map, o, Grid:unpack(vertex))
+end
+
+function VertexMap:_set (map, o, q, r, v)
     local mapq = map[q]
     if mapq == nil then
         mapq = {}
@@ -35,7 +39,7 @@ function VertexMap:set(map, vertex, o)
     mapqr[v] = o
 end
 
-function VertexMap:iter(map, f)
+function VertexMap:iter (map, f)
     for q, mapq in pairs(map) do
         for r, mapqr in pairs(mapq) do
             for v, mapqrv in pairs(mapqr) do

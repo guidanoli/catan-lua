@@ -15,12 +15,14 @@ end
 
 local function ok(v)
     assert(s:validate(v))
+    s:assertValid(v)
     assert(s:eq(v, v))
     print('ok...', pprint(v))
 end
 
 local function fail(v)
     assert(not s:validate(v))
+    assert(not pcall(function() s:assertValid(v) end))
     print('fail (expected)...', pprint(v))
 end
 

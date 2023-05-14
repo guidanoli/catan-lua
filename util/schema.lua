@@ -139,6 +139,16 @@ function Schema.comparators:map (t1, t2)
 end
 
 ---
+-- Asserts input is valid according to schema
+-- @param t input
+function Schema:assertValid (t)
+    local ok, path, err = self:validate(t)
+    if not ok then
+        error(string.format('Error in %s: %s', path, err))
+    end
+end
+
+---
 -- Validate an input against a schema
 -- @param t input
 -- @treturn boolean whether the schema accepted or rejected the input

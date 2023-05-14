@@ -70,6 +70,23 @@ for t in pairs(types) do
     end
 end
 
+-- Integer
+
+do
+    s = schema.Integer()
+
+    ok(0)
+    ok(1)
+    ok(-1)
+
+    fail('123')
+    for _, value in pairs(values) do
+        if type(value) ~= 'number' then
+            fail(value)
+        end
+    end
+end
+
 -- Structs
 
 do

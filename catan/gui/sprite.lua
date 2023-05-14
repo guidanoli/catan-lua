@@ -3,8 +3,6 @@
 --
 -- @module catan.gui.sprite
 
-require "util.compat"
-
 local Class = require "util.class"
 
 ---

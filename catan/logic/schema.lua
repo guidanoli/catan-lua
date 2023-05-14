@@ -1,8 +1,10 @@
--- Catan schemas v2.0
+-- Catan schemas
 
 local s = require "util.schema"
 
 local m = {}
+
+local Int = s.Integer()
 
 m.Phase = s.Enum{
     'placingInitialSettlement',
@@ -11,8 +13,8 @@ m.Phase = s.Enum{
 }
 
 m.Face = s.Struct{
-    q = s.Type'number',
-    r = s.Type'number',
+    q = Int,
+    r = Int,
 }
 
 m.VertexKind = s.Enum{
@@ -21,8 +23,8 @@ m.VertexKind = s.Enum{
 }
 
 m.Vertex = s.Struct{
-    q = s.Type'number',
-    r = s.Type'number',
+    q = Int,
+    r = Int,
     v = m.VertexKind,
 }
 
@@ -33,8 +35,8 @@ m.EdgeKind = s.Enum{
 }
 
 m.Edge = s.Struct{
-    q = s.Type'number',
-    r = s.Type'number',
+    q = Int,
+    r = Int,
     e = m.EdgeKind,
 }
 
@@ -84,7 +86,7 @@ m.DevelopmentCardKind = s.Enum{
 m.DevelopmentCard = s.Struct{
     kind = m.DevelopmentCardKind,
     used = s.Type'boolean',
-    round = s.Type'number',
+    round = Int,
 }
 
 m.ResourceCard = s.Enum{
@@ -95,18 +97,18 @@ m.ResourceCard = s.Enum{
     'wool',
 }
 
-local ResourceCardHistogram = s.Map(m.ResourceCard, s.Type'number')
+local ResourceCardHistogram = s.Map(m.ResourceCard, Int)
 
 local function FaceMap (t)
-    return s.Map(s.Type'number', s.Map(s.Type'number', t))
+    return s.Map(Int, s.Map(Int, t))
 end
 
 local function VertexMap (t)
-    return s.Map(s.Type'number', s.Map(s.Type'number', s.Map(m.VertexKind, t)))
+    return s.Map(Int, s.Map(Int, s.Map(m.VertexKind, t)))
 end
 
 local function EdgeMap (t)
-    return s.Map(s.Type'number', s.Map(s.Type'number', s.Map(m.EdgeKind, t)))
+    return s.Map(Int, s.Map(Int, s.Map(m.EdgeKind, t)))
 end
 
 local function PlayerMap (t)
@@ -116,12 +118,12 @@ end
 m.GameState = s.Struct{
     -- meta
     phase = m.Phase,
-    round = s.Type'number',
+    round = Int,
     -- players (static)
     players = s.Array(m.Player),
     -- map (static)
     hexmap = FaceMap(m.Hex),
-    numbermap = FaceMap(s.Type'number'),
+    numbermap = FaceMap(Int),
     harbormap = VertexMap(m.Harbor),
     -- map (dynamic)
     buildmap = VertexMap(m.Building),

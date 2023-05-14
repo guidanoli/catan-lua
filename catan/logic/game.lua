@@ -148,7 +148,7 @@ end
 --------------------------------
 
 function Game:validate ()
-    CatanSchema.GameState:validate(self)
+    assert(CatanSchema.GameState:isValid(self))
 
     -- We only validate dynamic fields, since
     -- the static fields are checked during construction
@@ -158,7 +158,6 @@ function Game:validate ()
 end
 
 function Game:_validateRound ()
-    assert(math.type(self.round) == "integer")
     assert(self.round >= 1)
 
     -- set of initial rounds and phases

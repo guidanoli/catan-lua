@@ -10,6 +10,13 @@
 --    print(Number:validate"foo")  --> false "" "not number"
 --    print(Number:validate(nil))  --> false "" "not number"
 --
+--    local Int = schema.Integer()
+--
+--    print(Int:validate(10))  --> true
+--    print(Int:validate(1.5)) --> false "" "not integer"
+--    print(Int:validate"foo") --> false "" "not number"
+--    print(Int:validate(nil)) --> false "" "not number"
+--
 --    local Season = schema.Enum{
 --      "winter",
 --      "spring",

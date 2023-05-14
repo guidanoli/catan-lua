@@ -80,8 +80,7 @@ Schema.comparators = {}
 -- @param t input
 -- @return input
 function Schema:new (t)
-    local ok, path, err = self:validate(t)
-    if not ok then error(path .. ': ' .. err) end
+    assert(self:isValid(t))
     return t
 end
 

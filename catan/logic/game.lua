@@ -153,6 +153,7 @@ function Game:validate ()
 
     self:_validateRound()
     self:_validateBuildMap()
+    self:_validateRoadMap()
 end
 
 function Game:_validateRound ()
@@ -262,6 +263,46 @@ function Game:_validateBuildMap ()
             assert(numOfBuildings[player] >= 2)
         end
     end
+end
+
+function Game:_validateRoadMap ()
+    for _, player in ipairs(self.players) do
+        self:_validatePlayerRoads(player)
+    end
+end
+
+function Game:_validatePlayerRoads (player)
+    -- List all vertices that contain a building from the player
+    local allVertices = {}
+    VertexMap:iter(self.buildmap, function (q, r, v, building)
+        if building.player == player then
+            VertexMap:set(allVertices, Grid:vertex(q, r, v), true)
+        end
+    end)
+
+    -- List all edges that contain a road from the player
+    local allEdges = {}
+    EdgeMap:iter(self.roadmap, function (q, r, e, p)
+        if p == player then
+            EdgeMap:set(allEdges, Grid:edge(q, r, e), true)
+        end
+    end)
+
+    -- Do a depth-first search on every vertex with a building from the player
+    -- and list all the visited edges
+    local visitedEdges = {}
+    local function visit(q, r, v)
+        for _, pair in ipairs(Grid:adjacentEdgeVertexPairs(q, r, v)) do
+            if EdgeMap:get(allEdges, pair.edge) and not EdgeMap:get(visitedEdges, pair.edge) then
+                EdgeMap:set(visitedEdges, pair.edge, true)
+                visit(Grid:unpack(pair.vertex))
+            end
+        end
+    end
+    VertexMap:iter(allVertices, visit)
+
+    -- Check if every edge from the player was visited by the DFS
+    assert(EdgeMap:equal(allEdges, visitedEdges))
 end
 
 --------------------------------

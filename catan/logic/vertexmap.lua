@@ -50,4 +50,20 @@ function VertexMap:iter (map, f)
     end
 end
 
+function VertexMap:contain (map1, map2)
+    local ret = true
+    self:iter(map2, function (q, r, v, x)
+        if self:_get(map1, q, r, v) ~= x then
+            ret = false
+            return true -- quit iteration
+        end
+    end)
+    return ret
+end
+
+function VertexMap:equal (map1, map2)
+    return self:contain(map1, map2) and
+           self:contain(map2, map1)
+end
+
 return VertexMap

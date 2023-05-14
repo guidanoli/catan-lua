@@ -144,6 +144,23 @@ function Grid:endpoints (q, r, e)
     end
 end
 
+function Grid:adjacentEdgeVertexPairs (q, r, v)
+    if v == 'N' then
+        return {
+            { edge = self:edge(q, r, 'NE'), vertex = self:vertex(q+1, r-1, 'S') },
+            { edge = self:edge(q+1, r-1, 'W'), vertex = self:vertex(q+1, r-2, 'S') },
+            { edge = self:edge(q, r, 'NW'), vertex = self:vertex(q, r-1, 'S') },
+        }
+    else
+        assert(v == 'S')
+        return {
+            { edge = self:edge(q, r+1, 'NW'), vertex = self:vertex(q, r+1, 'N') },
+            { edge = self:edge(q-1, r+1, 'NE'), vertex = self:vertex(q-1, r+1, 'N') },
+            { edge = self:edge(q, r+1, 'W'), vertex = self:vertex(q-1, r+2, 'N') },
+        }
+    end
+end
+
 function Grid:edgeInBetween (vertex1, vertex2)
     local edges1 = self:protrudingEdges(Grid:unpack(vertex1))
     local edges2 = self:protrudingEdges(Grid:unpack(vertex2))

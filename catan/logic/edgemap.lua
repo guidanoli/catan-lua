@@ -50,4 +50,20 @@ function EdgeMap:iter (map, f)
     end
 end
 
+function EdgeMap:contain (map1, map2)
+    local ret = true
+    self:iter(map2, function (q, r, e, o)
+        if self:_get(map1, q, r, e) ~= o then
+            ret = false
+            return true -- quit iteration
+        end
+    end)
+    return ret
+end
+
+function EdgeMap:equal (map1, map2)
+    return self:contain(map1, map2) and
+           self:contain(map2, map1)
+end
+
 return EdgeMap

@@ -102,6 +102,19 @@ function Schema.validators:type (t)
     end
 end
 
+function Schema.validators:integer (t)
+    if type(t) == 'number' then
+        local floor = math.floor(t)
+        if floor == t then
+            return true
+        else
+            return false, "", "not integer"
+        end
+    else
+        return false, "", "not number"
+    end
+end
+
 function Schema.validators:option (t)
     if t == nil then
         return true
@@ -184,6 +197,14 @@ local schema = {}
 function schema.Type (T)
     assert(type(T) == "string", "not string")
     return Schema:__new{ tag = 'type', child = T }
+end
+
+---
+-- Construct an "integer" schema.
+-- @function schema.Integer
+-- @treturn Schema a schema that only accepts integers
+function schema.Integer ()
+    return Schema:__new{ tag = 'integer' }
 end
 
 ---

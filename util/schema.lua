@@ -73,6 +73,7 @@ local Class = require "util.class"
 local Schema = Class "Schema"
 
 Schema.validators = {}
+Schema.comparators = {}
 
 ---
 -- Instantiate the schema and validate input
@@ -82,6 +83,59 @@ function Schema:new (t)
     local ok, path, err = self:validate(t)
     if not ok then error(path .. ': ' .. err) end
     return t
+end
+
+---
+-- Compares two inputs against a schema
+-- @param t1 first input
+-- @param t2 second input
+-- @treturn boolean whether the inputs are equal according to the schema
+function Schema:eq (t1, t2)
+    local cmp = self.comparators[self.tag]
+    return self:validate(t1) and
+           self:validate(t2) and
+           (cmp and cmp(self, t1, t2) or t1 == t2)
+end
+
+function Schema.comparators:option (t1, t2)
+    return t1 == nil and t2 == nil or self.child:eq(t1, t2)
+end
+
+function Schema.comparators:struct (t1, t2)
+    for k, v in pairs(self.child) do
+        if not v:eq(t1, t2) then
+            return false
+        end
+    end
+    return true
+end
+
+function Schema.comparators:array (t1, t2)
+    if #t1 == #t2 then
+        local elem = self.child
+        for i = 1, #t1 do
+            if not elem:eq(t1[i], t2[i]) then
+                return false
+            end
+        end
+        return true
+    else
+        return false
+    end
+end
+
+function Schema.comparators:map (t1, t2)
+    for k, v1 in pairs(t1) do
+        if not self.value:eq(v1, t2[k]) then
+            return false
+        end
+    end
+    for k, v2 in pairs(t2) do
+        if not self.value:eq(v2, t1[k]) then
+            return false
+        end
+    end
+    return true
 end
 
 ---

@@ -1,5 +1,3 @@
-require "util.compat"
-
 local Class = require "util.class"
 local TableUtils = require "util.table"
 

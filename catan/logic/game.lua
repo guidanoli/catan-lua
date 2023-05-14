@@ -128,7 +128,7 @@ function Game:_createDrawPile ()
     self.drawpile = {}
     for kind, count in pairs(Constants.devcards) do
         for i = 1, count do
-            table.insert(self.drawpile, {kind = kind})
+            table.insert(self.drawpile, kind)
         end
     end
     TableUtils:shuffleInPlace(self.drawpile)

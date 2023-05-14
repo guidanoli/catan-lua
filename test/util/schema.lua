@@ -15,6 +15,7 @@ end
 
 local function ok(v)
     assert(s:validate(v))
+    assert(s:eq(v, v))
     print('ok...', pprint(v))
 end
 
@@ -28,7 +29,6 @@ local values = {
     math.mininteger,
     math.maxinteger,
     math.pi,
-    0/0, -- nan
     1/0, -- +inf
     -1/0, -- -inf
     true,

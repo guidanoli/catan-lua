@@ -72,14 +72,7 @@ local Class = require "util.class"
 -- It shares some similaries with JSON schemas.
 local Schema = Class "Schema"
 
-local validator = {
-    TYPE = '_validateType',
-    ENUM = '_validateEnum',
-    STRUCT = '_validateStruct',
-    OPTION = '_validateOption',
-    ARRAY = '_validateArray',
-    MAP = '_validateMap',
-}
+Schema.validators = {}
 
 ---
 -- Validate an input against a schema
@@ -88,12 +81,10 @@ local validator = {
 -- @treturn ?string the schema path where the error occurred (if first return is `false`)
 -- @treturn ?string the error message (if first return is `false`)
 function Schema:validate (t)
-    local methodname = rawget(validator, self.tag)
-    local method = self[methodname]
-    return method(self, t)
+    return self.validators[self.tag](self, t)
 end
 
-function Schema:_validateType (t)
+function Schema.validators:type (t)
     if type(t) == self.child then
         return true
     else
@@ -101,7 +92,7 @@ function Schema:_validateType (t)
     end
 end
 
-function Schema:_validateOption (t)
+function Schema.validators:option (t)
     if t == nil then
         return true
     else
@@ -114,7 +105,7 @@ function Schema:_validateOption (t)
     end
 end
 
-function Schema:_validateEnum (t)
+function Schema.validators:enum (t)
     for i, v in ipairs(self.child) do
         if v == t then
             return true
@@ -123,7 +114,7 @@ function Schema:_validateEnum (t)
     return false, "", "not in enum"
 end
 
-function Schema:_validateStruct (t)
+function Schema.validators:struct (t)
     if type(t) == 'table' then
         for k, v in pairs(self.child) do
             local ok, path, err = v:validate(t[k])
@@ -137,7 +128,7 @@ function Schema:_validateStruct (t)
     end
 end
 
-function Schema:_validateArray (t)
+function Schema.validators:array (t)
     if type(t) == 'table' then
         for i, v in ipairs(t) do
             local ok, path, err = self.child:validate(v)
@@ -151,7 +142,7 @@ function Schema:_validateArray (t)
     end
 end
 
-function Schema:_validateMap (t)
+function Schema.validators:map (t)
     if type(t) == 'table' then
         for k, v in pairs(t) do
             local ok1, path1, err1 = self.key:validate(k)
@@ -182,7 +173,7 @@ local schema = {}
 -- @treturn Schema a schema that only accepts objects of type `T`
 function schema.Type (T)
     assert(type(T) == "string", "not string")
-    return Schema:__new{ tag = 'TYPE', child = T }
+    return Schema:__new{ tag = 'type', child = T }
 end
 
 ---
@@ -191,7 +182,7 @@ end
 -- @treturn Schema a schema that only accepts values in array `T`
 function schema.Enum (T)
     assert(type(T) == "table", "not table")
-    return Schema:__new{ tag = 'ENUM', child = T }
+    return Schema:__new{ tag = 'enum', child = T }
 end
 
 ---
@@ -202,7 +193,7 @@ end
 function schema.Struct (T)
     assert(type(T) == "table", "not table")
     for k in pairs(T) do assert(type(k) == "string", "non-string key") end
-    return Schema:__new{ tag = 'STRUCT', child = T }
+    return Schema:__new{ tag = 'struct', child = T }
 end
 
 ---
@@ -211,7 +202,7 @@ end
 -- @treturn Schema a schema that accepts `nil` and anything accepted by `S`.
 function schema.Option (S)
     assert(Schema:__isinstance(S), "invalid schema")
-    return Schema:__new{ tag = 'OPTION', child = S }
+    return Schema:__new{ tag = 'option', child = S }
 end
 
 ---
@@ -221,7 +212,7 @@ end
 -- s.t. for all index-value pairs `(i,v)` in `t`, `S` accepts `v`.
 function schema.Array (S)
     assert(Schema:__isinstance(S), "invalid schema")
-    return Schema:__new{ tag = 'ARRAY', child = S }
+    return Schema:__new{ tag = 'array', child = S }
 end
 
 ---
@@ -234,7 +225,7 @@ end
 function schema.Map (Sk, Sv)
     assert(Schema:__isinstance(Sk), "invalid key schema")
     assert(Schema:__isinstance(Sv), "invalid value schema")
-    return Schema:__new{ tag = 'MAP', key = Sk, value = Sv }
+    return Schema:__new{ tag = 'map', key = Sk, value = Sv }
 end
 
 return schema

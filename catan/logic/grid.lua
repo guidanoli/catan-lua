@@ -1,34 +1,19 @@
 -- Source: https://www.redblobgames.com/grids/parts/#hexagons
 
+local CatanSchema = require "catan.logic.schema"
+
 local Grid = {}
 
 function Grid:face (q, r)
-    return {q = q, r = r}
-end
-
-function Grid:faceEq (face1, face2)
-    return face1.q == face2.q and
-           face1.r == face2.r
+    return CatanSchema.Face:new{q = q, r = r}
 end
 
 function Grid:edge (q, r, e)
-    return {q = q, r = r, e = e}
-end
-
-function Grid:edgeEq (edge1, edge2)
-    return edge1.q == edge2.q and
-           edge1.r == edge2.r and
-           edge1.e == edge2.e
+    return CatanSchema.Edge:new{q = q, r = r, e = e}
 end
 
 function Grid:vertex (q, r, v)
-    return {q = q, r = r, v = v}
-end
-
-function Grid:vertexEq (vertex1, vertex2)
-    return vertex1.q == vertex2.q and
-           vertex1.r == vertex2.r and
-           vertex1.v == vertex2.v
+    return CatanSchema.Vertex:new{q = q, r = r, v = v}
 end
 
 function Grid:unpack (x)
@@ -164,7 +149,7 @@ function Grid:edgeInBetween (vertex1, vertex2)
     local edges2 = self:protrudingEdges(Grid:unpack(vertex2))
     for i, edge1 in ipairs(edges1) do
         for j, edge2 in ipairs(edges2) do
-            if self:edgeEq(edge1, edge2) then
+            if CatanSchema.Edge:eq(edge1, edge2) then
                 return edge1
             end
         end

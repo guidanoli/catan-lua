@@ -457,7 +457,7 @@ function Game:_isVertexCornerOfSomeHex (vertex)
     local found = false
     FaceMap:iter(self.hexmap, function (q, r, hex)
         for _, corner in ipairs(Grid:corners(q, r)) do
-            if Grid:vertexEq(corner, vertex) then
+            if CatanSchema.Vertex:eq(corner, vertex) then
                 found = true
                 return true -- quit iteration
             end

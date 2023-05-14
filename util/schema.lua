@@ -102,7 +102,7 @@ end
 
 function Schema.comparators:struct (t1, t2)
     for k, v in pairs(self.child) do
-        if not v:eq(t1, t2) then
+        if not v:eq(t1[k], t2[k]) then
             return false
         end
     end

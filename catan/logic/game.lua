@@ -337,6 +337,8 @@ end
 --------------------------------
 
 function Game:placeInitialSettlement (vertex)
+    assert(CatanSchema.Vertex:isValid(vertex))
+
     self:_assertPhaseIs"placingInitialSettlement"
 
     assert(self:_isVertexCornerOfSomeHex(vertex), "vertex not corner of some hex")
@@ -352,6 +354,8 @@ function Game:placeInitialSettlement (vertex)
 end
 
 function Game:placeInitialRoad (edge)
+    assert(CatanSchema.Edge:isValid(edge))
+
     self:_assertPhaseIs"placingInitialRoad"
 
     assert(self:_isEdgeEndpointOfPlayerLonelySettlement(edge), "edge not endpoint from player's lonely building")

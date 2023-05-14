@@ -75,6 +75,16 @@ local Schema = Class "Schema"
 Schema.validators = {}
 
 ---
+-- Instantiate the schema and validate input
+-- @param t input
+-- @return input
+function Schema:new (t)
+    local ok, path, err = self:validate(t)
+    if not ok then error(path .. ': ' .. err) end
+    return t
+end
+
+---
 -- Validate an input against a schema
 -- @param t input
 -- @treturn boolean whether the schema accepted or rejected the input

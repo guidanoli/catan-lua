@@ -387,9 +387,7 @@ end
 
 function Game:placeInitialSettlement (vertex)
     assert(CatanSchema.Vertex:isValid(vertex))
-
-    self:_assertPhaseIs"placingInitialSettlement"
-
+    assert(self:_phaseIs"placingInitialSettlement")
     assert(self:_isVertexCornerOfSomeHex(vertex), "vertex not corner of some hex")
     assert(VertexMap:get(self.buildmap, vertex) == nil, "vertex has building")
     assert(not self:_isVertexAdjacentToSomeBuilding(vertex), "vertex adjacent to building")
@@ -404,9 +402,7 @@ end
 
 function Game:placeInitialRoad (edge)
     assert(CatanSchema.Edge:isValid(edge))
-
-    self:_assertPhaseIs"placingInitialRoad"
-
+    assert(self:_phaseIs"placingInitialRoad")
     assert(self:_isEdgeEndpointOfPlayerLonelySettlement(edge), "edge not endpoint from player's lonely building")
     assert(self:_doesEdgeJoinFaceWithHex(Grid:unpack(edge)), "edge does not join face with hex")
 
@@ -439,8 +435,12 @@ end
 -- Checks
 --------------------------------
 
-function Game:_assertPhaseIs (expectedPhase)
-    assert(self.phase == expectedPhase, "not " .. expectedPhase)
+function Game:_phaseIs (expectedPhase)
+    if self.phase == expectedPhase then
+        return true
+    else
+        return false, "not " .. expectedPhase
+    end
 end
 
 --------------------------------

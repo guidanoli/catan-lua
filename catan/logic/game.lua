@@ -266,6 +266,12 @@ function Game:_validateBuildMap ()
 end
 
 function Game:_validateRoadMap ()
+    -- Check if every road is next to a hex
+    EdgeMap:iter(self.roadmap, function (q, r, e)
+        assert(self:_doesEdgeJoinFaceWithHex(q, r, e))
+    end)
+
+    -- Check if every road is connected to a building of same color
     for _, player in ipairs(self.players) do
         self:_validatePlayerRoads(player)
     end
@@ -400,7 +406,7 @@ function Game:placeInitialRoad (edge)
     self:_assertPhaseIs"placingInitialRoad"
 
     assert(self:_isEdgeEndpointOfPlayerLonelySettlement(edge), "edge not endpoint from player's lonely building")
-    assert(self:_doesEdgeJoinFaceWithHex(edge), "edge does not join face with hex")
+    assert(self:_doesEdgeJoinFaceWithHex(Grid:unpack(edge)), "edge does not join face with hex")
 
     EdgeMap:set(self.roadmap, edge, self.player)
 
@@ -479,8 +485,8 @@ function Game:_isEdgeEndpointOfPlayerLonelySettlement (edge)
     return false
 end
 
-function Game:_doesEdgeJoinFaceWithHex (edge)
-    for i, joinedFace in ipairs(Grid:joins(Grid:unpack(edge))) do
+function Game:_doesEdgeJoinFaceWithHex (q, r, e)
+    for i, joinedFace in ipairs(Grid:joins(q, r, e)) do
         if FaceMap:get(self.hexmap, joinedFace) then
             return true
         end

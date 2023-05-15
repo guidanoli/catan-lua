@@ -9,18 +9,18 @@ foo = 123
 local s -- current schema
 local N = 10
 
-local function pprint(v)
+local function pprint (v)
     return serpent.line(v, {nocode=true, comment=false})
 end
 
-local function ok(v)
+local function ok (v)
     assert(s:validate(v))
     assert(s:isValid(v))
     assert(s:eq(v, v))
     print('ok...', pprint(v))
 end
 
-local function fail(v)
+local function fail (v)
     assert(not s:validate(v))
     assert(not s:isValid(v))
     print('fail (expected)...', pprint(v))

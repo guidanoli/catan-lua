@@ -164,7 +164,9 @@ function Game:_validateRound ()
     local initialPhases = {placingInitialSettlement = true, placingInitialRoad = true}
 
     -- Lua 5.1 doesn't have exclusive or...
-    local function iff(a, b) return (a and b) or (not a and not b) end
+    local function iff (a, b)
+        return (a and b) or (not a and not b)
+    end
 
     -- round in [1,2] iff phase is placing initial settlement or road
     assert(iff(initialRounds[self.round], initialPhases[self.phase]))

@@ -9,11 +9,11 @@
 --
 -- @module util.class
 
-local function new(Class, t)
+local function new (Class, t)
     return setmetatable(t, Class)
 end
 
-local function isinstance(Class, t)
+local function isinstance (Class, t)
     return Class == getmetatable(t)
 end
 

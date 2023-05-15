@@ -6,7 +6,7 @@ local schema = require "util.schema"
 local Game = require "catan.logic.game"
 local Catan = require "catan.logic.schema"
 
-local function validate(g)
+local function validate (g)
     local ok, err = pcall(function()
         Catan.GameState:validate(g)
     end)

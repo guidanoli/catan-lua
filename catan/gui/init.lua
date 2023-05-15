@@ -307,7 +307,7 @@ end
 function catan:renderBoard ()
     local layer = {}
 
-    local function addSprite(t)
+    local function addSprite (t)
         local sprite = Sprite.new(t)
         table.insert(layer, sprite)
         return sprite
@@ -446,7 +446,7 @@ end
 function catan:renderSidebar ()
     local layer = {}
 
-    local function addSprite(t)
+    local function addSprite (t)
         local sprite = Sprite.new(t)
         table.insert(layer, sprite)
         return sprite

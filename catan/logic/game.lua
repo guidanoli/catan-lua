@@ -7,6 +7,7 @@ local Grid = require "catan.logic.grid"
 local FaceMap = require "catan.logic.facemap"
 local VertexMap = require "catan.logic.vertexmap"
 local EdgeMap = require "catan.logic.edgemap"
+local Roll = require "catan.logic.roll"
 
 --------------------------------
 
@@ -381,6 +382,27 @@ function Game:getArmySize (player)
     return n
 end
 
+Game.RESCARD_FROM_HEX = {
+    hills = 'brick',
+    forest = 'lumber',
+    mountains = 'ore',
+    fields = 'grain',
+    pasture = 'wool',
+}
+
+function Game:resCardFromHex (hex)
+    return CatanSchema.ResourceCard:new(self.RESCARD_FROM_HEX[hex])
+end
+
+function Game:numResCardsForBuilding (kind)
+    if kind == "settlement" then
+        return 1
+    else
+        assert(kind == "city")
+        return 2
+    end
+end
+
 --------------------------------
 -- Actions
 --------------------------------
@@ -429,6 +451,60 @@ function Game:placeInitialRoad (edge)
             self.phase = "placingInitialSettlement"
         end
     end
+end
+
+function Game:roll (die)
+    assert(CatanSchema.Die:isValid(die))
+    assert(self:_phaseIs"playingTurns")
+    assert(self.die == nil, "die have been rolled already")
+
+    local dieSum = die.dice1 + die.dice2
+
+    local roll = {}
+
+    FaceMap:iter(self.numbermap, function (q, r, number)
+        if number == dieSum then
+            local face = Grid:face(q, r)
+            if CatanSchema.Face:eq(self.robber, face) then
+                return false -- skip to next iteration
+            end
+            local hex = assert(FaceMap:get(self.hexmap, face))
+            local res = self:resCardFromHex(hex)
+            if res ~= nil then
+                for _, corner in ipairs(Grid:corners(q, r)) do
+                    local building = VertexMap:get(self.buildmap, corner)
+                    if building ~= nil then
+                        local numCards = self:numResCardsForBuilding(building.kind)
+                        Roll:add(roll, building.player, res, numCards)
+                    end
+                end
+            end
+        end
+    end)
+
+    Roll:iter(roll, function (player, res, numCards)
+        self.rescards[player][res] = (self.rescards[player][res] or 0) + numCards
+    end)
+
+    self.die = die
+
+    if dieSum == 7 then
+        local mustDiscard = false
+        for _, player in ipairs(self.players) do
+            local numResCards = self:getNumberOfResourceCards(player)
+            if numResCards > 7 then
+                mustDiscard = true
+                break
+            end
+        end
+        if mustDiscard then
+            self.phase = "discardingHalf"
+        else
+            self.phase = "movingRobber"
+        end
+    end
+
+    return roll
 end
 
 --------------------------------

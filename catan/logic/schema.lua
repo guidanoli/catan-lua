@@ -10,6 +10,22 @@ m.Phase = s.Enum{
     'placingInitialSettlement',
     'placingInitialRoad',
     'playingTurns',
+    'discardingHalf',
+    'movingRobber',
+}
+
+m.DiceResult = s.Enum{
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+}
+
+m.Die = s.Struct{
+    dice1 = m.DiceResult,
+    dice2 = m.DiceResult,
 }
 
 m.Face = s.Struct{
@@ -116,9 +132,10 @@ local function PlayerMap (t)
 end
 
 m.GameState = s.Struct{
-    -- meta
+    -- common (dynamic)
     phase = m.Phase,
     round = Int,
+    die = s.Option(m.Die),
     -- players (static)
     players = s.Array(m.Player),
     -- map (static)

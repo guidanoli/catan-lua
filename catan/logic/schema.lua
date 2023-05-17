@@ -23,10 +23,7 @@ m.DiceResult = s.Enum{
     6,
 }
 
-m.Die = s.Struct{
-    dice1 = m.DiceResult,
-    dice2 = m.DiceResult,
-}
+m.Die = s.Array(m.DiceResult, 2)
 
 m.Face = s.Struct{
     q = Int,

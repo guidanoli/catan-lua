@@ -458,7 +458,10 @@ function Game:roll (die)
     assert(self:_phaseIs"playingTurns")
     assert(self.die == nil, "die have been rolled already")
 
-    local dieSum = die.dice1 + die.dice2
+    local dieSum = 0
+    for _, dice in ipairs(die) do
+        dieSum = dieSum + dice
+    end
 
     local roll = {}
 

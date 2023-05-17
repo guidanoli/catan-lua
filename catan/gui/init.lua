@@ -465,7 +465,7 @@ function catan.renderers:sidebar ()
         local sidebarSprite = addSprite{sidebarImg, x=W, y=0, sx=s, xalign='right'}
         local sidebarX, sidebarY = sidebarSprite:getCoords()
 
-        local ITEM_OX = 120
+        local ITEM_OX = 90
         local ITEM_OY = 5
         local ITEM_XSEP = 26
 
@@ -484,7 +484,7 @@ function catan.renderers:sidebar ()
         local KNIGHT_X = addItemSprite(self.images.card.dev.knight)
         local ROAD_X = addItemSprite(self.images.card.dev.road)
 
-        local PLAYERS_OX = 57
+        local PLAYERS_OX = 27
         local PLAYERS_OY = 48
 
         local playerX = sidebarX + PLAYERS_OX * s

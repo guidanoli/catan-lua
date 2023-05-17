@@ -309,12 +309,13 @@ function catan:placeInitialRoad (q, r, e)
 end
 
 function catan:roll ()
-    local dice1 = math.random(1, 6)
-    local dice2 = math.random(1, 6)
+    local dice = {}
+    local N = 2 -- number of dice
+    for i = 1, N do
+        dice[i] = math.random(1, 6)
+    end
 
-    print('rolled', dice1 + dice2)
-
-    local roll = self.game:roll{dice1, dice2}
+    local roll = self.game:roll(dice)
 
     Roll:iter(roll, function (player, res, n)
         print('Player', player, 'won', n, res)
@@ -481,39 +482,37 @@ function catan.renderers:sidebar ()
         local sidebarSprite = addSprite{sidebarImg, x=W, y=0, sx=s, xalign='right'}
         local sidebarX, sidebarY = sidebarSprite:getCoords()
 
-        local DICE_XMARGIN = 10
-        local DICE_YMARGIN = 10
-        local DICE_XSEP = 10
+        local DIE_XMARGIN = 10
+        local DIE_YMARGIN = 10
+        local DIE_XSEP = 10
 
-        local diceX = sidebarX - DICE_XMARGIN
-        local diceY = H - DICE_YMARGIN
-        local diceS = 0.5
+        local dieX = sidebarX - DIE_XMARGIN
+        local dieY = H - DIE_YMARGIN
+        local dieS = 0.5
 
-        local function addDiceSprite (dice)
-            local img = assert(self.images.dice[tostring(dice)], "missing dice sprite")
+        local function addDieSprite (die)
+            local img = assert(self.images.dice[tostring(die)], "missing die sprite")
             local sprite = addSprite{
                 img,
-                x = diceX,
-                y = diceY,
-                sx = diceS,
+                x = dieX,
+                y = dieY,
+                sx = dieS,
                 xalign = 'right',
                 yalign = 'bottom',
             }
-            diceX = sprite:getX() - DICE_XSEP
+            dieX = sprite:getX() - DIE_XSEP
         end
 
-        if self.game.die then
-            print('die:', self.game.die)
-            for _, dice in ipairs(self.game.die) do
-                print(dice)
-                addDiceSprite(dice)
+        if self.game.dice then
+            for _, die in ipairs(self.game.dice) do
+                addDieSprite(die)
             end
         elseif self.game.phase == "playingTurns" then
             local img = self.images.roll
             addSprite{
                 img,
-                x = diceX,
-                y = diceY,
+                x = dieX,
+                y = dieY,
                 xalign = 'right',
                 yalign = 'bottom',
                 onleftclick = function ()

@@ -9,6 +9,7 @@ local Game = require "catan.logic.game"
 local FaceMap = require "catan.logic.facemap"
 local VertexMap = require "catan.logic.vertexmap"
 local EdgeMap = require "catan.logic.edgemap"
+local Roll = require "catan.logic.roll"
 local Grid = require "catan.logic.grid"
 
 local gutil = require "catan.gui.util"
@@ -307,6 +308,21 @@ function catan:placeInitialRoad (q, r, e)
     self:afterMove()
 end
 
+function catan:roll ()
+    local dice1 = math.random(1, 6)
+    local dice2 = math.random(1, 6)
+
+    print('rolled', dice1 + dice2)
+
+    local roll = self.game:roll{dice1, dice2}
+
+    Roll:iter(roll, function (player, res, n)
+        print('Player', player, 'won', n, res)
+    end)
+
+    self:afterMove()
+end
+
 catan.renderers = {}
 
 function catan.renderers:board ()
@@ -464,6 +480,47 @@ function catan.renderers:sidebar ()
         local s = H / sidebarImg:getHeight()
         local sidebarSprite = addSprite{sidebarImg, x=W, y=0, sx=s, xalign='right'}
         local sidebarX, sidebarY = sidebarSprite:getCoords()
+
+        local DICE_XMARGIN = 10
+        local DICE_YMARGIN = 10
+        local DICE_XSEP = 10
+
+        local diceX = sidebarX - DICE_XMARGIN
+        local diceY = H - DICE_YMARGIN
+        local diceS = 0.5
+
+        local function addDiceSprite (dice)
+            local img = assert(self.images.dice[tostring(dice)], "missing dice sprite")
+            local sprite = addSprite{
+                img,
+                x = diceX,
+                y = diceY,
+                sx = diceS,
+                xalign = 'right',
+                yalign = 'bottom',
+            }
+            diceX = sprite:getX() - DICE_XSEP
+        end
+
+        if self.game.die then
+            print('die:', self.game.die)
+            for _, dice in ipairs(self.game.die) do
+                print(dice)
+                addDiceSprite(dice)
+            end
+        elseif self.game.phase == "playingTurns" then
+            local img = self.images.roll
+            addSprite{
+                img,
+                x = diceX,
+                y = diceY,
+                xalign = 'right',
+                yalign = 'bottom',
+                onleftclick = function ()
+                    self:roll()
+                end
+            }
+        end
 
         local ITEM_OX = 90
         local ITEM_OY = 5

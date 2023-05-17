@@ -28,18 +28,6 @@ catan.LAYER_NAMES = {
     "sidebar",
 }
 
--- Rendering to-do list:
---
--- 1) Sea background - OK
--- 2) Harbors - OK
--- 3) Harbor ships - OK
--- 4) Hex tiles - OK
--- 5) Numbers - OK
--- 6) Robber - OK
--- 7) Roads - OK
--- 8) Settlements/Cities - WIP
--- 9) Die
-
 function catan:loadImgDir (dir)
     local t = {}
     local function setifnil (key, value)

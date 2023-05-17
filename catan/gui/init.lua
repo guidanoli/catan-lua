@@ -292,16 +292,19 @@ function catan:getRoadAngleForEdge (e)
     return gutil:ccwdeg2cwrad(r)
 end
 
-function catan:placeInitialSettlement (q, r, v)
-    self.game:placeInitialSettlement(Grid:vertex(q, r, v))
+function catan:afterMove ()
     self:requestAllLayersUpdate()
     self:requestValidation()
 end
 
+function catan:placeInitialSettlement (q, r, v)
+    self.game:placeInitialSettlement(Grid:vertex(q, r, v))
+    self:afterMove()
+end
+
 function catan:placeInitialRoad (q, r, e)
     self.game:placeInitialRoad(Grid:edge(q, r, e))
-    self:requestAllLayersUpdate()
-    self:requestValidation()
+    self:afterMove()
 end
 
 catan.renderers = {}

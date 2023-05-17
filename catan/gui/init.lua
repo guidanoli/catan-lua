@@ -304,7 +304,9 @@ function catan:placeInitialRoad (q, r, e)
     self:requestValidation()
 end
 
-function catan:renderBoard ()
+catan.renderers = {}
+
+function catan.renderers:board ()
     local layer = {}
 
     local function addSprite (t)
@@ -443,7 +445,7 @@ function catan:renderBoard ()
     return layer
 end
 
-function catan:renderSidebar ()
+function catan.renderers:sidebar ()
     local layer = {}
 
     local function addSprite (t)
@@ -523,17 +525,9 @@ function catan:renderSidebar ()
     return layer
 end
 
-function catan:renderLayer (layername)
-    if layername == "board" then
-        return self:renderBoard()
-    elseif layername == "sidebar" then
-        return self:renderSidebar()
-    end
-end
-
 function catan:update (dt)
     for layername in pairs(self.layersPendingUpdate) do
-        local layer = self:renderLayer(layername)
+        local layer = self.renderers[layername](self)
         assert(layer, string.format('could not render layer "%s"', layername))
         self.layers[layername] = layer
         self.layersPendingUpdate[layername] = nil

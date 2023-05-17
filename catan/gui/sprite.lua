@@ -64,7 +64,7 @@ function Sprite.new (s)
     end
 
     local oy
-    if yalign == 'top' then
+    if yalign == 'bottom' then
         oy = h
     elseif yalign == 'center' then
         oy = h/2

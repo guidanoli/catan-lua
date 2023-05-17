@@ -14,7 +14,7 @@ m.Phase = s.Enum{
     'movingRobber',
 }
 
-m.DiceResult = s.Enum{
+m.D6 = s.Enum{
     1,
     2,
     3,
@@ -23,7 +23,7 @@ m.DiceResult = s.Enum{
     6,
 }
 
-m.Die = s.Array(m.DiceResult, 2)
+m.Dice = s.Array(m.D6, 2)
 
 m.Face = s.Struct{
     q = Int,
@@ -132,7 +132,7 @@ m.GameState = s.Struct{
     -- common (dynamic)
     phase = m.Phase,
     round = Int,
-    die = s.Option(m.Die),
+    dice = s.Option(m.Dice),
     -- players (static)
     players = s.Array(m.Player),
     -- map (static)

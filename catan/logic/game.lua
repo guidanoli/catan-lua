@@ -453,20 +453,20 @@ function Game:placeInitialRoad (edge)
     end
 end
 
-function Game:roll (die)
-    assert(CatanSchema.Die:isValid(die))
+function Game:roll (dice)
+    assert(CatanSchema.Dice:isValid(dice))
     assert(self:_phaseIs"playingTurns")
-    assert(self.die == nil, "die have been rolled already")
+    assert(self.dice == nil, "dice have been rolled already")
 
-    local dieSum = 0
-    for _, dice in ipairs(die) do
-        dieSum = dieSum + dice
+    local diceSum = 0
+    for _, die in ipairs(dice) do
+        diceSum = diceSum + die
     end
 
     local roll = {}
 
     FaceMap:iter(self.numbermap, function (q, r, number)
-        if number == dieSum then
+        if number == diceSum then
             local face = Grid:face(q, r)
             if CatanSchema.Face:eq(self.robber, face) then
                 return false -- skip to next iteration
@@ -489,9 +489,9 @@ function Game:roll (die)
         self.rescards[player][res] = (self.rescards[player][res] or 0) + numCards
     end)
 
-    self.die = die
+    self.dice = dice
 
-    if dieSum == 7 then
+    if diceSum == 7 then
         local mustDiscard = false
         for _, player in ipairs(self.players) do
             local numResCards = self:getNumberOfResourceCards(player)

@@ -245,6 +245,18 @@ do
     fail{{x = 10, y = 20}, 'blabla'}
     fail{{x = 10, y = 20}, {x = 33}}
     fail{{x = 10, y = 20}, {x = 33, y = 'foo'}}
+
+    s = schema.Array(schema.Type'number', 2)
+
+    ok{2, 5}
+    ok{5.6, 44}
+    ok{5.6, 44, nil}
+    ok{5, 6, [5] = 11}
+    ok{5, 7, abc = 777}
+    fail{}
+    fail{2}
+    fail{2, [3] = 77}
+    fail{2, 3, 6}
 end
 
 -- Maps

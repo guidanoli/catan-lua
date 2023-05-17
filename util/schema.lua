@@ -59,6 +59,12 @@
 --    print(Points:validate{p1, nil, p3})       --> true
 --    print(Points:validate{p1, 123, p3})       --> false "[2]" "not table"
 --
+--    local RGB = schema.Array(Int, 3)
+--
+--    print(RGB:validate{0, 0, 0})    --> true
+--    print(RGB:validate{0, 0})       --> false "" "not number"
+--    print(RGB:validate{0, 0, 0, 0}) --> false "" "too big"
+--
 --    local MinTemp = schema.Map(Season, Number)
 --
 --    print(MinTemp:validate{})               --> true
@@ -227,10 +233,23 @@ end
 
 function Schema.validators:array (t)
     if type(t) == 'table' then
-        for i, v in ipairs(t) do
-            local ok, path, err = self.child:validate(v)
-            if not ok then
-                return false, "[" .. i .. "]" .. path, err
+        if self.length == nil then
+            for i, v in ipairs(t) do
+                local ok, path, err = self.child:validate(v)
+                if not ok then
+                    return false, "[" .. i .. "]" .. path, err
+                end
+            end
+        else
+            for i = 1, self.length do
+                local v = t[i]
+                local ok, path, err = self.child:validate(v)
+                if not ok then
+                    return false, "[" .. i .. "]" .. path, err
+                end
+            end
+            if t[self.length + 1] ~= nil then
+                return false, path, "too big"
             end
         end
         return true
@@ -313,11 +332,13 @@ end
 ---
 -- Construct an "array" schema.
 -- @tparam Schema S
+-- @tparam ?number n the array length
 -- @treturn Schema a schema that only accepts tables `t`,
 -- s.t. for all index-value pairs `(i,v)` in `t`, `S` accepts `v`.
-function schema.Array (S)
+function schema.Array (S, n)
     assert(Schema:__isinstance(S), "invalid schema")
-    return Schema:__new{ tag = 'array', child = S }
+    assert(n == nil or type(n) == 'number', "invalid length")
+    return Schema:__new{ tag = 'array', child = S, length = n }
 end
 
 ---

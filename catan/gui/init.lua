@@ -293,7 +293,10 @@ function catan:printRoll (roll)
 end
 
 function catan:placeInitialSettlement (q, r, v)
-    self.game:placeInitialSettlement(Grid:vertex(q, r, v))
+    local roll = self.game:placeInitialSettlement(Grid:vertex(q, r, v))
+
+    self:printRoll(roll)
+
     self:afterMove()
 end
 

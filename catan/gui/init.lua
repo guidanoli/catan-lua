@@ -473,30 +473,35 @@ function catan.renderers:sidebar ()
     local W, H = love.window.getMode()
 
     do
+        -- Sidebar background
+
         local sidebarImg = self.images.sidebar
-        local s = H / sidebarImg:getHeight()
-        local sidebarSprite = addSprite{sidebarImg, x=W, y=0, sx=s, xalign='right'}
+        local sidebarS = H / sidebarImg:getHeight()
+        local sidebarSprite = addSprite{sidebarImg, x=W, y=0, sx=sidebarS, xalign='right'}
         local sidebarX, sidebarY = sidebarSprite:getCoords()
+        local sidebarW, sidebarH = sidebarSprite:getDimensions()
+
+        -- Dice and "Roll" button
 
         local DIE_XMARGIN = 10
         local DIE_YMARGIN = 10
         local DIE_XSEP = 10
+        local DIE_SX = 0.5
 
-        local dieX = sidebarX - DIE_XMARGIN
-        local dieY = H - DIE_YMARGIN
-        local dieS = 0.5
+        local dieRightX = sidebarX - DIE_XMARGIN
+        local dieBottomY = H - DIE_YMARGIN
 
         local function addDieSprite (die)
             local img = assert(self.images.dice[tostring(die)], "missing die sprite")
             local sprite = addSprite{
                 img,
-                x = dieX,
-                y = dieY,
-                sx = dieS,
+                x = dieRightX,
+                y = dieBottomY,
+                sx = DIE_SX,
                 xalign = 'right',
                 yalign = 'bottom',
             }
-            dieX = sprite:getX() - DIE_XSEP
+            dieRightX = sprite:getX() - DIE_XSEP
         end
 
         if self.game.dice then
@@ -507,8 +512,8 @@ function catan.renderers:sidebar ()
             local img = self.images.roll
             addSprite{
                 img,
-                x = dieX,
-                y = dieY,
+                x = dieRightX,
+                y = dieBottomY,
                 xalign = 'right',
                 yalign = 'bottom',
                 onleftclick = function ()
@@ -517,63 +522,98 @@ function catan.renderers:sidebar ()
             }
         end
 
-        local ITEM_OX = 90
-        local ITEM_OY = 5
-        local ITEM_XSEP = 26
+        -- Table (public)
 
-        local itemX = sidebarX + ITEM_OX * s
-        local itemY = sidebarY + ITEM_OY * s
-
-        local function addItemSprite (img)
-            local sprite = addSprite{img, x=itemX, y=itemY, xalign='center'}
-            local x = itemX
-            itemX = itemX + sprite:getWidth() + ITEM_XSEP
-            return x
+        local MAX_CIRCLE_W
+        do
+            local w
+            for _, img in pairs(self.images.circle) do
+                local imgW = img:getWidth()
+                w = w and math.max(w, imgW) or imgW
+            end
+            MAX_CIRCLE_W = w
         end
 
-        local RES_X = addItemSprite(self.images.card.res.back)
-        local DEV_X = addItemSprite(self.images.card.dev.back)
-        local KNIGHT_X = addItemSprite(self.images.card.dev.knight)
-        local ROAD_X = addItemSprite(self.images.card.dev.roadbuilding)
+        local tableCardImgs = {
+            self.images.card.res.back,
+            self.images.card.dev.back,
+            self.images.card.dev.knight,
+            self.images.card.dev.roadbuilding,
+        }
 
-        local PLAYERS_OX = 27
-        local PLAYERS_OY = 48
+        local HEADER_CELL_H
+        local CELL_W
+        do
+            local w, h
+            for _, img in ipairs(tableCardImgs) do
+                local imgW, imgH = img:getDimensions()
+                w = w and math.max(w, imgW) or imgW
+                h = h and math.max(h, imgH) or imgH
+            end
+            CELL_W = w
+            HEADER_CELL_H = h
+        end
 
-        local playerX = sidebarX + PLAYERS_OX * s
-        local playerY = sidebarY + PLAYERS_OY * s
+        local CELL_XSEP = 25
+        local CELL_YSEP = 0
 
-        local scoreX = playerX + 37
+        local TABLE_XMARGIN
+        do
+            local N_COLUMNS = #tableCardImgs
+            local w = MAX_CIRCLE_W + (CELL_XSEP + CELL_W) * N_COLUMNS
+            TABLE_XMARGIN = (sidebarW - w) / 2
+        end
+        local TABLE_YMARGIN = 20
 
-        local boxImg = self.images.playerbox
+        local headerCellX = sidebarX + TABLE_XMARGIN + MAX_CIRCLE_W + CELL_XSEP
+        local headerCellY = sidebarY + TABLE_YMARGIN
 
-        local TEXT_OY = boxImg:getHeight() / 2
+        for _, tableCardImg in ipairs(tableCardImgs) do
+            local sprite = addSprite{
+                tableCardImg,
+                x = headerCellX,
+                y = headerCellY,
+            }
+
+            headerCellX = headerCellX + CELL_W + CELL_XSEP
+        end
+
+        local playerBoxImg = self.images.playerbox
+
+        local CELL_H = playerBoxImg:getHeight()
+
+        local cellX
+        local cellY = headerCellY + HEADER_CELL_H + TABLE_YMARGIN + CELL_H / 2
 
         local BLACK = {0, 0, 0}
         local WHITE = {1, 1, 1}
 
-        local function addCenteredTextSprite (textstring, x, color)
-            local text = love.graphics.newText(self.font, {color, textstring})
-            local y = playerY + TEXT_OY
-            addSprite{text, x=x, y=y, center=true}
+        local function addCellText (text, color)
+            local sprite = love.graphics.newText(self.font, {color, text})
+            addSprite{sprite, x=cellX, y=cellY, center=true}
+            cellX = cellX + CELL_W + CELL_XSEP
         end
 
         for i, player in ipairs(self.game.players) do
             if player == self.game.player then
-                addSprite{boxImg, x=playerX, y=playerY}
+                local x = sidebarX + sidebarW / 2
+                addSprite{playerBoxImg, x=x, y=cellY, center=true}
             end
 
+            cellX = sidebarX + TABLE_XMARGIN + MAX_CIRCLE_W / 2
+
             local circleImg = assert(self.images.circle[player], "missing circle sprite")
-            local sprite = addSprite{circleImg, x=playerX, y=playerY}
+            addSprite{circleImg, x=cellX, y=cellY, center=true}
 
             local scoreColor = (player == "white") and BLACK or WHITE
+            addCellText(self.game:getNumberOfVictoryPoints(player), scoreColor)
 
-            addCenteredTextSprite(self.game:getNumberOfVictoryPoints(player), scoreX, scoreColor)
-            addCenteredTextSprite(self.game:getNumberOfResourceCards(player), RES_X, BLACK)
-            addCenteredTextSprite(self.game:getNumberOfDevelopmentCards(player), DEV_X, BLACK)
-            addCenteredTextSprite(self.game:getArmySize(player), KNIGHT_X, BLACK)
-            addCenteredTextSprite("?", ROAD_X, BLACK)
+            addCellText(self.game:getNumberOfResourceCards(player), BLACK)
+            addCellText(self.game:getNumberOfDevelopmentCards(player), BLACK)
+            addCellText(self.game:getArmySize(player), BLACK)
+            addCellText("?", BLACK)
 
-            playerY = playerY + sprite:getHeight()
+            cellY = cellY + CELL_H + CELL_YSEP
         end
     end
 

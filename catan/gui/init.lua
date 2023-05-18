@@ -534,7 +534,7 @@ function catan.renderers:sidebar ()
         local RES_X = addItemSprite(self.images.card.res.back)
         local DEV_X = addItemSprite(self.images.card.dev.back)
         local KNIGHT_X = addItemSprite(self.images.card.dev.knight)
-        local ROAD_X = addItemSprite(self.images.card.dev.road)
+        local ROAD_X = addItemSprite(self.images.card.dev.roadbuilding)
 
         local PLAYERS_OX = 27
         local PLAYERS_OY = 48

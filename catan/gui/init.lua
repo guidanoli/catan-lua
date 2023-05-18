@@ -286,6 +286,12 @@ function catan:afterMove ()
     self:requestValidation()
 end
 
+function catan:printRoll (roll)
+    Roll:iter(roll, function (player, res, n)
+        print('Player', player, 'won', n, res)
+    end)
+end
+
 function catan:placeInitialSettlement (q, r, v)
     self.game:placeInitialSettlement(Grid:vertex(q, r, v))
     self:afterMove()
@@ -305,9 +311,7 @@ function catan:roll ()
 
     local roll = self.game:roll(dice)
 
-    Roll:iter(roll, function (player, res, n)
-        print('Player', player, 'won', n, res)
-    end)
+    self:printRoll(roll)
 
     self:afterMove()
 end

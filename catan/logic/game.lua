@@ -488,9 +488,7 @@ function Game:roll (dice)
         end
     end)
 
-    Roll:iter(roll, function (player, res, numCards)
-        self.rescards[player][res] = (self.rescards[player][res] or 0) + numCards
-    end)
+    self:_applyRoll(roll)
 
     self.dice = dice
 
@@ -528,6 +526,12 @@ end
 --------------------------------
 -- Auxiliary functions
 --------------------------------
+
+function Game:_applyRoll (roll)
+    Roll:iter(roll, function (player, res, numCards)
+        self.rescards[player][res] = (self.rescards[player][res] or 0) + numCards
+    end)
+end
 
 function Game:_getCurrentPlayerIndex ()
     for i, player in ipairs(self.players) do

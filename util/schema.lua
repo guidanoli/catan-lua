@@ -160,7 +160,7 @@ function Schema:isValid (t)
     if ok then
         return true
     else
-        return false, string.format('Error in %s: %s', path, err)
+        return false, string.format('Error in "%s": %s', path, err)
     end
 end
 

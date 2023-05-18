@@ -14,6 +14,7 @@ local Grid = require "catan.logic.grid"
 
 local gutil = require "catan.gui.util"
 local Sprite = require "catan.gui.sprite"
+local Layer = require "catan.gui.layer"
 
 local catan = {}
 
@@ -323,13 +324,7 @@ end
 catan.renderers = {}
 
 function catan.renderers:board ()
-    local layer = {}
-
-    local function addSprite (t)
-        local sprite = Sprite.new(t)
-        table.insert(layer, sprite)
-        return sprite
-    end
+    local layer = Layer:new()
 
     local W, H = love.window.getMode()
     local hexsize = self:getHexSize()
@@ -352,20 +347,20 @@ function catan.renderers:board ()
                     local x1, y1 = self:getVertexPos(q1, r1, v1)
                     local x2, y2 = self:getVertexPos(Grid:unpack(vertex2))
                     local a1, a2, edge = self:getHarborAngles(vertex1, vertex2)
-                    addSprite{boardImg, x=x1, y=y1, r=a1, oy=oy}
-                    addSprite{boardImg, x=x2, y=y2, r=a2, oy=oy}
+                    layer:addSprite{boardImg, x=x1, y=y1, r=a1, oy=oy}
+                    layer:addSprite{boardImg, x=x2, y=y2, r=a2, oy=oy}
 
                     local seaFace = self:getJoinedFaceWithoutHex(edge)
                     local x3, y3 = self:getFaceCenter(Grid:unpack(seaFace))
                     local shipImg = self:getShipImageFromHarbor(harbor)
-                    local shipSprite = addSprite{shipImg, x=x3, y=y3, center=true}
+                    local shipSprite = layer:addSprite{shipImg, x=x3, y=y3, center=true}
                     local shipX, shipY = shipSprite:getCoords()
                     local resImg = self.images.resource[harbor]
                     if resImg ~= nil then
                         local s = RES_SIZE / resImg:getHeight()
                         local x4 = shipX + RES_OX
                         local y4 = shipY + RES_OY
-                        addSprite{resImg, x=x4, y=y4, sx=s}
+                        layer:addSprite{resImg, x=x4, y=y4, sx=s}
                     end
                 end
             end
@@ -377,7 +372,7 @@ function catan.renderers:board ()
         local img = assert(self.images.hex[hex], "missing hex sprite")
         local x, y = self:getFaceCenter(q, r)
         local s = hexsize / (img:getHeight() / 2)
-        addSprite{img, x=x, y=y, sx=s, center=true}
+        layer:addSprite{img, x=x, y=y, sx=s, center=true}
     end)
 
     -- Number tokens
@@ -385,7 +380,7 @@ function catan.renderers:board ()
         local img = assert(self.images.number[tostring(number)], "missing token sprite")
         local x, y = self:getFaceCenter(q, r)
         local s = (0.6 * hexsize) / img:getHeight()
-        addSprite{img, x=x, y=y, sx=s, center=true}
+        layer:addSprite{img, x=x, y=y, sx=s, center=true}
     end)
 
     -- Vertex selection
@@ -394,7 +389,7 @@ function catan.renderers:board ()
         local img = self.images.selection
         VertexMap:iter(available, function (q, r, v)
             local x, y = self:getVertexPos(q, r, v)
-            addSprite{
+            layer:addSprite{
                 img,
                 x = x,
                 y = y,
@@ -413,7 +408,7 @@ function catan.renderers:board ()
         local img = self.images.selection
         EdgeMap:iter(available, function (q, r, e)
             local x, y = self:getEdgeCenter(q, r, e)
-            addSprite{
+            layer:addSprite{
                 img,
                 x = x,
                 y = y,
@@ -432,7 +427,7 @@ function catan.renderers:board ()
             local x, y = self:getEdgeCenter(q, r, e)
             local r = self:getRoadAngleForEdge(e)
             local img = assert(self.images.road[player], "missing road image")
-            addSprite{img, x=x, y=y, r=r, sx=0.25, center=true}
+            layer:addSprite{img, x=x, y=y, r=r, sx=0.25, center=true}
         end)
     end
 
@@ -442,7 +437,7 @@ function catan.renderers:board ()
             local x, y = self:getVertexPos(q, r, v)
             if building.kind == "settlement" then
                 local img = assert(self.images.settlement[building.player], "missing settlement image")
-                addSprite{img, x=x, y=y, sx=0.5, center=true}
+                layer:addSprite{img, x=x, y=y, sx=0.5, center=true}
             else
                 assert(building.kind == "city")
                 -- TODO: render cities
@@ -455,20 +450,14 @@ function catan.renderers:board ()
         local img = self.images.robber
         local x, y = self:getFaceCenter(Grid:unpack(self.game.robber))
         local s = (0.8 * hexsize) / img:getHeight()
-        addSprite{img, x=x, y=y, sx=s, center=true}
+        layer:addSprite{img, x=x, y=y, sx=s, center=true}
     end
 
     return layer
 end
 
 function catan.renderers:sidebar ()
-    local layer = {}
-
-    local function addSprite (t)
-        local sprite = Sprite.new(t)
-        table.insert(layer, sprite)
-        return sprite
-    end
+    local layer = Layer:new()
 
     local W, H = love.window.getMode()
 
@@ -477,7 +466,7 @@ function catan.renderers:sidebar ()
 
         local sidebarImg = self.images.sidebar
         local sidebarS = H / sidebarImg:getHeight()
-        local sidebarSprite = addSprite{sidebarImg, x=W, y=0, sx=sidebarS, xalign='right'}
+        local sidebarSprite = layer:addSprite{sidebarImg, x=W, y=0, sx=sidebarS, xalign='right'}
         local sidebarX, sidebarY = sidebarSprite:getCoords()
         local sidebarW, sidebarH = sidebarSprite:getDimensions()
 
@@ -493,7 +482,7 @@ function catan.renderers:sidebar ()
 
         local function addDieSprite (die)
             local img = assert(self.images.dice[tostring(die)], "missing die sprite")
-            local sprite = addSprite{
+            local sprite = layer:addSprite{
                 img,
                 x = dieRightX,
                 y = dieBottomY,
@@ -510,7 +499,7 @@ function catan.renderers:sidebar ()
             end
         elseif self.game.phase == "playingTurns" then
             local img = self.images.roll
-            addSprite{
+            layer:addSprite{
                 img,
                 x = dieRightX,
                 y = dieBottomY,
@@ -569,7 +558,7 @@ function catan.renderers:sidebar ()
         local headerCellY = sidebarY + TABLE_YMARGIN
 
         for _, tableCardImg in ipairs(tableCardImgs) do
-            local sprite = addSprite{
+            local sprite = layer:addSprite{
                 tableCardImg,
                 x = headerCellX,
                 y = headerCellY,
@@ -590,20 +579,20 @@ function catan.renderers:sidebar ()
 
         local function addCellText (text, color)
             local sprite = love.graphics.newText(self.font, {color, text})
-            addSprite{sprite, x=cellX, y=cellY, center=true}
+            layer:addSprite{sprite, x=cellX, y=cellY, center=true}
             cellX = cellX + CELL_W + CELL_XSEP
         end
 
         for i, player in ipairs(self.game.players) do
             if player == self.game.player then
                 local x = sidebarX + sidebarW / 2
-                addSprite{playerBoxImg, x=x, y=cellY, center=true}
+                layer:addSprite{playerBoxImg, x=x, y=cellY, center=true}
             end
 
             cellX = sidebarX + TABLE_XMARGIN + MAX_CIRCLE_W / 2
 
             local circleImg = assert(self.images.circle[player], "missing circle sprite")
-            addSprite{circleImg, x=cellX, y=cellY, center=true}
+            layer:addSprite{circleImg, x=cellX, y=cellY, center=true}
 
             local scoreColor = (player == "white") and BLACK or WHITE
             addCellText(self.game:getNumberOfVictoryPoints(player), scoreColor)

@@ -36,8 +36,8 @@ local Sprite = Class "Sprite"
 function Sprite.new (s)
     local img = s[1]
 
-    local x = assert(s.x, "missing x")
-    local y = assert(s.y, "missing y")
+    local x = math.floor(assert(s.x, "missing x"))
+    local y = math.floor(assert(s.y, "missing y"))
 
     local r = s.r or 0
 

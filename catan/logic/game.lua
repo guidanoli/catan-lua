@@ -382,7 +382,7 @@ function Game:getArmySize (player)
     return n
 end
 
-Game.RESCARD_FROM_HEX = {
+Game.RES_FROM_HEX = {
     hills = 'brick',
     forest = 'lumber',
     mountains = 'ore',
@@ -390,8 +390,11 @@ Game.RESCARD_FROM_HEX = {
     pasture = 'wool',
 }
 
-function Game:resCardFromHex (hex)
-    return CatanSchema.ResourceCard:new(self.RESCARD_FROM_HEX[hex])
+function Game:resFromHex (hex)
+    local res = self.RES_FROM_HEX[hex]
+    if res ~= nil then
+        return CatanSchema.ResourceCard:new(res)
+    end
 end
 
 function Game:numResCardsForBuilding (kind)
@@ -472,7 +475,7 @@ function Game:roll (dice)
                 return false -- skip to next iteration
             end
             local hex = assert(FaceMap:get(self.hexmap, face))
-            local res = self:resCardFromHex(hex)
+            local res = self:resFromHex(hex)
             if res ~= nil then
                 for _, corner in ipairs(Grid:corners(q, r)) do
                     local building = VertexMap:get(self.buildmap, corner)

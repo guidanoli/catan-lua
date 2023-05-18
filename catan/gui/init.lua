@@ -454,6 +454,11 @@ function catan.renderers:board ()
     return layer
 end
 
+function catan:onPlayerCircleLeftClick (player)
+    -- TODO: add password?
+    self.displayedInventory = player
+end
+
 function catan.renderers:sidebar ()
     local layer = Layer:new()
 
@@ -590,7 +595,15 @@ function catan.renderers:sidebar ()
             cellX = sidebarX + TABLE_XMARGIN + MAX_CIRCLE_W / 2
 
             local circleImg = assert(self.images.circle[player], "missing circle sprite")
-            layer:addSprite{circleImg, x=cellX, y=cellY, center=true}
+            layer:addSprite{
+                circleImg,
+                x = cellX,
+                y = cellY,
+                center = true,
+                onleftclick = function ()
+                    self:onPlayerCircleLeftClick(player)
+                end,
+            }
 
             local scoreColor = (player == "white") and BLACK or WHITE
             addCellText(self.game:getNumberOfVictoryPoints(player), scoreColor)

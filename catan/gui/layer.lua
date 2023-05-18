@@ -14,4 +14,11 @@ function Layer:addSprite (t)
     return sprite
 end
 
+function Layer:iterSprites (f)
+    for i, sprite in ipairs(self) do
+        local ret = f(sprite)
+        if ret then return ret end
+    end
+end
+
 return Layer

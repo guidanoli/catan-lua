@@ -87,11 +87,9 @@ end
 
 function catan:iterSprites (f)
     for i, layername in ipairs(self.LAYER_NAMES) do
-        for j, sprite in ipairs(self.layers[layername]) do
-            if f(sprite) then
-                return
-            end
-        end
+        local layer = self.layers[layername]
+        local ret = layer:iterSprites(f)
+        if ret then return ret end
     end
 end
 

@@ -288,7 +288,8 @@ end
 
 function catan:printRoll (roll)
     Roll:iter(roll, function (player, res, n)
-        print('Player', player, 'won', n, res)
+        print(string.format('Player %s won %d %s %s.', player, n, res,
+                            n == 1 and "card" or "cards"))
     end)
 end
 

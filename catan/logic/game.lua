@@ -422,7 +422,25 @@ function Game:placeInitialSettlement (vertex)
         player = self.player,
     })
 
+    local roll = {}
+
+    if self.round == 2 then
+        for _, touchingFace in ipairs(Grid:touches(Grid:unpack(vertex))) do
+            local touchingHex = FaceMap:get(self.hexmap, touchingFace)
+            if touchingHex ~= nil then
+                local res = self:resFromHex(touchingHex)
+                if res ~= nil then
+                    Roll:add(roll, self.player, res, 1)
+                end
+            end
+        end
+    end
+
+    self:_applyRoll(roll)
+
     self.phase = "placingInitialRoad"
+
+    return roll
 end
 
 function Game:placeInitialRoad (edge)

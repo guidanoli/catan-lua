@@ -11,4 +11,3 @@ file = {
     'util',
 }
 
-backtick_references = true

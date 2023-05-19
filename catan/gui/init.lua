@@ -472,54 +472,15 @@ function catan.renderers:sidebar ()
     local layer = Layer:new()
 
     local W, H = love.window.getMode()
+    local YMARGIN = 20
 
     do
-        -- Sidebar background
+        -- Sidebar
 
         local SIDEBAR_X = self.SEA_W
         local SIDEBAR_Y = 0
         local SIDEBAR_W = W - self.SEA_W
-
-        -- Dice and "Roll" button
-
-        local DIE_XMARGIN = 10
-        local DIE_YMARGIN = 10
-        local DIE_XSEP = 10
-        local DIE_SX = 0.5
-
-        local dieRightX = self.SEA_W - DIE_XMARGIN
-        local dieBottomY = self.SEA_H - DIE_YMARGIN
-
-        local function addDieSprite (die)
-            local img = assert(self.images.dice[tostring(die)], "missing die sprite")
-            local sprite = layer:addSprite{
-                img,
-                x = dieRightX,
-                y = dieBottomY,
-                sx = DIE_SX,
-                xalign = 'right',
-                yalign = 'bottom',
-            }
-            dieRightX = sprite:getX() - DIE_XSEP
-        end
-
-        if self.game.dice then
-            for _, die in ipairs(self.game.dice) do
-                addDieSprite(die)
-            end
-        elseif self.game.phase == "playingTurns" then
-            local img = self.images.btn.roll
-            layer:addSprite{
-                img,
-                x = dieRightX,
-                y = dieBottomY,
-                xalign = 'right',
-                yalign = 'bottom',
-                onleftclick = function ()
-                    self:roll()
-                end
-            }
-        end
+        local y = YMARGIN
 
         -- Table (public)
 
@@ -544,6 +505,7 @@ function catan.renderers:sidebar ()
         end
 
         local CELL_XSEP = 25
+        local CELL_YMARGIN = 10
 
         local TABLE_XMARGIN
         do
@@ -554,20 +516,21 @@ function catan.renderers:sidebar ()
         local TABLE_YMARGIN = 20
 
         local cardX = SIDEBAR_X + TABLE_XMARGIN + CIRCLE_W + CELL_XSEP
-        local cardY = SIDEBAR_Y + TABLE_YMARGIN
+        local cardY = y
 
         for _, img in ipairs(tableCardImgs) do
             layer:addSprite{img, x=cardX, y=cardY}
             cardX = cardX + CARD_W + CELL_XSEP
         end
 
+        y = y + CARD_H + CELL_YMARGIN
+
         local playerBoxImg = self.images.playerbox
 
-        local CELL_YMARGIN = 10
         local CELL_H = playerBoxImg:getHeight()
 
         local cellX
-        local cellY = cardY + CARD_H + CELL_YMARGIN + CELL_H / 2
+        local cellY = y + CELL_H / 2
 
         local BLACK = {0, 0, 0}
         local WHITE = {1, 1, 1}
@@ -608,6 +571,53 @@ function catan.renderers:sidebar ()
             cellY = cellY + CELL_H
         end
 
+        y = cellY + YMARGIN
+
+        -- Dice and "Roll" button
+
+        local function addDieSprite (die)
+            local img = assert(self.images.dice[tostring(die)], "missing die sprite")
+            local sprite = layer:addSprite{
+                img,
+                x = dieRightX,
+                y = dieBottomY,
+                sx = DIE_SX,
+                xalign = 'right',
+                yalign = 'bottom',
+            }
+            dieRightX = sprite:getX() - DIE_XSEP
+        end
+
+        if self.game.dice then
+            local DIE_XSEP = 10
+            local DIE_SX = 0.5
+            local x = SIDEBAR_X + SIDEBAR_W / 2
+            local t = {x=x, y=y, xalign='center', sx=DIE_SX, sep=DIE_XSEP}
+            for _, die in ipairs(self.game.dice) do
+                local img = assert(self.images.dice[tostring(die)], "missing die sprite")
+                table.insert(t, img)
+            end
+            local sprites = layer:addSpriteLine(t)
+            local maxh = 0
+            for i, sprite in ipairs(sprites) do
+                local h = sprite:getHeight()
+                if h > maxh then maxh = h end
+            end
+            y = y + maxh + YMARGIN
+        elseif self.game.phase == "playingTurns" then
+            local x = SIDEBAR_X + SIDEBAR_W / 2
+            local sprite = layer:addSprite{
+                self.images.btn.roll,
+                x = x,
+                y = y,
+                xalign = 'center',
+                onleftclick = function ()
+                    self:roll()
+                end
+            }
+            y = y + sprite:getHeight() + YMARGIN
+        end
+
         -- Inventory (private)
 
         local RESOURCES = {
@@ -625,13 +635,12 @@ function catan.renderers:sidebar ()
         local INVENTORY_TEXT_YSEP = 10
         local INVENTORY_LINE_YSEP = 25
         local INVENTORY_XMARGIN = (SIDEBAR_W - CARD_W - (INVENTORY_XSEP + CARD_W) * 4) / 2
-        local INVENTORY_YMARGIN = 10
 
         if self.displayedInventory ~= nil then
             local player = self.displayedInventory
 
             local btnX = W - INVENTORY_BTN_XMARGIN
-            local btnY = cellY + INVENTORY_YMARGIN + INVENTORY_BTN_YMARGIN
+            local btnY = y + INVENTORY_BTN_YMARGIN
             local btnSprite = layer:addSprite{
                 self.images.btn.close,
                 x = btnX,

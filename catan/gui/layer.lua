@@ -101,8 +101,8 @@ Layer.SpriteTableCell = {}
 
 ---
 -- Input for @{catan.gui.layer:addSpriteTable}
--- @tfield[opt=0] number n number of table lines
--- @tfield[opt=0] number m number of table columns
+-- @tfield[opt=1] number n number of table lines
+-- @tfield[opt=1] number m number of table columns
 -- @tfield[opt=0] number x the sprite line horizontal coordinate
 -- @tfield[opt=0] number y the sprite line vertical coordinate
 -- @tfield[opt=0] number xsep the horizontal space between sprites
@@ -116,8 +116,8 @@ Layer.SpriteTableInput = {}
 -- @tparam table t 2D array of @{catan.gui.layer.SpriteTableCell} and fields in @{catan.gui.layer.SpriteLineInput}
 -- @treturn {{catan.gui.sprite.Sprite,...},...} 2D array with all the newly-created sprites
 function Layer:addSpriteTable (t)
-    local n = t.n or 0
-    local m = t.m or 0
+    local n = t.n or 1
+    local m = t.m or 1
     local x = t.x or 0
     local y = t.y or 0
     local xsep = t.xsep or 0

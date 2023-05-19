@@ -454,7 +454,7 @@ function catan.renderers:board ()
     return layer
 end
 
-function catan:onPlayerCircleLeftClick (player)
+function catan:openInventory (player)
     -- TODO: add password?
     self.displayedInventory = player
     self:requestAllLayersUpdate()
@@ -587,7 +587,7 @@ function catan.renderers:sidebar ()
                 y = cellY,
                 center = true,
                 onleftclick = function ()
-                    self:onPlayerCircleLeftClick(player)
+                    self:openInventory(player)
                 end,
             }
 

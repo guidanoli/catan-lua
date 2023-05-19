@@ -502,7 +502,7 @@ function catan.renderers:sidebar ()
                 addDieSprite(die)
             end
         elseif self.game.phase == "playingTurns" then
-            local img = self.images.roll
+            local img = self.images.btn.roll
             layer:addSprite{
                 img,
                 x = dieRightX,

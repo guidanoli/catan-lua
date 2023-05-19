@@ -613,16 +613,29 @@ function catan.renderers:sidebar ()
         }
 
         local INVENTORY_XSEP = 25
+        local INVENTORY_BTN_XMARGIN = 40
+        local INVENTORY_BTN_YMARGIN = 5
+        local INVENTORY_BTN_BODY_YSEP = 10
         local INVENTORY_TEXT_YSEP = 10
         local INVENTORY_LINE_YSEP = 25
         local INVENTORY_XMARGIN = (sidebarW - CARD_W - (INVENTORY_XSEP + CARD_W) * 4) / 2
-        local INVENTORY_YMARGIN = 20
+        local INVENTORY_YMARGIN = 10
 
         if self.displayedInventory ~= nil then
             local player = self.displayedInventory
 
+            local btnX = sidebarX + sidebarW - INVENTORY_BTN_XMARGIN
+            local btnY = cellY + INVENTORY_YMARGIN + INVENTORY_BTN_YMARGIN
+            local btnSprite = layer:addSprite{
+                self.images.btn.close,
+                x = btnX,
+                y = btnY,
+                sx = 0.5,
+                xalign = 'right',
+            }
+
             local cardX = sidebarX + INVENTORY_XMARGIN
-            local cardY = cellY + INVENTORY_YMARGIN
+            local cardY = btnY + btnSprite:getHeight() + INVENTORY_BTN_BODY_YSEP
 
             for _, res in ipairs(RESOURCES) do
                 local img = assert(self.images.card.res[res], "resource card sprite missing")

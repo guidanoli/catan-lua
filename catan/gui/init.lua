@@ -516,14 +516,10 @@ function catan.renderers:sidebar ()
 
         -- Table (public)
 
-        local MAX_CIRCLE_W
+        local CIRCLE_W
         do
-            local w
-            for _, img in pairs(self.images.circle) do
-                local imgW = img:getWidth()
-                w = w and math.max(w, imgW) or imgW
-            end
-            MAX_CIRCLE_W = w
+            local _, img = next(self.images.circle)
+            CIRCLE_W = assert(img):getWidth()
         end
 
         local tableCardImgs = {
@@ -533,49 +529,38 @@ function catan.renderers:sidebar ()
             self.images.card.dev.roadbuilding,
         }
 
-        local HEADER_CELL_H
-        local CELL_W
+        local CARD_H
+        local CARD_W
         do
-            local w, h
-            for _, img in ipairs(tableCardImgs) do
-                local imgW, imgH = img:getDimensions()
-                w = w and math.max(w, imgW) or imgW
-                h = h and math.max(h, imgH) or imgH
-            end
-            CELL_W = w
-            HEADER_CELL_H = h
+            local _, img = next(tableCardImgs)
+            CARD_W, CARD_H = assert(img):getDimensions()
         end
 
         local CELL_XSEP = 25
-        local CELL_YSEP = 0
 
         local TABLE_XMARGIN
         do
             local N_COLUMNS = #tableCardImgs
-            local w = MAX_CIRCLE_W + (CELL_XSEP + CELL_W) * N_COLUMNS
+            local w = CIRCLE_W + (CELL_XSEP + CARD_W) * N_COLUMNS
             TABLE_XMARGIN = (sidebarW - w) / 2
         end
         local TABLE_YMARGIN = 20
 
-        local headerCellX = sidebarX + TABLE_XMARGIN + MAX_CIRCLE_W + CELL_XSEP
-        local headerCellY = sidebarY + TABLE_YMARGIN
+        local cardX = sidebarX + TABLE_XMARGIN + CIRCLE_W + CELL_XSEP
+        local cardY = sidebarY + TABLE_YMARGIN
 
-        for _, tableCardImg in ipairs(tableCardImgs) do
-            local sprite = layer:addSprite{
-                tableCardImg,
-                x = headerCellX,
-                y = headerCellY,
-            }
-
-            headerCellX = headerCellX + CELL_W + CELL_XSEP
+        for _, img in ipairs(tableCardImgs) do
+            layer:addSprite{img, x=cardX, y=cardY}
+            cardX = cardX + CARD_W + CELL_XSEP
         end
 
         local playerBoxImg = self.images.playerbox
 
+        local CELL_YMARGIN = 10
         local CELL_H = playerBoxImg:getHeight()
 
         local cellX
-        local cellY = headerCellY + HEADER_CELL_H + TABLE_YMARGIN + CELL_H / 2
+        local cellY = cardY + CARD_H + CELL_YMARGIN + CELL_H / 2
 
         local BLACK = {0, 0, 0}
         local WHITE = {1, 1, 1}
@@ -583,7 +568,7 @@ function catan.renderers:sidebar ()
         local function addCellText (text, color)
             local sprite = love.graphics.newText(self.font, {color, text})
             layer:addSprite{sprite, x=cellX, y=cellY, center=true}
-            cellX = cellX + CELL_W + CELL_XSEP
+            cellX = cellX + CARD_W + CELL_XSEP
         end
 
         for i, player in ipairs(self.game.players) do
@@ -592,7 +577,7 @@ function catan.renderers:sidebar ()
                 layer:addSprite{playerBoxImg, x=x, y=cellY, center=true}
             end
 
-            cellX = sidebarX + TABLE_XMARGIN + MAX_CIRCLE_W / 2
+            cellX = sidebarX + TABLE_XMARGIN + CIRCLE_W / 2
 
             local circleImg = assert(self.images.circle[player], "missing circle sprite")
             layer:addSprite{
@@ -613,7 +598,7 @@ function catan.renderers:sidebar ()
             addCellText(self.game:getArmySize(player), BLACK)
             addCellText("?", BLACK)
 
-            cellY = cellY + CELL_H + CELL_YSEP
+            cellY = cellY + CELL_H
         end
     end
 

@@ -64,9 +64,9 @@ function catan:requestValidation ()
 end
 
 function catan:load ()
-    love.window.setMode(1400, 900)
+    love.window.setMode(1400, 1000)
     love.window.setTitle"Settlers of Catan"
-    love.graphics.setBackgroundColor(love.math.colorFromBytes(17, 78, 232))
+    love.graphics.setBackgroundColor(love.math.colorFromBytes(255, 239, 190))
 
     math.randomseed(os.time())
 
@@ -74,6 +74,8 @@ function catan:load ()
     self.game = Game:new()
 
     self.images = self:loadImgDir"images"
+
+    self.SEA_W, self.SEA_H = self.images.sea:getDimensions()
 
     self.font = love.graphics.newFont(20)
 
@@ -110,14 +112,12 @@ function catan:keypressed (key)
 end
 
 function catan:getHexSize ()
-    local W, H = love.window.getMode()
-    return H / 12
+    return self.SEA_H / 12
 end
 
 function catan:getFaceCenter (q, r)
-    local W, H = love.window.getMode()
-    local x0 = W * 0.3
-    local y0 = H * 0.5
+    local x0 = self.SEA_W / 2
+    local y0 = self.SEA_H / 2
     local hexsize = self:getHexSize()
     local sqrt3 = math.sqrt(3)
     local x = x0 + hexsize * (sqrt3 * q + sqrt3 / 2 * r)
@@ -327,6 +327,9 @@ function catan.renderers:board ()
     local W, H = love.window.getMode()
     local hexsize = self:getHexSize()
 
+    -- Sea
+    layer:addSprite{self.images.sea}
+
     -- Harbors
     do
         local boardImg = self.images.harbor.board
@@ -473,11 +476,9 @@ function catan.renderers:sidebar ()
     do
         -- Sidebar background
 
-        local sidebarImg = self.images.sidebar
-        local sidebarS = H / sidebarImg:getHeight()
-        local sidebarSprite = layer:addSprite{sidebarImg, x=W, y=0, sx=sidebarS, xalign='right'}
-        local sidebarX, sidebarY = sidebarSprite:getCoords()
-        local sidebarW, sidebarH = sidebarSprite:getDimensions()
+        local SIDEBAR_X = self.SEA_W
+        local SIDEBAR_Y = 0
+        local SIDEBAR_W = W - self.SEA_W
 
         -- Dice and "Roll" button
 
@@ -486,8 +487,8 @@ function catan.renderers:sidebar ()
         local DIE_XSEP = 10
         local DIE_SX = 0.5
 
-        local dieRightX = sidebarX - DIE_XMARGIN
-        local dieBottomY = H - DIE_YMARGIN
+        local dieRightX = self.SEA_W - DIE_XMARGIN
+        local dieBottomY = self.SEA_H - DIE_YMARGIN
 
         local function addDieSprite (die)
             local img = assert(self.images.dice[tostring(die)], "missing die sprite")
@@ -548,12 +549,12 @@ function catan.renderers:sidebar ()
         do
             local N_COLUMNS = #tableCardImgs
             local w = CIRCLE_W + (CELL_XSEP + CARD_W) * N_COLUMNS
-            TABLE_XMARGIN = (sidebarW - w) / 2
+            TABLE_XMARGIN = (SIDEBAR_W - w) / 2
         end
         local TABLE_YMARGIN = 20
 
-        local cardX = sidebarX + TABLE_XMARGIN + CIRCLE_W + CELL_XSEP
-        local cardY = sidebarY + TABLE_YMARGIN
+        local cardX = SIDEBAR_X + TABLE_XMARGIN + CIRCLE_W + CELL_XSEP
+        local cardY = SIDEBAR_Y + TABLE_YMARGIN
 
         for _, img in ipairs(tableCardImgs) do
             layer:addSprite{img, x=cardX, y=cardY}
@@ -579,11 +580,11 @@ function catan.renderers:sidebar ()
 
         for i, player in ipairs(self.game.players) do
             if player == self.game.player then
-                local x = sidebarX + sidebarW / 2
+                local x = SIDEBAR_X + SIDEBAR_W / 2
                 layer:addSprite{playerBoxImg, x=x, y=cellY, center=true}
             end
 
-            cellX = sidebarX + TABLE_XMARGIN + CIRCLE_W / 2
+            cellX = SIDEBAR_X + TABLE_XMARGIN + CIRCLE_W / 2
 
             local circleImg = assert(self.images.circle[player], "missing circle sprite")
             layer:addSprite{
@@ -623,13 +624,13 @@ function catan.renderers:sidebar ()
         local INVENTORY_BTN_BODY_YSEP = 10
         local INVENTORY_TEXT_YSEP = 10
         local INVENTORY_LINE_YSEP = 25
-        local INVENTORY_XMARGIN = (sidebarW - CARD_W - (INVENTORY_XSEP + CARD_W) * 4) / 2
+        local INVENTORY_XMARGIN = (SIDEBAR_W - CARD_W - (INVENTORY_XSEP + CARD_W) * 4) / 2
         local INVENTORY_YMARGIN = 10
 
         if self.displayedInventory ~= nil then
             local player = self.displayedInventory
 
-            local btnX = sidebarX + sidebarW - INVENTORY_BTN_XMARGIN
+            local btnX = W - INVENTORY_BTN_XMARGIN
             local btnY = cellY + INVENTORY_YMARGIN + INVENTORY_BTN_YMARGIN
             local btnSprite = layer:addSprite{
                 self.images.btn.close,
@@ -642,7 +643,7 @@ function catan.renderers:sidebar ()
                 end
             }
 
-            local cardX = sidebarX + INVENTORY_XMARGIN
+            local cardX = SIDEBAR_X + INVENTORY_XMARGIN
             local cardY = btnY + btnSprite:getHeight() + INVENTORY_BTN_BODY_YSEP
 
             for _, res in ipairs(RESOURCES) do

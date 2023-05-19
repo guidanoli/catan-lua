@@ -15,11 +15,11 @@ local Sprite = Class "Sprite"
 -- Table parameter `s` MUST have the following fields:
 --
 -- * `[1]`: drawable object (Image, Text, etc)
--- * `.x`: x-coordinate (`number`)
--- * `.y`: y-coordinate (`number`)
 --
 -- and it CAN have:
 --
+-- * `.x`: x-coordinate (`number`)
+-- * `.y`: y-coordinate (`number`)
 -- * `.r`: clockwise rotation in radians (`number`)
 -- * `.sx`: x-scale factor (`number`)
 -- * `.sy`: y-scale factor (`number`)
@@ -36,8 +36,8 @@ local Sprite = Class "Sprite"
 function Sprite.new (s)
     local img = s[1]
 
-    local x = math.floor(assert(s.x, "missing x"))
-    local y = math.floor(assert(s.y, "missing y"))
+    local x = math.floor(s.x or 0)
+    local y = math.floor(s.y or 0)
 
     local r = s.r or 0
 

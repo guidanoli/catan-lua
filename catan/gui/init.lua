@@ -457,6 +457,7 @@ end
 function catan:onPlayerCircleLeftClick (player)
     -- TODO: add password?
     self.displayedInventory = player
+    self:requestAllLayersUpdate()
 end
 
 function catan.renderers:sidebar ()
@@ -599,6 +600,40 @@ function catan.renderers:sidebar ()
             addCellText("?", BLACK)
 
             cellY = cellY + CELL_H
+        end
+
+        -- Inventory (private)
+
+        local RESOURCES = {
+            'brick',
+            'lumber',
+            'ore',
+            'grain',
+            'wool',
+        }
+
+        local INVENTORY_XSEP = 25
+        local INVENTORY_TEXT_YSEP = 10
+        local INVENTORY_LINE_YSEP = 25
+        local INVENTORY_XMARGIN = (sidebarW - CARD_W - (INVENTORY_XSEP + CARD_W) * 4) / 2
+        local INVENTORY_YMARGIN = 20
+
+        if self.displayedInventory ~= nil then
+            local player = self.displayedInventory
+
+            local cardX = sidebarX + INVENTORY_XMARGIN
+            local cardY = cellY + INVENTORY_YMARGIN
+
+            for _, res in ipairs(RESOURCES) do
+                local img = assert(self.images.card.res[res], "resource card sprite missing")
+                layer:addSprite{img, x=cardX, y=cardY}
+                local nCards = self.game:getNumberOfResourceCardsOfType(player, res)
+                local text = love.graphics.newText(self.font, {BLACK, tostring(nCards)})
+                local textX = cardX + CARD_W / 2
+                local textY = cardY + CARD_H + INVENTORY_TEXT_YSEP
+                layer:addSprite{text, x=textX, y=textY, xalign='center'}
+                cardX = cardX + CARD_W + INVENTORY_XSEP
+            end
         end
     end
 

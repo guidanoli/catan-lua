@@ -406,6 +406,10 @@ function Game:numResCardsForBuilding (kind)
     end
 end
 
+function Game:getNumberOfResourceCardsOfType(player, res)
+    return self.rescards[player][res] or 0
+end
+
 --------------------------------
 -- Actions
 --------------------------------

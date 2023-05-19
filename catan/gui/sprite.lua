@@ -10,29 +10,27 @@ local Class = require "util.class"
 local Sprite = Class "Sprite"
 
 ---
--- Create a new sprite
---
--- Table parameter `s` MUST have the following fields:
---
--- * `[1]`: drawable object (Image, Text, etc)
---
--- and it CAN have:
---
--- * `.x`: x-coordinate (`number`)
--- * `.y`: y-coordinate (`number`)
--- * `.r`: clockwise rotation in radians (`number`)
--- * `.sx`: x-scale factor (`number`)
--- * `.sy`: y-scale factor (`number`)
--- * `.ox`: x-origin (`number`)
--- * `.oy`: y-origin (`number`)
--- * `.center`: center image, same as `{.xalign = "center", .yalign = "center"}` (`boolean`)
--- * `.xalign`: how to align the image horizontally, overwrites `.ox` (`"left"`, `"center"`, or `"right"`)
--- * `.yalign`: how to align the image vertically, overwrites `.oy` (`"top"`, `"center"`, or `"bottom"`)
--- * `.onleftclick`: callback for when sprite is clicked with left mouse button
--- * `.onrightclick`: callback for when sprite is clicked with right mouse button
---
--- @tparam table s sprite information
--- @treturn Sprite new sprite
+-- Input to @{catan.gui.sprite:new}
+-- @tfield Drawable 1 image
+-- @tfield[opt=0] number x x-coordinate
+-- @tfield[opt=0] number y y-coordinate
+-- @tfield[opt=0] number r clockwise rotation in radians
+-- @tfield[opt=1] number sx x-scale factor
+-- @tfield[opt=sx] number sy y-scale factor
+-- @tfield[opt=0] number ox x-origin
+-- @tfield[opt=0] number oy y-origin
+-- @tfield[opt=true] boolean center center image, overwrites `xalign` and `yalign`
+-- @tfield[opt='left'] string xalign how to align the image horizontally, overwrites `ox` (can be 'left', 'center' or 'right')
+-- @tfield[opt='top'] string yalign how to align the image vertically, overwrites `oy` (can be 'top', 'center', 'bottom')
+-- @tfield function onleftclick callback for when sprite is clicked with left mouse button
+-- @tfield function onrightclick callback for when sprite is clicked with right mouse button
+Sprite.Input = {}
+
+---
+-- Create a sprite
+-- @tparam table s see @{catan.gui.sprite.Input}
+-- @see love2d@Drawable
+-- @treturn catan.gui.sprite.Sprite the newly-created sprite
 function Sprite.new (s)
     local img = s[1]
 

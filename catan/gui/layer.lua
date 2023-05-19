@@ -7,20 +7,21 @@ local Class = require "util.class"
 local Sprite = require "catan.gui.sprite"
 
 ---
+-- A layer of sprites
 -- @type Layer
 local Layer = Class "Layer"
 
 ---
 -- Create an empty layer
--- @treturn Layer the newly-created layer
+-- @treturn catan.gui.layer.Layer the newly-created layer
 function Layer:new ()
     return Layer:__new{}
 end
 
 ---
 -- Add sprite to layer
--- @tparam {Sprite,...} t input to `Sprite`
--- @treturn Sprite the newly-created sprite
+-- @tparam table t input to `Sprite`
+-- @treturn catan.gui.sprite.Sprite the newly-created sprite
 function Layer:addSprite (t)
     local sprite = Sprite.new(t)
     table.insert(self, sprite)
@@ -28,9 +29,20 @@ function Layer:addSprite (t)
 end
 
 ---
+-- Input for @{catan.gui.layer:addSpriteLine}
+-- @tfield[opt=0] number x the sprite line horizontal coordinate
+-- @tfield[opt=0] number y the sprite line vertical coordinate
+-- @tfield[opt=0] number sep the horizontal space between sprites
+-- @tfield[opt=1] number sx the horizontal scaling factor for all sprites
+-- @tfield[opt=sx] number sy the vertical scaling factor for all sprites
+-- @tfield[opt='left'] string xalign the horizontal alignment for the whole sprite line
+-- @tfield[opt='top'] string yalign the vertical alignment for the whole sprite line
+Layer.SpriteLineInput = {}
+
+---
 -- Add a horizontal line of sprites
--- @tparam {Drawable,...,x=number,y=number,sep=number,xalign=string,yalign=string}
---         line an array of `Drawable` inputs and some paramaters about positioning
+-- @tparam table t array of `Drawable` objects and fields in @{catan.gui.layer.SpriteLineInput}
+-- @treturn {catan.gui.sprite.Sprite,...} an array with all the newly-created sprites
 function Layer:addSpriteLine (t)
     local x = t.x or 0
     local y = t.y or 0

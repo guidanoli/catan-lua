@@ -460,6 +460,11 @@ function catan:openInventory (player)
     self:requestAllLayersUpdate()
 end
 
+function catan:closeInventory ()
+    self.displayedInventory = nil
+    self:requestAllLayersUpdate()
+end
+
 function catan.renderers:sidebar ()
     local layer = Layer:new()
 
@@ -632,6 +637,9 @@ function catan.renderers:sidebar ()
                 y = btnY,
                 sx = 0.5,
                 xalign = 'right',
+                onleftclick = function ()
+                    self:closeInventory()
+                end
             }
 
             local cardX = sidebarX + INVENTORY_XMARGIN

@@ -10,7 +10,6 @@ local Game = require "catan.logic.game"
 local FaceMap = require "catan.logic.facemap"
 local VertexMap = require "catan.logic.vertexmap"
 local EdgeMap = require "catan.logic.edgemap"
-local Roll = require "catan.logic.roll"
 local Grid = require "catan.logic.grid"
 
 local gutil = require "catan.gui.util"
@@ -287,17 +286,23 @@ function catan:afterMove ()
     self:requestValidation()
 end
 
-function catan:printRoll (roll)
-    Roll:iter(roll, function (player, res, n)
-        print(string.format('Player %s won %d %s %s.', player, n, res,
-                            n == 1 and "card" or "cards"))
+function catan:printProduction (production)
+    FaceMap:iter(production, function (q, r, hexProduction)
+        VertexMap:iter(hexProduction, function (q, r, v, buildingProduction)
+            local player = buildingProduction.player
+            local numCards = buildingProduction.numCards
+            local res = buildingProduction.res
+            print(string.format('Player %s won %d %s %s.',
+                                player, numCards, res,
+                                numCards == 1 and "card" or "cards"))
+        end)
     end)
 end
 
 function catan:placeInitialSettlement (q, r, v)
-    local roll = self.game:placeInitialSettlement(Grid:vertex(q, r, v))
+    local production = self.game:placeInitialSettlement(Grid:vertex(q, r, v))
 
-    self:printRoll(roll)
+    self:printProduction(production)
 
     self:afterMove()
 end
@@ -314,9 +319,9 @@ function catan:roll ()
         dice[i] = math.random(1, 6)
     end
 
-    local roll = self.game:roll(dice)
+    local production = self.game:roll(dice)
 
-    self:printRoll(roll)
+    self:printProduction(production)
 
     self:afterMove()
 end

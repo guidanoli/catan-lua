@@ -30,9 +30,10 @@ end
 
 ---
 -- Table cell in  @{catan.gui.layer:addSpriteTable}
--- @tfield Drawable drawable the drawable object
+-- @tfield Drawable 1 the drawable object
 -- @tfield[opt=1] number sx the horizontal scaling factor
 -- @tfield[opt=sx] number sy the vertical scaling factor
+-- @see love2d@Drawable
 Layer.SpriteTableCell = {}
 
 ---
@@ -49,8 +50,9 @@ Layer.SpriteTableInput = {}
 
 ---
 -- Add a table of sprites
--- @tparam table t 2D array of @{catan.gui.layer.SpriteTableCell} and fields in @{catan.gui.layer.SpriteLineInput}
+-- @tparam table t 2D array of @{catan.gui.layer.SpriteTableCell} or `Drawable` and fields in @{catan.gui.layer.SpriteTableInput}
 -- @treturn {{catan.gui.sprite.Sprite,...},...} 2D array with all the newly-created sprites
+-- @see love2d@Drawable
 function Layer:addSpriteTable (t)
     local n = t.n or 1
     local m = t.m or 1
@@ -71,15 +73,35 @@ function Layer:addSpriteTable (t)
         columnWidths[j] = 0
     end
 
+    local function cellimg (cell)
+        if type(cell) == 'table' then
+            return cell[1]
+        else
+            return cell
+        end
+    end
+
+    local function cellsx (cell)
+        if type(cell) == 'table' then
+            return cell.sx
+        end
+    end
+
+    local function cellsy (cell)
+        if type(cell) == 'table' then
+            return cell.sy
+        end
+    end
+
     for i = 1, n do
         local line = t[i]
         if line then
             for j = 1, m do
                 local cell = line[j]
                 if cell then
-                    local w, h = cell.drawable:getDimensions()
-                    local sx = cell.sx or 1
-                    local sy = cell.sy or sx
+                    local w, h = cellimg(cell):getDimensions()
+                    local sx = cellsx(cell) or 1
+                    local sy = cellsy(cell) or sx
                     lineHeights[i] = math.max(lineHeights[i], h * sy)
                     columnWidths[j] = math.max(columnWidths[j], w * sx)
                 end
@@ -139,11 +161,11 @@ function Layer:addSpriteTable (t)
                 local cell = line[j]
                 if cell then
                     sprites[i][j] = self:addSprite{
-                        cell.drawable,
+                        cellimg(cell),
                         x = x + columnWidths[j] / 2,
                         y = y + lineHeights[i] / 2,
-                        sx = cell.sx,
-                        sy = cell.sy,
+                        sx = cellsx(cell),
+                        sy = cellsy(cell),
                         center = true,
                     }
                 end

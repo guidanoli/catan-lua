@@ -99,7 +99,8 @@ m.DevelopmentCardKind = s.Enum{
 m.DevelopmentCard = s.Struct{
     kind = m.DevelopmentCardKind,
     used = s.Type'boolean',
-    round = Int,
+    boughtInRound = Int,
+    usedInRound = s.Option(Int),
 }
 
 m.ResourceCard = s.Enum{

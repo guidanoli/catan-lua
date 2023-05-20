@@ -457,215 +457,152 @@ function catan.renderers:board ()
     return layer
 end
 
-function catan:openInventory (player)
-    -- TODO: add password?
-    self.displayedInventory = player
-    self:requestAllLayersUpdate()
+function catan:newText (color, text)
+    return love.graphics.newText(self.font, {color, text})
 end
 
-function catan:closeInventory ()
-    self.displayedInventory = nil
-    self:requestAllLayersUpdate()
+function catan:getSpriteTableBottomY (sprites)
+    local tableBottomY = 0
+    for i, line in pairs(sprites) do
+        for j, sprite in pairs(line) do
+            local bottomY = sprite:getY() + sprite:getHeight()
+            tableBottomY = math.max(tableBottomY, bottomY)
+        end
+    end
+    return tableBottomY
+end
+
+function catan:renderSidebarTable (layer, x, y)
+    local TABLE_XSEP = 20
+    local TABLE_YSEP = 10
+    local BLACK = {0, 0, 0}
+
+    local t = {
+        n = 1 + #self.game.players,
+        m = 7,
+        x = x,
+        y = y,
+        xalign = 'center',
+        xsep = TABLE_XSEP,
+        ysep = TABLE_YSEP,
+    }
+
+    table.insert(t, {
+        nil,
+        nil,
+        {
+            drawable = self.images.card.res.back,
+        },
+        {
+            drawable = self.images.card.dev.back,
+        },
+        {
+            drawable = self.images.card.dev.knight,
+        },
+        {
+            drawable = self.images.card.dev.roadbuilding,
+        },
+        {
+            drawable = self.images.card.dev.victorypoint,
+        },
+    })
+
+    for _, player in ipairs(self.game.players) do
+        table.insert(t, {
+            (player == self.game.player) and {
+                drawable = self.images.arrow,
+                sx = 0.3,
+            },
+            {
+                drawable = self.images.settlement[player],
+                sx = 0.5,
+            },
+            {
+                drawable = self:newText(BLACK, self.game:getNumberOfResourceCards(player)),
+            },
+            {
+                drawable = self:newText(BLACK, self.game:getNumberOfDevelopmentCards(player)),
+            },
+            {
+                drawable = self:newText(BLACK, self.game:getArmySize(player)),
+            },
+            {
+                drawable = self:newText(BLACK, "?"),
+            },
+            {
+                drawable = self:newText(BLACK, self.game:getNumberOfVictoryPoints(player)),
+            },
+        })
+    end
+
+    local sprites = layer:addSpriteTable(t)
+
+    return self:getSpriteTableBottomY(sprites)
+end
+
+function catan:renderDice (layer, x, y)
+    local DICE_XSEP = 10
+    local DICE_SX = 0.5
+
+    local t = {
+        m = 2,
+        x = x,
+        y = y,
+        xalign = 'center',
+        xsep = DICE_XSEP,
+    }
+
+    local line = {}
+    for _, die in ipairs(self.game.dice) do
+        table.insert(line, {
+            drawable = assert(self.images.dice[tostring(die)], "missing die sprite"),
+            sx = DICE_SX,
+        })
+    end
+    table.insert(t, line)
+
+    local sprites = layer:addSpriteTable(t)
+
+    return self:getSpriteTableBottomY(sprites)
+end
+
+function catan:renderRollBtn (layer, x, y)
+    local sprite = layer:addSprite{
+        self.images.btn.roll,
+        x = x,
+        y = y,
+        xalign = 'center',
+        onleftclick = function ()
+            self:roll()
+        end
+    }
+
+    return y + sprite:getHeight()
 end
 
 function catan.renderers:sidebar ()
     local layer = Layer:new()
 
     local W, H = love.window.getMode()
-    local YMARGIN = 20
+    local YSEP = 20
 
-    do
-        -- Sidebar
+    local SIDEBAR_X = self.SEA_W
+    local SIDEBAR_Y = 0
+    local SIDEBAR_W = W - self.SEA_W
 
-        local SIDEBAR_X = self.SEA_W
-        local SIDEBAR_Y = 0
-        local SIDEBAR_W = W - self.SEA_W
-        local y = YMARGIN
+    local x = SIDEBAR_X + SIDEBAR_W / 2
+    local y = YSEP
 
-        -- Table (public)
+    -- Table (public info)
+    y = self:renderSidebarTable(layer, x, y) + YSEP
 
-        local CIRCLE_W
-        do
-            local _, img = next(self.images.circle)
-            CIRCLE_W = assert(img):getWidth()
+    -- Dice and Roll button
+    if self.game.dice == nil then
+        if self.game.phase == "playingTurns" then
+            y = self:renderRollBtn(layer, x, y) + YSEP
         end
-
-        local tableCardImgs = {
-            self.images.card.res.back,
-            self.images.card.dev.back,
-            self.images.card.dev.knight,
-            self.images.card.dev.roadbuilding,
-        }
-
-        local CARD_H
-        local CARD_W
-        do
-            local _, img = next(tableCardImgs)
-            CARD_W, CARD_H = assert(img):getDimensions()
-        end
-
-        local CELL_XSEP = 25
-        local CELL_YMARGIN = 10
-
-        local TABLE_XMARGIN
-        do
-            local N_COLUMNS = #tableCardImgs
-            local w = CIRCLE_W + (CELL_XSEP + CARD_W) * N_COLUMNS
-            TABLE_XMARGIN = (SIDEBAR_W - w) / 2
-        end
-        local TABLE_YMARGIN = 20
-
-        local cardX = SIDEBAR_X + TABLE_XMARGIN + CIRCLE_W + CELL_XSEP
-        local cardY = y
-
-        for _, img in ipairs(tableCardImgs) do
-            layer:addSprite{img, x=cardX, y=cardY}
-            cardX = cardX + CARD_W + CELL_XSEP
-        end
-
-        y = y + CARD_H + CELL_YMARGIN
-
-        local playerBoxImg = self.images.playerbox
-
-        local CELL_H = playerBoxImg:getHeight()
-
-        local cellX
-        local cellY = y + CELL_H / 2
-
-        local BLACK = {0, 0, 0}
-        local WHITE = {1, 1, 1}
-
-        local function addCellText (text, color)
-            local sprite = love.graphics.newText(self.font, {color, text})
-            layer:addSprite{sprite, x=cellX, y=cellY, center=true}
-            cellX = cellX + CARD_W + CELL_XSEP
-        end
-
-        for i, player in ipairs(self.game.players) do
-            if player == self.game.player then
-                local x = SIDEBAR_X + SIDEBAR_W / 2
-                layer:addSprite{playerBoxImg, x=x, y=cellY, center=true}
-            end
-
-            cellX = SIDEBAR_X + TABLE_XMARGIN + CIRCLE_W / 2
-
-            local circleImg = assert(self.images.circle[player], "missing circle sprite")
-            layer:addSprite{
-                circleImg,
-                x = cellX,
-                y = cellY,
-                center = true,
-                onleftclick = function ()
-                    self:openInventory(player)
-                end,
-            }
-
-            local scoreColor = (player == "white") and BLACK or WHITE
-            addCellText(self.game:getNumberOfVictoryPoints(player), scoreColor)
-
-            addCellText(self.game:getNumberOfResourceCards(player), BLACK)
-            addCellText(self.game:getNumberOfDevelopmentCards(player), BLACK)
-            addCellText(self.game:getArmySize(player), BLACK)
-            addCellText("?", BLACK)
-
-            cellY = cellY + CELL_H
-        end
-
-        y = cellY + YMARGIN
-
-        -- Dice and "Roll" button
-
-        local function addDieSprite (die)
-            local img = assert(self.images.dice[tostring(die)], "missing die sprite")
-            local sprite = layer:addSprite{
-                img,
-                x = dieRightX,
-                y = dieBottomY,
-                sx = DIE_SX,
-                xalign = 'right',
-                yalign = 'bottom',
-            }
-            dieRightX = sprite:getX() - DIE_XSEP
-        end
-
-        if self.game.dice then
-            local DIE_XSEP = 10
-            local DIE_SX = 0.5
-            local x = SIDEBAR_X + SIDEBAR_W / 2
-            local t = {x=x, y=y, xalign='center', sx=DIE_SX, sep=DIE_XSEP}
-            for _, die in ipairs(self.game.dice) do
-                local img = assert(self.images.dice[tostring(die)], "missing die sprite")
-                table.insert(t, img)
-            end
-            local sprites = layer:addSpriteLine(t)
-            local maxh = 0
-            for i, sprite in ipairs(sprites) do
-                local h = sprite:getHeight()
-                if h > maxh then maxh = h end
-            end
-            y = y + maxh + YMARGIN
-        elseif self.game.phase == "playingTurns" then
-            local x = SIDEBAR_X + SIDEBAR_W / 2
-            local sprite = layer:addSprite{
-                self.images.btn.roll,
-                x = x,
-                y = y,
-                xalign = 'center',
-                onleftclick = function ()
-                    self:roll()
-                end
-            }
-            y = y + sprite:getHeight() + YMARGIN
-        end
-
-        -- Inventory (private)
-
-        local RESOURCES = {
-            'brick',
-            'lumber',
-            'ore',
-            'grain',
-            'wool',
-        }
-
-        local INVENTORY_XSEP = 25
-        local INVENTORY_BTN_XMARGIN = 40
-        local INVENTORY_BTN_YMARGIN = 5
-        local INVENTORY_BTN_BODY_YSEP = 10
-        local INVENTORY_TEXT_YSEP = 10
-        local INVENTORY_LINE_YSEP = 25
-        local INVENTORY_XMARGIN = (SIDEBAR_W - CARD_W - (INVENTORY_XSEP + CARD_W) * 4) / 2
-
-        if self.displayedInventory ~= nil then
-            local player = self.displayedInventory
-
-            local btnX = W - INVENTORY_BTN_XMARGIN
-            local btnY = y + INVENTORY_BTN_YMARGIN
-            local btnSprite = layer:addSprite{
-                self.images.btn.close,
-                x = btnX,
-                y = btnY,
-                sx = 0.5,
-                xalign = 'right',
-                onleftclick = function ()
-                    self:closeInventory()
-                end
-            }
-
-            local cardX = SIDEBAR_X + INVENTORY_XMARGIN
-            local cardY = btnY + btnSprite:getHeight() + INVENTORY_BTN_BODY_YSEP
-
-            for _, res in ipairs(RESOURCES) do
-                local img = assert(self.images.card.res[res], "resource card sprite missing")
-                layer:addSprite{img, x=cardX, y=cardY}
-                local nCards = self.game:getNumberOfResourceCardsOfType(player, res)
-                local text = love.graphics.newText(self.font, {BLACK, tostring(nCards)})
-                local textX = cardX + CARD_W / 2
-                local textY = cardY + CARD_H + INVENTORY_TEXT_YSEP
-                layer:addSprite{text, x=textX, y=textY, xalign='center'}
-                cardX = cardX + CARD_W + INVENTORY_XSEP
-            end
-        end
+    else
+        y = self:renderDice(layer, x, y) + YSEP
     end
 
     return layer

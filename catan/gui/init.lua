@@ -4,6 +4,7 @@
 -- @module catan.gui
 
 local platform = require "util.platform"
+local TableUtils = require "util.table"
 
 local Game = require "catan.logic.game"
 local FaceMap = require "catan.logic.facemap"
@@ -462,13 +463,13 @@ function catan:newText (color, text)
 end
 
 function catan:getSpriteTableBottomY (sprites)
-    local tableBottomY = 0
-    for i, line in pairs(sprites) do
-        for j, sprite in pairs(line) do
-            local bottomY = sprite:getY() + sprite:getHeight()
-            tableBottomY = math.max(tableBottomY, bottomY)
+    local tableBottomY
+    TableUtils:iter2d(sprites, function (i, j, sprite)
+        local bottomY = sprite:getY() + sprite:getHeight()
+        if tableBottomY == nil or bottomY > tableBottomY then
+            tableBottomY = bottomY
         end
-    end
+    end)
     return tableBottomY
 end
 

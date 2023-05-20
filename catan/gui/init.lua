@@ -28,6 +28,7 @@ catan.DEBUG = os.getenv "DEBUG" ~= nil
 catan.LAYER_NAMES = {
     "board",
     "sidebar",
+    "inventory",
 }
 
 function catan:loadImgDir (dir)
@@ -473,6 +474,28 @@ function catan:getSpriteTableBottomY (sprites)
     return tableBottomY
 end
 
+function catan:getSpriteTableTopY (sprites)
+    local tableTopY
+    TableUtils:iter2d(sprites, function (i, j, sprite)
+        local topY = sprite:getY()
+        if tableTopY == nil or topY < tableTopY then
+            tableTopY = topY
+        end
+    end)
+    return tableTopY
+end
+
+function catan:getSpriteTableRightX (sprites)
+    local tableRightX
+    TableUtils:iter2d(sprites, function (i, j, sprite)
+        local rightX = sprite:getX() + sprite:getWidth()
+        if tableRightX == nil or rightX > tableRightX then
+            tableRightX = rightX
+        end
+    end)
+    return tableRightX
+end
+
 function catan:renderSidebarTable (layer, x, y)
     local TABLE_XSEP = 20
     local TABLE_YSEP = 10
@@ -584,6 +607,87 @@ function catan.renderers:sidebar ()
         end
     else
         y = self:renderDice(layer, x, y) + YSEP
+    end
+
+    return layer
+end
+
+function catan.renderers:inventory ()
+    local layer = Layer:new()
+
+    local W, H = love.window.getMode()
+    local XMARGIN = 20
+    local YMARGIN = XMARGIN
+    local XSEP = 10
+
+    do
+        local x = XMARGIN
+        local y = H - YMARGIN
+
+        local CARD_COUNT_SX = 0.5
+        local BLACK = {0, 0, 0}
+
+        local player = self.game.player
+
+        local function addCardSequence (img, count)
+            local imgW = img:getWidth()
+
+            local t = {
+                m = count,
+                x = x,
+                y = y,
+                xsep = -imgW * 3 / 4,
+                yalign = 'bottom',
+            }
+
+            local line = {}
+            for i = 1, count do table.insert(line, img) end
+            table.insert(t, line)
+
+            local sprites = layer:addSpriteTable(t)
+
+            local rightX = self:getSpriteTableRightX(sprites)
+            local topY = self:getSpriteTableTopY(sprites)
+
+            layer:addSprite{
+                self.images.cardcount,
+                x = rightX,
+                y = topY,
+                center = true,
+                sx = CARD_COUNT_SX,
+            }
+
+            layer:addSprite{
+                self:newText(BLACK, count),
+                x = rightX,
+                y = topY,
+                center = true,
+            }
+
+            x = rightX + XSEP
+        end
+
+        local rescards = self.game.rescards[player]
+        for _, res in ipairs(TableUtils:sortedKeys(rescards)) do
+            local img = self.images.card.res[res]
+            local count = assert(rescards[res])
+            addCardSequence(img, count)
+        end
+
+        local devcards = self.game.devcards[player]
+        local devcardhist = {}
+        for _, devcard in ipairs(devcards) do
+            if devcard.roundPlayed == nil then
+                local kind = devcard.kind
+                local count = devcardhist[kind] or 0
+                devcardhist[kind] = count + 1
+            end
+        end
+
+        for devcard, count in pairs(devcardhist) do
+            local img = self.images.card.dev[devcard]
+            addCardSequence(img, count)
+        end
     end
 
     return layer

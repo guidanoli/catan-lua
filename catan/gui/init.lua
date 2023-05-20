@@ -490,48 +490,28 @@ function catan:renderSidebarTable (layer, x, y)
     table.insert(t, {
         nil,
         nil,
-        {
-            drawable = self.images.card.res.back,
-        },
-        {
-            drawable = self.images.card.dev.back,
-        },
-        {
-            drawable = self.images.card.dev.knight,
-        },
-        {
-            drawable = self.images.card.dev.roadbuilding,
-        },
-        {
-            drawable = self.images.card.dev.victorypoint,
-        },
+        self.images.card.res.back,
+        self.images.card.dev.back,
+        self.images.card.dev.knight,
+        self.images.card.dev.roadbuilding,
+        self.images.card.dev.victorypoint,
     })
 
     for _, player in ipairs(self.game.players) do
         table.insert(t, {
             (player == self.game.player) and {
-                drawable = self.images.arrow,
+                self.images.arrow,
                 sx = 0.3,
             },
             {
-                drawable = self.images.settlement[player],
+                self.images.settlement[player],
                 sx = 0.5,
             },
-            {
-                drawable = self:newText(BLACK, self.game:getNumberOfResourceCards(player)),
-            },
-            {
-                drawable = self:newText(BLACK, self.game:getNumberOfDevelopmentCards(player)),
-            },
-            {
-                drawable = self:newText(BLACK, self.game:getArmySize(player)),
-            },
-            {
-                drawable = self:newText(BLACK, "?"),
-            },
-            {
-                drawable = self:newText(BLACK, self.game:getNumberOfVictoryPoints(player)),
-            },
+            self:newText(BLACK, self.game:getNumberOfResourceCards(player)),
+            self:newText(BLACK, self.game:getNumberOfDevelopmentCards(player)),
+            self:newText(BLACK, self.game:getArmySize(player)),
+            self:newText(BLACK, "?"),
+            self:newText(BLACK, self.game:getNumberOfVictoryPoints(player)),
         })
     end
 
@@ -555,7 +535,7 @@ function catan:renderDice (layer, x, y)
     local line = {}
     for _, die in ipairs(self.game.dice) do
         table.insert(line, {
-            drawable = assert(self.images.dice[tostring(die)], "missing die sprite"),
+            assert(self.images.dice[tostring(die)], "missing die sprite"),
             sx = DICE_SX,
         })
     end

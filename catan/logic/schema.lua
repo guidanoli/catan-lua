@@ -98,9 +98,8 @@ m.DevelopmentCardKind = s.Enum{
 
 m.DevelopmentCard = s.Struct{
     kind = m.DevelopmentCardKind,
-    used = s.Type'boolean',
-    boughtInRound = Int,
-    usedInRound = s.Option(Int),
+    roundBought = Int,
+    roundPlayed = s.Option(Int),
 }
 
 m.ResourceCard = s.Enum{

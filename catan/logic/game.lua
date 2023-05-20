@@ -323,7 +323,7 @@ function Game:getNumberOfVictoryPoints (player)
 
     -- 1 VP for every VP card bought by the player
     for i, devcard in ipairs(self.devcards[player]) do
-        if devcard.kind == "victorypoint" and devcard.boughtInRound < self.round then
+        if devcard.kind == "victorypoint" and devcard.roundBought < self.round then
             n = n + 1
        end
     end
@@ -357,7 +357,7 @@ end
 function Game:getNumberOfDevelopmentCards (player)
     local n = 0
     for i, devcard in ipairs(self.devcards[player]) do
-        if not devcard.used then
+        if devcard.roundPlayed == nil then
             n = n + 1
         end
     end
@@ -375,7 +375,7 @@ end
 function Game:getArmySize (player)
     local n = 0
     for i, devcard in ipairs(self.devcards[player]) do
-        if devcard.kind == 'knight' and devcard.used then
+        if devcard.kind == 'knight' and devcard.roundPlayed ~= nil then
             n = n + 1
         end
     end

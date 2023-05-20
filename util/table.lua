@@ -39,4 +39,24 @@ function TableUtils:isArray (t)
     return true
 end
 
+-- Returns a sorted array of keys in t
+function TableUtils:sortedKeys (t)
+    local st = {}
+    for k in pairs(t) do
+        table.insert(st, k)
+    end
+    table.sort(st)
+    return st
+end
+
+-- Iterate over 2d array
+function TableUtils:iter2d (t, f)
+    for i, line in pairs(t) do
+        for j, elem in pairs(line) do
+            local ret = f(i, j, elem)
+            if ret then return ret end
+        end
+    end
+end
+
 return TableUtils

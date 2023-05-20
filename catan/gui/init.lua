@@ -669,7 +669,7 @@ function catan.renderers:inventory ()
 
         local rescards = self.game.rescards[player]
         for _, res in ipairs(TableUtils:sortedKeys(rescards)) do
-            local img = self.images.card.res[res]
+            local img = assert(self.images.card.res[res], "missing rescard sprite")
             local count = assert(rescards[res])
             addCardSequence(img, count)
         end
@@ -685,7 +685,7 @@ function catan.renderers:inventory ()
         end
 
         for devcard, count in pairs(devcardhist) do
-            local img = self.images.card.dev[devcard]
+            local img = assert(self.images.card.dev[devcard], "missing devcard sprite")
             addCardSequence(img, count)
         end
     end

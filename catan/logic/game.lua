@@ -7,7 +7,6 @@ local Grid = require "catan.logic.grid"
 local FaceMap = require "catan.logic.facemap"
 local VertexMap = require "catan.logic.vertexmap"
 local EdgeMap = require "catan.logic.edgemap"
-local Roll = require "catan.logic.roll"
 
 --------------------------------
 
@@ -426,25 +425,31 @@ function Game:placeInitialSettlement (vertex)
         player = self.player,
     })
 
-    local roll = {}
+    local production = {}
 
     if self.round == 2 then
         for _, touchingFace in ipairs(Grid:touches(Grid:unpack(vertex))) do
+            local hexProduction = {}
             local touchingHex = FaceMap:get(self.hexmap, touchingFace)
             if touchingHex ~= nil then
                 local res = self:resFromHex(touchingHex)
                 if res ~= nil then
-                    Roll:add(roll, self.player, res, 1)
+                    VertexMap:set(hexProduction, vertex, {
+                        player = self.player,
+                        numCards = 1,
+                        res = res,
+                    })
                 end
             end
+            FaceMap:set(production, touchingFace, hexProduction)
         end
     end
 
-    self:_applyRoll(roll)
+    self:_applyProduction(production)
 
     self.phase = "placingInitialRoad"
 
-    return roll
+    return production
 end
 
 function Game:placeInitialRoad (edge)
@@ -488,7 +493,7 @@ function Game:roll (dice)
         diceSum = diceSum + die
     end
 
-    local roll = {}
+    local production = {}
 
     FaceMap:iter(self.numbermap, function (q, r, number)
         if number == diceSum then
@@ -499,18 +504,24 @@ function Game:roll (dice)
             local hex = assert(FaceMap:get(self.hexmap, face))
             local res = self:resFromHex(hex)
             if res ~= nil then
+                local hexProduction = {}
                 for _, corner in ipairs(Grid:corners(q, r)) do
                     local building = VertexMap:get(self.buildmap, corner)
                     if building ~= nil then
                         local numCards = self:numResCardsForBuilding(building.kind)
-                        Roll:add(roll, building.player, res, numCards)
+                        VertexMap:set(hexProduction, corner, {
+                            player = building.player,
+                            numCards = numCards,
+                            res = res,
+                        })
                     end
                 end
+                FaceMap:set(production, face, hexProduction)
             end
         end
     end)
 
-    self:_applyRoll(roll)
+    self:_applyProduction(production)
 
     self.dice = dice
 
@@ -530,7 +541,7 @@ function Game:roll (dice)
         end
     end
 
-    return roll
+    return production
 end
 
 --------------------------------
@@ -549,9 +560,14 @@ end
 -- Auxiliary functions
 --------------------------------
 
-function Game:_applyRoll (roll)
-    Roll:iter(roll, function (player, res, numCards)
-        self.rescards[player][res] = (self.rescards[player][res] or 0) + numCards
+function Game:_applyProduction (production)
+    FaceMap:iter(production, function (q, r, hexProduction)
+        VertexMap:iter(hexProduction, function (q, r, v, buildingProduction)
+            local player = assert(buildingProduction.player)
+            local numCards = assert(buildingProduction.numCards)
+            local res = assert(buildingProduction.res)
+            self.rescards[player][res] = (self.rescards[player][res] or 0) + numCards
+        end)
     end)
 end
 

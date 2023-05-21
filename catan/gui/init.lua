@@ -6,6 +6,7 @@
 local platform = require "util.platform"
 local TableUtils = require "util.table"
 
+local CatanSchema = require "catan.logic.schema"
 local Game = require "catan.logic.game"
 local FaceMap = require "catan.logic.facemap"
 local VertexMap = require "catan.logic.vertexmap"
@@ -323,6 +324,21 @@ function catan:getAvailableEdgesForInitialRoad ()
     return available
 end
 
+function catan:getAvailableFacesForRobber ()
+    local available = {}
+
+    -- Add only those faces that have a hex but are not
+    -- occupied by the robber currently
+    FaceMap:iter(self.game.hexmap, function (q, r)
+        local face = Grid:face(q, r)
+        if not CatanSchema.Face:eq(face, self.game.robber) then
+            FaceMap:set(available, face, true)
+        end
+    end)
+
+    return available
+end
+
 function catan:getRoadAngleForEdge (e)
     local r
     if e == 'NE' then
@@ -386,6 +402,19 @@ function catan:endTurn()
     self:afterMove()
 end
 
+function catan:moveRobber (q, r)
+    local face = Grid:face(q, r)
+
+    local victim, res = self.game:moveRobber(face)
+
+    if victim and res then
+        print(string.format('Player %s robbed a %s card from Player %s',
+                            self.game.player, res, victim))
+    end
+
+    self:afterMove()
+end
+
 catan.renderers = {}
 
 function catan.renderers:board ()
@@ -439,6 +468,24 @@ function catan.renderers:board ()
         local s = hexsize / (img:getHeight() / 2)
         layer:addSprite{img, x=x, y=y, sx=s, center=true}
     end)
+
+    -- Face selection
+    if self.game:canMoveRobber() then
+        local available = self:getAvailableFacesForRobber()
+        local img = self.images.selection
+        FaceMap:iter(available, function (q, r)
+            local x, y = self:getFaceCenter(q, r)
+            layer:addSprite{
+                img,
+                x = x,
+                y = y,
+                center = true,
+                onleftclick = function ()
+                    self:moveRobber(q, r)
+                end
+            }
+        end)
+    end
 
     -- Number tokens
     FaceMap:iter(self.game.numbermap, function (q, r, number)

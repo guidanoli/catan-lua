@@ -33,6 +33,8 @@ end
 -- @tfield Drawable 1 the drawable object
 -- @tfield[opt=1] number sx the horizontal scaling factor
 -- @tfield[opt=sx] number sy the vertical scaling factor
+-- @tfield[opt=nil] function onleftclick left-click callback
+-- @tfield[opt=nil] function onrightclick right-click callback
 -- @see love2d@Drawable
 Layer.SpriteTableCell = {}
 
@@ -94,6 +96,18 @@ function Layer:addSpriteTable (t)
     local function cellsy (cell)
         if type(cell) == 'table' then
             return cell.sy
+        end
+    end
+
+    local function cellonleftclick (cell)
+        if type(cell) == 'table' then
+            return cell.onleftclick
+        end
+    end
+
+    local function cellonrightclick (cell)
+        if type(cell) == 'table' then
+            return cell.onrightclick
         end
     end
 
@@ -175,6 +189,8 @@ function Layer:addSpriteTable (t)
                         y = y + lineHeights[i] / 2,
                         sx = cellsx(cell),
                         sy = cellsy(cell),
+                        onleftclick = cellonleftclick(cell),
+                        onrightclick = cellonrightclick(cell),
                         center = true,
                     }
                 end

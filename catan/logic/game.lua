@@ -443,6 +443,16 @@ function Game:canEndTurn ()
     return true
 end
 
+function Game:iterProduction (production, f)
+    return FaceMap:iter(production, function (q, r, hexProduction)
+        local face = Grid:face(q, r)
+        return VertexMap:iter(hexProduction, function (q, r, v, buildingProduction)
+            local vertex = Grid:vertex(q, r, v)
+            return f(face, vertex, buildingProduction)
+        end)
+    end)
+end
+
 --------------------------------
 -- Actions
 --------------------------------

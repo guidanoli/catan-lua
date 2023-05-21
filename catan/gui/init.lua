@@ -596,8 +596,13 @@ function catan.renderers:inventory ()
     local XSEP = 10
 
     do
-        local x = XMARGIN
+        local x0 = XMARGIN
+        local x = x0
         local y = H - YMARGIN
+
+        local hasCard = false
+        local rightX
+        local topY
 
         local CARD_COUNT_SX = 0.5
         local BLACK = {0, 0, 0}
@@ -605,6 +610,8 @@ function catan.renderers:inventory ()
         local player = self.game.player
 
         local function addCardSequence (img, count)
+            hasCard = true
+
             local imgW = img:getWidth()
 
             local t = {
@@ -621,10 +628,10 @@ function catan.renderers:inventory ()
 
             local bounds = layer:addSpriteTable(t)
 
-            local rightX = bounds.x + bounds.w
-            local topY = bounds.y
+            rightX = bounds.x + bounds.w
+            topY = bounds.y
 
-            layer:addSprite{
+            local cardCountSprite = layer:addSprite{
                 self.images.cardcount,
                 x = rightX,
                 y = topY,
@@ -640,6 +647,11 @@ function catan.renderers:inventory ()
             }
 
             x = rightX + XSEP
+
+            -- we need to know the right-most x and top-most y for the correct rendering
+            -- of the translucent white background of the cards
+            rightX = cardCountSprite:getX() + cardCountSprite:getWidth()
+            topY = cardCountSprite:getY()
         end
 
         local rescards = self.game.rescards[player]
@@ -662,6 +674,17 @@ function catan.renderers:inventory ()
         for devcard, count in pairs(devcardhist) do
             local img = assert(self.images.card.dev[devcard], "missing devcard sprite")
             addCardSequence(img, count)
+        end
+
+        if hasCard then
+            table.insert(layer, 1, Sprite.new{
+                self.images.smoke,
+                x = x0 - self.BG_MARGIN,
+                y = y + self.BG_MARGIN,
+                sx = rightX - x0 + 2 * self.BG_MARGIN,
+                sy = y - topY + 2 * self.BG_MARGIN,
+                yalign = "bottom"
+            })
         end
     end
 

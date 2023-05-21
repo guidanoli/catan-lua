@@ -619,14 +619,18 @@ end
 -- Auxiliary functions
 --------------------------------
 
+function Game:_giveResCardsTo (player, res, numCards)
+    local numCardsBefore = self.rescards[player][res] or 0
+    assert(numCardsBefore + numCards >= 0, "num of rescards cannot be negative")
+    self.rescards[player][res] = numCardsBefore + numCards
+end
+
 function Game:_applyProduction (production)
-    FaceMap:iter(production, function (q, r, hexProduction)
-        VertexMap:iter(hexProduction, function (q, r, v, buildingProduction)
-            local player = assert(buildingProduction.player)
-            local numCards = assert(buildingProduction.numCards)
-            local res = assert(buildingProduction.res)
-            self.rescards[player][res] = (self.rescards[player][res] or 0) + numCards
-        end)
+    self:iterProduction(production, function (face, vertex, buildingProduction)
+        local player = assert(buildingProduction.player)
+        local res = assert(buildingProduction.res)
+        local numCards = assert(buildingProduction.numCards)
+        self:_giveResCardsTo(player, res, numCards)
     end)
 end
 

@@ -505,8 +505,7 @@ end
 
 function Game:roll (dice)
     assert(CatanSchema.Dice:isValid(dice))
-    assert(self:_phaseIs"playingTurns")
-    assert(self.dice == nil, "dice have been rolled already")
+    assert(self:canRoll())
 
     local diceSum = 0
     for _, die in ipairs(dice) do
@@ -565,8 +564,7 @@ function Game:roll (dice)
 end
 
 function Game:endTurn ()
-    assert(self:_phaseIs"playingTurns")
-    assert(self.dice ~= nil, "dice haven't been rolled yet")
+    assert(self:canEndTurn())
 
     local i = self:_getCurrentPlayerIndex()
 

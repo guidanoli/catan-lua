@@ -409,6 +409,16 @@ function Game:getNumberOfResourceCardsOfType(player, res)
     return self.rescards[player][res] or 0
 end
 
+function Game:canRoll ()
+    if self.phase ~= "playingTurns" then
+        return false, "not in the right phase"
+    end
+    if self.dice ~= nil then
+        return false, "the dice have been rolled in this turn already"
+    end
+    return true
+end
+
 function Game:canEndTurn ()
     if self.phase ~= "playingTurns" then
         return false, "not in the right phase"

@@ -65,6 +65,10 @@ function catan:requestAllLayersUpdate ()
     end
 end
 
+function catan:requestClickableSpriteCacheUpdate ()
+    self.clickableSprites = nil
+end
+
 function catan:requestValidation ()
     self.validationPending = true
 end
@@ -114,13 +118,27 @@ function catan:mousepressed (x, y, button)
 end
 
 function catan:mousemoved (x, y)
-    local isOverClickableSprite = self:iterSprites(function (sprite)
-        if sprite:hasCallback() and sprite:contains(x, y) then
-            return true -- quit iteration and return true
-        end
-    end)
+    local clickableSprites = self.clickableSprites
 
-    local ctype = isOverClickableSprite and "hand" or "arrow"
+    if clickableSprites == nil then
+        clickableSprites = {}
+        self:iterSprites(function (sprite)
+            if sprite:hasCallback() then
+                table.insert(clickableSprites, sprite)
+            end
+        end)
+        self.clickableSprites = clickableSprites
+    end
+
+    local found = false
+    for _, sprite in ipairs(clickableSprites) do
+        if sprite:contains(x, y) then
+            found = true
+            break
+        end
+    end
+
+    local ctype = found and "hand" or "arrow"
 
     if ctype ~= self.ctype then
         local cursor = love.mouse.getSystemCursor(ctype)
@@ -304,6 +322,7 @@ end
 
 function catan:afterMove ()
     self:requestAllLayersUpdate()
+    self:requestClickableSpriteCacheUpdate()
     self:requestValidation()
 end
 

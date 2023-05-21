@@ -343,15 +343,13 @@ function catan:afterMove ()
 end
 
 function catan:printProduction (production)
-    FaceMap:iter(production, function (q, r, hexProduction)
-        VertexMap:iter(hexProduction, function (q, r, v, buildingProduction)
-            local player = buildingProduction.player
-            local numCards = buildingProduction.numCards
-            local res = buildingProduction.res
-            print(string.format('Player %s won %d %s %s.',
-                                player, numCards, res,
-                                numCards == 1 and "card" or "cards"))
-        end)
+    self.game:iterProduction(production, function (face, vertex, buildingProduction)
+        local player = buildingProduction.player
+        local numCards = buildingProduction.numCards
+        local res = buildingProduction.res
+        print(string.format('Player %s won %d %s %s.',
+                            player, numCards, res,
+                            numCards == 1 and "card" or "cards"))
     end)
 end
 

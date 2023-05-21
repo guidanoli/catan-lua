@@ -396,7 +396,7 @@ function catan:roll ()
     self:afterMove()
 end
 
-function catan:endTurn()
+function catan:endTurn ()
     self.game:endTurn()
 
     self:afterMove()

@@ -32,6 +32,7 @@ catan.LAYER_NAMES = {
     "board",
     "table",
     "inventory",
+    "buttons",
 }
 
 function catan:loadImgDir (dir)
@@ -324,6 +325,12 @@ function catan:roll ()
     local production = self.game:roll(dice)
 
     self:printProduction(production)
+
+    self:afterMove()
+end
+
+function catan:endTurn()
+    self.game:endTurn()
 
     self:afterMove()
 end
@@ -672,6 +679,74 @@ function catan.renderers:inventory ()
                 yalign = "bottom"
             })
         end
+    end
+
+    return layer
+end
+
+function catan.renderers:buttons ()
+    local layer = Layer:new()
+
+    local W, H = love.window.getMode()
+    local XMARGIN = 20
+    local YMARGIN = XMARGIN
+    local XSEP = 10
+    local NBUTTONS = 1
+
+    -- Choose button image depending on condition
+    -- If condition is true, chooses the "active" variant
+    -- Otherwise, chooses the "inactive" one
+    -- Also, asserts such image exists
+    local function chooseButtonImg (btnfolder, cond)
+        return assert(btnfolder[cond and "active" or "inactive"], "missing button sprite")
+    end
+
+    do
+        local line = {}
+
+        do
+            local canRoll = self.game:canRoll()
+
+            local cell = {
+                chooseButtonImg(self.images.btn.roll, canRoll),
+            }
+
+            if canRoll then
+                function cell.onleftclick ()
+                    self:roll()
+                end
+            end
+
+            table.insert(line, cell)
+        end
+
+        do
+            local canEndTurn = self.game:canEndTurn()
+
+            local cell = {
+                chooseButtonImg(self.images.btn.endturn, canEndTurn),
+            }
+
+            if canEndTurn then
+                function cell.onleftclick ()
+                    self:endTurn()
+                end
+            end
+
+            table.insert(line, cell)
+        end
+
+        local t = {
+            line,
+            m = #line,
+            x = W - XMARGIN,
+            y = H - YMARGIN,
+            xalign = "right",
+            yalign = "bottom",
+            xsep = XSEP,
+        }
+
+        layer:addSpriteTable(t)
     end
 
     return layer

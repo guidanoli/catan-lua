@@ -543,20 +543,6 @@ function catan:renderDice (layer, x, y)
     return layer:addSpriteTable(t)
 end
 
-function catan:renderRollBtn (layer, x, y)
-    local sprite = layer:addSprite{
-        self.images.btn.roll,
-        x = x,
-        y = y,
-        xalign = 'center',
-        onleftclick = function ()
-            self:roll()
-        end
-    }
-
-    return y + sprite:getHeight()
-end
-
 function catan.renderers:table ()
     local layer = Layer:new()
 
@@ -578,12 +564,8 @@ function catan.renderers:table ()
         y = bounds.y + bounds.h + YSEP
     end
 
-    -- Dice and Roll button
-    if self.game.dice == nil then
-        if self.game.phase == "playingTurns" then
-            y = self:renderRollBtn(layer, x, y) + YSEP
-        end
-    else
+    -- Dice
+    if self.game.dice ~= nil then
         local bounds = self:renderDice(layer, x, y)
         y = bounds.y + bounds.h + YSEP
     end

@@ -141,10 +141,8 @@ function catan:getClickableSprites ()
 end
 
 function catan:mousemoved (x, y)
-    local clickableSprites = self:getClickableSprites()
-
     local found = false
-    for _, sprite in ipairs(clickableSprites) do
+    for _, sprite in ipairs(self:getClickableSprites()) do
         if sprite:contains(x, y) then
             found = true
             break

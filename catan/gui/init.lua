@@ -111,6 +111,9 @@ function catan:mousepressed (x, y, button)
     end
 end
 
+function catan:mousemoved (x, y)
+end
+
 function catan:keypressed (key)
     -- TODO: process key strokes
 end

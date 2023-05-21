@@ -16,6 +16,10 @@ function love.mousepressed (...)
     return catan:mousepressed(...)
 end
 
+function love.mousemoved (...)
+    return catan:mousemoved(...)
+end
+
 function love.keypressed (...)
     return catan:keypressed(...)
 end

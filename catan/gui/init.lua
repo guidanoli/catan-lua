@@ -108,11 +108,23 @@ function catan:draw ()
     self:iterSprites(function (sprite) sprite:draw() end)
 end
 
+function catan:onleftclick (x, y)
+    self:iterClickableSprites(function (sprite)
+        sprite:leftclick(x, y)
+    end)
+end
+
+function catan:onrightclick (x, y)
+    self:iterClickableSprites(function (sprite)
+        sprite:rightclick(x, y)
+    end)
+end
+
 function catan:mousepressed (x, y, button)
     if button == 1 then
-        self:iterSprites(function (sprite) sprite:leftclick(x, y) end)
+        self:onleftclick(x, y)
     elseif button == 2 then
-        self:iterSprites(function (sprite) sprite:rightclick(x, y) end)
+        self:onrightclick(x, y)
     end
 end
 

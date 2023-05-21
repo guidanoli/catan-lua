@@ -91,8 +91,7 @@ function catan:load ()
 
     self.layersPendingUpdate = {}
 
-    self:requestAllLayersUpdate()
-    self:requestValidation()
+    self:afterMove()
 end
 
 function catan:iterSprites (f)

@@ -409,6 +409,20 @@ function Game:getNumberOfResourceCardsOfType(player, res)
     return self.rescards[player][res] or 0
 end
 
+function Game:canPlaceInitialSettlement ()
+    if self.phase ~= "placingInitialSettlement" then
+        return false, "not in the right phase"
+    end
+    return true
+end
+
+function Game:canPlaceInitialRoad ()
+    if self.phase ~= "placingInitialRoad" then
+        return false, "not in the right phase"
+    end
+    return true
+end
+
 function Game:canRoll ()
     if self.phase ~= "playingTurns" then
         return false, "not in the right phase"
@@ -434,8 +448,9 @@ end
 --------------------------------
 
 function Game:placeInitialSettlement (vertex)
+    assert(self:canPlaceInitialSettlement())
+
     assert(CatanSchema.Vertex:isValid(vertex))
-    assert(self:_phaseIs"placingInitialSettlement")
     assert(self:_isVertexCornerOfSomeHex(vertex), "vertex not corner of some hex")
     assert(VertexMap:get(self.buildmap, vertex) == nil, "vertex has building")
     assert(not self:_isVertexAdjacentToSomeBuilding(vertex), "vertex adjacent to building")
@@ -473,8 +488,9 @@ function Game:placeInitialSettlement (vertex)
 end
 
 function Game:placeInitialRoad (edge)
+    assert(self:canPlaceInitialRoad())
+
     assert(CatanSchema.Edge:isValid(edge))
-    assert(self:_phaseIs"placingInitialRoad")
     assert(self:_isEdgeEndpointOfPlayerLonelySettlement(edge), "edge not endpoint from player's lonely building")
     assert(self:_doesEdgeJoinFaceWithHex(Grid:unpack(edge)), "edge does not join face with hex")
 
@@ -504,8 +520,9 @@ function Game:placeInitialRoad (edge)
 end
 
 function Game:roll (dice)
-    assert(CatanSchema.Dice:isValid(dice))
     assert(self:canRoll())
+
+    assert(CatanSchema.Dice:isValid(dice))
 
     local diceSum = 0
     for _, die in ipairs(dice) do

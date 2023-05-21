@@ -139,14 +139,17 @@ function catan:getClickableSprites ()
     return cache
 end
 
-function catan:mousemoved (x, y)
-    local found = false
+function catan:iterClickableSprites (f)
     for _, sprite in ipairs(self:getClickableSprites()) do
-        if sprite:contains(x, y) then
-            found = true
-            break
-        end
+        local ret = f(sprite)
+        if ret then return ret end
     end
+end
+
+function catan:mousemoved (x, y)
+    local found = self:iterClickableSprites(function(sprite)
+        return sprite:contains(x, y)
+    end)
 
     local ctype = found and "hand" or "arrow"
 

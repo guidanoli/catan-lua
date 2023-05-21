@@ -96,9 +96,9 @@ function catan:load ()
 end
 
 function catan:iterSprites (f)
-    if self.layers then
-        for i, layername in ipairs(self.LAYER_NAMES) do
-            local layer = self.layers[layername]
+    for i, layername in ipairs(self.LAYER_NAMES) do
+        local layer = self.layers[layername]
+        if layer then
             local ret = layer:iterSprites(f)
             if ret then return ret end
         end

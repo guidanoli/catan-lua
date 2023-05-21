@@ -66,7 +66,7 @@ function catan:requestAllLayersUpdate ()
 end
 
 function catan:requestClickableSpriteCacheUpdate ()
-    self.clickableSprites = nil
+    self.clickableSpritesPendingUpdate = true
 end
 
 function catan:requestValidation ()
@@ -90,6 +90,8 @@ function catan:load ()
     self.layers = {}
 
     self.layersPendingUpdate = {}
+
+    self.clickableSprites = {}
 
     self:afterMove()
 end
@@ -140,19 +142,8 @@ function catan:generateClickableSpritesArray ()
     return cache
 end
 
-function catan:getClickableSprites ()
-    local cache = self.clickableSprites
-
-    if cache == nil then
-        cache = self:generateClickableSpritesArray()
-        self.clickableSprites = cache
-    end
-
-    return cache
-end
-
 function catan:iterClickableSprites (f)
-    for _, sprite in ipairs(self:getClickableSprites()) do
+    for _, sprite in ipairs(self.clickableSprites) do
         local ret = f(sprite)
         if ret then return ret end
     end
@@ -820,6 +811,11 @@ function catan:update (dt)
         assert(layer, string.format('could not render layer "%s"', layername))
         self.layers[layername] = layer
         self.layersPendingUpdate[layername] = nil
+    end
+
+    if self.clickableSpritesPendingUpdate then
+        self.clickableSprites = self:generateClickableSpritesArray()
+        self.clickableSpritesPendingUpdate = false
     end
 
     if self.validationPending then

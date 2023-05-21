@@ -46,6 +46,8 @@ Layer.SpriteTableCell = {}
 -- @tfield[opt=0] number ysep the vertical space between sprites
 -- @tfield[opt='left'] string xalign the horizontal alignment for the whole sprite line
 -- @tfield[opt='top'] string yalign the vertical alignment for the whole sprite line
+-- @tfield[opt=nil] Drawable bgimg background image
+-- @tfield[opt=0] number bgmargin background margin
 Layer.SpriteTableInput = {}
 
 ---
@@ -62,6 +64,8 @@ function Layer:addSpriteTable (t)
     local ysep = t.ysep or 0
     local xalign = t.xalign or 'left'
     local yalign = t.yalign or 'top'
+    local bgimg = t.bgimg
+    local bgmargin = t.bgmargin or 0
 
     local lineHeights = {}
     for i = 1, n do
@@ -150,6 +154,16 @@ function Layer:addSpriteTable (t)
     local sprites = {}
     for i = 1, n do
         sprites[i] = {}
+    end
+
+    if bgimg ~= nil then
+        self:addSprite{
+            bgimg,
+            x = x0 - bgmargin,
+            y = y0 - bgmargin,
+            sx = w + 2 * bgmargin,
+            sy = h + 2 * bgmargin,
+        }
     end
 
     y = y0

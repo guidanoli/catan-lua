@@ -92,10 +92,12 @@ function catan:load ()
 end
 
 function catan:iterSprites (f)
-    for i, layername in ipairs(self.LAYER_NAMES) do
-        local layer = self.layers[layername]
-        local ret = layer:iterSprites(f)
-        if ret then return ret end
+    if self.layers then
+        for i, layername in ipairs(self.LAYER_NAMES) do
+            local layer = self.layers[layername]
+            local ret = layer:iterSprites(f)
+            if ret then return ret end
+        end
     end
 end
 
@@ -112,6 +114,19 @@ function catan:mousepressed (x, y, button)
 end
 
 function catan:mousemoved (x, y)
+    local isOverClickableSprite = self:iterSprites(function (sprite)
+        if sprite:hasCallback() and sprite:contains(x, y) then
+            return true -- quit iteration and return true
+        end
+    end)
+
+    local ctype = isOverClickableSprite and "hand" or "arrow"
+
+    if ctype ~= self.ctype then
+        local cursor = love.mouse.getSystemCursor(ctype)
+        love.mouse.setCursor(cursor)
+        self.ctype = ctype
+    end
 end
 
 function catan:keypressed (key)

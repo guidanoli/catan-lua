@@ -151,11 +151,6 @@ function Layer:addSpriteTable (t)
         y0 = y - h
     end
 
-    local sprites = {}
-    for i = 1, n do
-        sprites[i] = {}
-    end
-
     if bgimg ~= nil then
         self:addSprite{
             bgimg,
@@ -174,7 +169,7 @@ function Layer:addSpriteTable (t)
             for j = 1, m do
                 local cell = line[j]
                 if cell then
-                    sprites[i][j] = self:addSprite{
+                    self:addSprite{
                         cellimg(cell),
                         x = x + columnWidths[j] / 2,
                         y = y + lineHeights[i] / 2,
@@ -189,7 +184,21 @@ function Layer:addSpriteTable (t)
         y = y + lineHeights[i] + ysep
     end
 
-    return sprites
+    if bgimg == nil then
+        return {
+            x = x0,
+            y = y0,
+            w = w,
+            h = h,
+        }
+    else
+        return {
+            x = x0 - bgmargin,
+            y = y0 - bgmargin,
+            w = w + 2 * bgmargin,
+            h = h + 2 * bgmargin,
+        }
+    end
 end
 
 function Layer:iterSprites (f)

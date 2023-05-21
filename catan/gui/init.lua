@@ -26,6 +26,7 @@ catan.DEBUG = os.getenv "DEBUG" ~= nil
 
 catan.SEA_W = 900
 catan.SEA_H = 800
+catan.BG_MARGIN = 10
 
 catan.LAYER_NAMES = {
     "board",
@@ -512,6 +513,8 @@ function catan:renderSidebarTable (layer, x, y)
         xalign = 'center',
         xsep = TABLE_XSEP,
         ysep = TABLE_YSEP,
+        bgimg = self.images.smoke,
+        bgmargin = self.BG_MARGIN,
     }
 
     table.insert(t, {
@@ -542,9 +545,7 @@ function catan:renderSidebarTable (layer, x, y)
         })
     end
 
-    local sprites = layer:addSpriteTable(t)
-
-    return self:getSpriteTableBottomY(sprites)
+    return layer:addSpriteTable(t)
 end
 
 function catan:renderDice (layer, x, y)
@@ -568,9 +569,7 @@ function catan:renderDice (layer, x, y)
     end
     table.insert(t, line)
 
-    local sprites = layer:addSpriteTable(t)
-
-    return self:getSpriteTableBottomY(sprites)
+    return layer:addSpriteTable(t)
 end
 
 function catan:renderRollBtn (layer, x, y)
@@ -597,11 +596,16 @@ function catan.renderers:sidebar ()
     local SIDEBAR_Y = 0
     local SIDEBAR_W = W - self.SEA_W
 
+    local BOX_MARGIN = 10
+
     local x = SIDEBAR_X + SIDEBAR_W / 2
     local y = YSEP
 
     -- Table (public info)
-    y = self:renderSidebarTable(layer, x, y) + YSEP
+    do
+        local bounds = self:renderSidebarTable(layer, x, y)
+        y = bounds.y + bounds.h + YSEP
+    end
 
     -- Dice and Roll button
     if self.game.dice == nil then
@@ -609,7 +613,8 @@ function catan.renderers:sidebar ()
             y = self:renderRollBtn(layer, x, y) + YSEP
         end
     else
-        y = self:renderDice(layer, x, y) + YSEP
+        local bounds = self:renderDice(layer, x, y)
+        y = bounds.y + bounds.h + YSEP
     end
 
     return layer
@@ -647,10 +652,10 @@ function catan.renderers:inventory ()
             for i = 1, count do table.insert(line, img) end
             table.insert(t, line)
 
-            local sprites = layer:addSpriteTable(t)
+            local bounds = layer:addSpriteTable(t)
 
-            local rightX = self:getSpriteTableRightX(sprites)
-            local topY = self:getSpriteTableTopY(sprites)
+            local rightX = bounds.x + bounds.w
+            local topY = bounds.y
 
             layer:addSprite{
                 self.images.cardcount,

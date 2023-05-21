@@ -117,18 +117,31 @@ function catan:mousepressed (x, y, button)
     end
 end
 
-function catan:mousemoved (x, y)
-    local clickableSprites = self.clickableSprites
+function catan:generateClickableSpritesArray ()
+    local cache = {}
 
-    if clickableSprites == nil then
-        clickableSprites = {}
-        self:iterSprites(function (sprite)
-            if sprite:hasCallback() then
-                table.insert(clickableSprites, sprite)
-            end
-        end)
-        self.clickableSprites = clickableSprites
+    self:iterSprites(function (sprite)
+        if sprite:hasCallback() then
+            table.insert(cache, sprite)
+        end
+    end)
+
+    return cache
+end
+
+function catan:getClickableSprites ()
+    local cache = self.clickableSprites
+
+    if cache == nil then
+        cache = self:generateClickableSpritesArray()
+        self.clickableSprites = cache
     end
+
+    return cache
+end
+
+function catan:mousemoved (x, y)
+    local clickableSprites = self:getClickableSprites()
 
     local found = false
     for _, sprite in ipairs(clickableSprites) do

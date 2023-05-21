@@ -12,6 +12,7 @@ m.Phase = s.Enum{
     'playingTurns',
     'discardingHalf',
     'movingRobber',
+    'choosingVictim',
 }
 
 m.D6 = s.Enum{

@@ -443,6 +443,13 @@ function Game:canEndTurn ()
     return true
 end
 
+function Game:canMoveRobber ()
+    if self.phase ~= "movingRobber" then
+        return false, "not in the right phase"
+    end
+    return true
+end
+
 function Game:iterProduction (production, f)
     return FaceMap:iter(production, function (q, r, hexProduction)
         local face = Grid:face(q, r)
@@ -451,6 +458,35 @@ function Game:iterProduction (production, f)
             return f(face, vertex, buildingProduction)
         end)
     end)
+end
+
+function Game:choosePlayerResCardAtRandom (player)
+    local n = self:getNumberOfResourceCards(player)
+    if n >= 1 then
+        local i = math.random(n)
+        local j = 0
+        for res, count in pairs(self.rescards[player]) do
+            j = j + count
+            if j >= i then
+                return res
+            end
+        end
+    end
+end
+
+function Game:getPlayersAroundFace (face)
+    local playerset = {}
+    for _, corner in ipairs(Grid:corners(Grid:unpack(face))) do
+        local building = VertexMap:get(self.buildmap, corner)
+        if building then
+            playerset[building.player] = true
+        end
+    end
+    local players = {}
+    for player in pairs(playerset) do
+        table.insert(players, player)
+    end
+    return players
 end
 
 --------------------------------
@@ -601,6 +637,38 @@ function Game:endTurn ()
 
     self.player = self:_getPlayerAfterIndex(i)
     self.dice = nil
+end
+
+function Game:moveRobber (face)
+    assert(self:canMoveRobber())
+
+    assert(CatanSchema.Face:isValid(face))
+    assert(FaceMap:get(self.hexmap, face) ~= nil, "face must have a hex on it")
+    assert(not CatanSchema.Face:eq(face, self.robber), "must move robber somewhere else")
+
+    self.robber = face
+
+    local victims = self:getPlayersAroundFace(face)
+
+    local victim
+    local res
+
+    if #victims == 1 then
+        victim = victims[1]
+        res = self:choosePlayerResCardAtRandom(victim)
+        if res then
+            self:_giveResCardsTo(victim, res, -1)
+            self:_giveResCardsTo(self.player, res, 1)
+        end
+    end
+
+    if #victims == 2 then
+        self.phase = "choosingVictim"
+    else
+        self.phase = "playingTurns"
+    end
+
+    return victim, res
 end
 
 --------------------------------

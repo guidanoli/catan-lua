@@ -24,6 +24,9 @@ catan.DEBUG = os.getenv "DEBUG" ~= nil
 
 -- GUI constants
 
+catan.SEA_W = 900
+catan.SEA_H = 800
+
 catan.LAYER_NAMES = {
     "board",
     "sidebar",
@@ -67,7 +70,7 @@ end
 function catan:load ()
     love.window.setMode(1400, 1000)
     love.window.setTitle"Settlers of Catan"
-    love.graphics.setBackgroundColor(love.math.colorFromBytes(255, 239, 190))
+    love.graphics.setBackgroundColor(love.math.colorFromBytes(17, 78, 232))
 
     math.randomseed(os.time())
 
@@ -75,8 +78,6 @@ function catan:load ()
     self.game = Game:new()
 
     self.images = self:loadImgDir"images"
-
-    self.SEA_W, self.SEA_H = self.images.sea:getDimensions()
 
     self.font = love.graphics.newFont(20)
 
@@ -333,9 +334,6 @@ function catan.renderers:board ()
 
     local W, H = love.window.getMode()
     local hexsize = self:getHexSize()
-
-    -- Sea
-    layer:addSprite{self.images.sea}
 
     -- Harbors
     do

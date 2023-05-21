@@ -467,39 +467,6 @@ function catan:newText (color, text)
     return love.graphics.newText(self.font, {color, text})
 end
 
-function catan:getSpriteTableBottomY (sprites)
-    local tableBottomY
-    TableUtils:iter2d(sprites, function (i, j, sprite)
-        local bottomY = sprite:getY() + sprite:getHeight()
-        if tableBottomY == nil or bottomY > tableBottomY then
-            tableBottomY = bottomY
-        end
-    end)
-    return tableBottomY
-end
-
-function catan:getSpriteTableTopY (sprites)
-    local tableTopY
-    TableUtils:iter2d(sprites, function (i, j, sprite)
-        local topY = sprite:getY()
-        if tableTopY == nil or topY < tableTopY then
-            tableTopY = topY
-        end
-    end)
-    return tableTopY
-end
-
-function catan:getSpriteTableRightX (sprites)
-    local tableRightX
-    TableUtils:iter2d(sprites, function (i, j, sprite)
-        local rightX = sprite:getX() + sprite:getWidth()
-        if tableRightX == nil or rightX > tableRightX then
-            tableRightX = rightX
-        end
-    end)
-    return tableRightX
-end
-
 function catan:renderSidebarTable (layer, x, y)
     local TABLE_XSEP = 20
     local TABLE_YSEP = 10

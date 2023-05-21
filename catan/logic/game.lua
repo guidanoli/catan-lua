@@ -544,6 +544,20 @@ function Game:roll (dice)
     return production
 end
 
+function Game:endTurn ()
+    assert(self:_phaseIs"playingTurns")
+    assert(self.dice ~= nil, "dice haven't been rolled yet")
+
+    local i = self:_getCurrentPlayerIndex()
+
+    if i == #self.players then
+        self.round = self.round + 1
+    end
+
+    self.player = self:_getPlayerAfterIndex(i)
+    self.dice = nil
+end
+
 --------------------------------
 -- Checks
 --------------------------------

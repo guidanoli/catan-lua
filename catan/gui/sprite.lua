@@ -151,6 +151,13 @@ function Sprite:contains (localX, localY)
 end
 
 ---
+-- Check if sprite has callback
+-- @treturn boolean whether sprite has callback
+function Sprite:hasCallback ()
+    return self.onleftclick ~= nil or self.onrightclick ~= nil
+end
+
+---
 -- If (x, y) is inside sprite, trigger any "left click" callback
 -- @tparam number x x-coordinate
 -- @tparam number y y-coordinate

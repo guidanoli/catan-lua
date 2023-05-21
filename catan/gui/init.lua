@@ -473,7 +473,7 @@ function catan:renderTable (layer, x, y)
     local BLACK = {0, 0, 0}
 
     local t = {
-        n = 1 + #self.game.players,
+        n = 1,
         m = 7,
         x = x,
         y = y,
@@ -510,6 +510,9 @@ function catan:renderTable (layer, x, y)
             self:newText(BLACK, "?"),
             self:newText(BLACK, self.game:getNumberOfVictoryPoints(player)),
         })
+
+        -- increment the number of lines
+        t.n = t.n + 1
     end
 
     return layer:addSpriteTable(t)
@@ -519,22 +522,23 @@ function catan:renderDice (layer, x, y)
     local DICE_XSEP = 10
     local DICE_SX = 0.5
 
-    local t = {
-        m = 2,
-        x = x,
-        y = y,
-        xalign = 'center',
-        xsep = DICE_XSEP,
-    }
-
     local line = {}
+
     for _, die in ipairs(self.game.dice) do
         table.insert(line, {
             assert(self.images.dice[tostring(die)], "missing die sprite"),
             sx = DICE_SX,
         })
     end
-    table.insert(t, line)
+
+    local t = {
+        line,
+        m = #line,
+        x = x,
+        y = y,
+        xalign = 'center',
+        xsep = DICE_XSEP,
+    }
 
     return layer:addSpriteTable(t)
 end

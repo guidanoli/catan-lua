@@ -409,6 +409,10 @@ function Game:getNumberOfResourceCardsOfType(player, res)
     return self.rescards[player][res] or 0
 end
 
+function Game:canEndTurn ()
+    return self.phase == "playingTurns" and self.dice ~= nil
+end
+
 --------------------------------
 -- Actions
 --------------------------------

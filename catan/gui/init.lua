@@ -30,7 +30,7 @@ catan.BG_MARGIN = 10
 
 catan.LAYER_NAMES = {
     "board",
-    "sidebar",
+    "table",
     "inventory",
 }
 
@@ -467,7 +467,7 @@ function catan:newText (color, text)
     return love.graphics.newText(self.font, {color, text})
 end
 
-function catan:renderSidebarTable (layer, x, y)
+function catan:renderTable (layer, x, y)
     local TABLE_XSEP = 20
     local TABLE_YSEP = 10
     local BLACK = {0, 0, 0}
@@ -553,24 +553,24 @@ function catan:renderRollBtn (layer, x, y)
     return y + sprite:getHeight()
 end
 
-function catan.renderers:sidebar ()
+function catan.renderers:table ()
     local layer = Layer:new()
 
     local W, H = love.window.getMode()
     local YSEP = 20
 
-    local SIDEBAR_X = self.SEA_W
-    local SIDEBAR_Y = 0
-    local SIDEBAR_W = W - self.SEA_W
+    local TABLE_X = self.SEA_W
+    local TABLE_Y = 0
+    local TABLE_W = W - self.SEA_W
 
     local BOX_MARGIN = 10
 
-    local x = SIDEBAR_X + SIDEBAR_W / 2
+    local x = TABLE_X + TABLE_W / 2
     local y = YSEP
 
     -- Table (public info)
     do
-        local bounds = self:renderSidebarTable(layer, x, y)
+        local bounds = self:renderTable(layer, x, y)
         y = bounds.y + bounds.h + YSEP
     end
 

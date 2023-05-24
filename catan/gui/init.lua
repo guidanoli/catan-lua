@@ -61,13 +61,19 @@ function catan:updateDisplayedInventory ()
     if self.game:canDiscard() then
         for _, player in ipairs(self.game.players) do
             if self.game:canDiscard(player) then
-                displayedInventory = player
+                displayedInventory = {
+                    player = player,
+                    reason = "discarding",
+                }
                 break -- choose first player that can discard
             end
         end
         assert(displayedInventory ~= nil)
     else
-        displayedInventory = self.game.player
+        displayedInventory = {
+            player = self.game.player,
+            reason = "playing",
+        }
     end
     self.displayedInventory = displayedInventory
 end
@@ -579,6 +585,11 @@ function catan:newText (color, text)
     return love.graphics.newText(self.font, {color, text})
 end
 
+catan.ARROW_COLOR_FOR_REASON = {
+    playing = "yellow",
+    discarding = "red",
+}
+
 function catan:renderTable (layer, x, y)
     local TABLE_XSEP = 20
     local TABLE_YSEP = 10
@@ -618,8 +629,8 @@ function catan:renderTable (layer, x, y)
         local hasLongestRoad = self.game.longestroad == player
         local arrow
 
-        if player == self.displayedInventory then
-            local arrowColor = self.game:canDiscard() and "red" or "yellow"
+        if player == self.displayedInventory.player then
+            local arrowColor = self.ARROW_COLOR_FOR_REASON[self.displayedInventory.reason]
             local arrowImg = assert(self.images.arrow[arrowColor], "arrow sprite missing")
             arrow = {arrowImg, sx=0.3}
         end
@@ -719,7 +730,7 @@ function catan.renderers:inventory ()
         local CARD_COUNT_SX = 0.5
         local BLACK = {0, 0, 0}
 
-        local player = self.displayedInventory
+        local player = self.displayedInventory.player
 
         local function addCardSequence (img, count)
             if count == 0 then

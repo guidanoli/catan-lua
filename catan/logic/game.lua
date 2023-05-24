@@ -689,11 +689,7 @@ function Game:moveRobber (face)
 
     if numOfVictims == 1 then
         victim = next(victims)
-        res = self:choosePlayerResCardAtRandom(victim)
-        if res then
-            self:_giveResCardsTo(victim, res, -1)
-            self:_giveResCardsTo(self.player, res, 1)
-        end
+        res = self:_stealRandomResCardFrom(victim)
     end
 
     if numOfVictims >= 2 then
@@ -720,6 +716,14 @@ end
 --------------------------------
 -- Auxiliary functions
 --------------------------------
+
+function Game:_stealRandomResCardFrom (victim)
+    local res = self:choosePlayerResCardAtRandom(victim)
+    assert(res ~= nil, "victim must have at least one card")
+    self:_giveResCardsTo(victim, res, -1)
+    self:_giveResCardsTo(self.player, res, 1)
+    return res
+end
 
 function Game:_giveResCardsTo (player, res, numCards)
     local numCardsBefore = self.rescards[player][res] or 0

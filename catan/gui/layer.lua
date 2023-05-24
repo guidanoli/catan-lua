@@ -5,6 +5,7 @@
 local Class = require "util.class"
 
 local Sprite = require "catan.gui.sprite"
+local Box = require "catan.gui.box"
 
 ---
 -- A layer of sprites
@@ -55,7 +56,7 @@ Layer.SpriteTableInput = {}
 ---
 -- Add a table of sprites
 -- @tparam table t 2D array of @{catan.gui.layer.SpriteTableCell} or `Drawable` and fields in @{catan.gui.layer.SpriteTableInput}
--- @treturn {{catan.gui.sprite.Sprite,...},...} 2D array with all the newly-created sprites
+-- @treturn catan.gui.box.Box 2D array with all the newly-created sprites
 -- @see love2d@Drawable
 function Layer:addSpriteTable (t)
     local n = t.n or 1
@@ -201,14 +202,14 @@ function Layer:addSpriteTable (t)
     end
 
     if bgimg == nil then
-        return {
+        return Box:new{
             x = x0,
             y = y0,
             w = w,
             h = h,
         }
     else
-        return {
+        return Box:new{
             x = x0 - bgmargin,
             y = y0 - bgmargin,
             w = w + 2 * bgmargin,

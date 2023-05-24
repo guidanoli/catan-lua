@@ -419,6 +419,12 @@ function catan:chooseVictim (victim)
     self:afterMove()
 end
 
+function catan:discard (player, rescards)
+    self.game:discard(player, rescards)
+
+    self:afterMove()
+end
+
 catan.renderers = {}
 
 function catan.renderers:board ()
@@ -745,6 +751,14 @@ function catan:unselectResCard (res)
     self:addToSelectedCardCount(res, -1)
 end
 
+function catan:getNumberOfSelectedResCards ()
+    local n = 0
+    for res, count in pairs(self.selectedResCards) do
+        n = n + count
+    end
+    return n
+end
+
 function catan.renderers:inventory ()
     local layer = Layer:new()
 
@@ -770,6 +784,8 @@ function catan.renderers:inventory ()
     do
         local CARD_COUNT_SX = 0.5
         local BLACK = {0, 0, 0}
+        local RED = {0.8, 0, 0}
+        local GREEN = {0, 0.5, 0}
 
         -- Bounding box
         local box
@@ -925,6 +941,52 @@ function catan.renderers:inventory ()
             if sequenceBox then
                 x = sequenceBox:getRightX() + XSEP
             end
+        end
+
+        local y0 = y0 - CARD_H - YMARGIN
+
+        -- Selection text
+        local numSelectedCards = self:getNumberOfSelectedResCards()
+
+        if reason == "discarding" then
+            local rescards = self.selectedResCards
+            local playerCanDiscard = self.game:canDiscard(player, rescards)
+
+            local expectedNumOfCards = self.game:getNumberOfResourceCardsToDiscard(player)
+            local text = string.format("To be discarded (%d/%d)", numSelectedCards, expectedNumOfCards)
+            local color = playerCanDiscard and GREEN or RED
+
+            local textSprite = layer:addSprite{
+                self:newText(color, text),
+                x = x0,
+                y = y0,
+                yalign = "bottom",
+            }
+
+            local textBox = Box:fromSprite(textSprite)
+
+            addToBox(textBox)
+
+            if playerCanDiscard then
+                local okImg = self.images.btn.ok
+
+                local okSprite = layer:addSprite{
+                    okImg,
+                    x = textBox:getRightX() + XSEP,
+                    y = y0,
+                    yalign = "bottom",
+                    sx = textBox:getHeight() / okImg:getHeight(),
+                    onleftclick = function ()
+                        self:discard(player, rescards)
+                    end,
+                }
+
+                local okBox = Box:fromSprite(okSprite)
+
+                addToBox(okBox)
+            end
+
+            y0 = box:getTopY() - YMARGIN
         end
 
         if box then

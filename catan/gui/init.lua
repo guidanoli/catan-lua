@@ -597,6 +597,8 @@ function catan:renderTable (layer, x, y)
     for _, player in ipairs(self.game.players) do
         local numResCards = self.game:getNumberOfResourceCards(player)
         local isNumResCardsAboveLimit = self.game:isNumberOfResourceCardsAboveLimit(numResCards)
+        local hasLargestArmy = self.game.largestarmy == player
+        local hasLongestRoad = self.game.longestroad == player
 
         table.insert(t, {
             (player == self.game.player) and {
@@ -609,8 +611,8 @@ function catan:renderTable (layer, x, y)
             },
             self:newText(redIff(isNumResCardsAboveLimit), numResCards),
             self:newText(BLACK, self.game:getNumberOfDevelopmentCards(player)),
-            self:newText(BLACK, self.game:getArmySize(player)),
-            self:newText(BLACK, "?"),
+            self:newText(redIff(hasLargestArmy), self.game:getArmySize(player)),
+            self:newText(redIff(hasLongestRoad), "?"),
             self:newText(BLACK, self.game:getNumberOfVictoryPoints(player)),
         })
 

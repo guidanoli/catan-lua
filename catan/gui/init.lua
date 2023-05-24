@@ -382,6 +382,14 @@ function catan:moveRobber (q, r)
     self:afterMove()
 end
 
+function catan:chooseVictim (victim)
+    local res = self.game:chooseVictim(victim)
+
+    self:printRobbery(victim, res)
+
+    self:afterMove()
+end
+
 catan.renderers = {}
 
 function catan.renderers:board ()
@@ -522,9 +530,16 @@ function catan.renderers:board ()
     do
         VertexMap:iter(self.game.buildmap, function (q, r, v, building)
             local x, y = self:getVertexPos(q, r, v)
+            local onleftclick
+            local player = building.player
+            if self.game:canChooseVictim(player) then
+                onleftclick = function ()
+                    self:chooseVictim(player)
+                end
+            end
             if building.kind == "settlement" then
                 local img = assert(self.images.settlement[building.player], "missing settlement image")
-                layer:addSprite{img, x=x, y=y, sx=0.5, center=true}
+                layer:addSprite{img, x=x, y=y, sx=0.5, center=true, onleftclick=onleftclick}
             else
                 assert(building.kind == "city")
                 -- TODO: render cities

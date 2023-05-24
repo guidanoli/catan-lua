@@ -774,6 +774,14 @@ function catan.renderers:inventory ()
         -- Bounding box
         local box
 
+        local function addToBox (anotherBox)
+            if box == nil then
+                box = anotherBox
+            else
+                box = Box:fromUnion(box, anotherBox)
+            end
+        end
+
         local function addCardSequence (x, y, img, count, onleftclick)
             if count == 0 then
                 return -- don't render anything
@@ -826,11 +834,7 @@ function catan.renderers:inventory ()
                 Box:fromSprite(cardCountTextSprite)
             )
 
-            if box == nil then
-                box = sequenceBox
-            else
-                box = Box:fromUnion(box, sequenceBox)
-            end
+            addToBox(sequenceBox)
 
             return sequenceBox
         end

@@ -520,16 +520,12 @@ function Game:choosePlayerResCardAtRandom (player)
 end
 
 function Game:getVictimsAroundFace (face)
-    local victimset = {}
+    local victims = {}
     for _, corner in ipairs(Grid:corners(Grid:unpack(face))) do
         local building = VertexMap:get(self.buildmap, corner)
         if building and building.player ~= self.player then
-            victimset[building.player] = true
+            victims[building.player] = true
         end
-    end
-    local victims = {}
-    for victim in pairs(victimset) do
-        table.insert(victims, victim)
     end
     return victims
 end
@@ -680,11 +676,13 @@ function Game:moveRobber (face)
 
     local victims = self:getVictimsAroundFace(face)
 
+    local numOfVictims = TableUtils:numOfPairs(victims)
+
     local victim
     local res
 
-    if #victims == 1 then
-        victim = victims[1]
+    if numOfVictims == 1 then
+        victim = next(victims)
         res = self:choosePlayerResCardAtRandom(victim)
         if res then
             self:_giveResCardsTo(victim, res, -1)
@@ -692,7 +690,7 @@ function Game:moveRobber (face)
         end
     end
 
-    if #victims >= 2 then
+    if numOfVictims >= 2 then
         self.phase = "choosingVictim"
     else
         self.phase = "playingTurns"

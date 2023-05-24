@@ -667,7 +667,7 @@ function Game:roll (dice)
             end
         end
         if mustDiscard then
-            self.phase = "discardingHalf"
+            self.phase = "discarding"
         else
             self.phase = "movingRobber"
         end

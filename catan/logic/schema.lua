@@ -10,7 +10,7 @@ m.Phase = s.Enum{
     'placingInitialSettlement',
     'placingInitialRoad',
     'playingTurns',
-    'discardingHalf',
+    'discarding',
     'movingRobber',
     'choosingVictim',
 }

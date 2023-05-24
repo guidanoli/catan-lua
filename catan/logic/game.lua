@@ -749,12 +749,12 @@ end
 function Game:_stealRandomResCardFrom (victim)
     local res = self:choosePlayerResCardAtRandom(victim)
     assert(res ~= nil, "victim must have at least one card")
-    self:_giveResCardsTo(victim, res, -1)
-    self:_giveResCardsTo(self.player, res, 1)
+    self:_addToResCardCount(victim, res, -1)
+    self:_addToResCardCount(self.player, res, 1)
     return res
 end
 
-function Game:_giveResCardsTo (player, res, numCards)
+function Game:_addToResCardCount (player, res, numCards)
     local numCardsBefore = self.rescards[player][res] or 0
     assert(numCardsBefore + numCards >= 0, "num of rescards cannot be negative")
     self.rescards[player][res] = numCardsBefore + numCards
@@ -765,7 +765,7 @@ function Game:_applyProduction (production)
         local player = assert(buildingProduction.player)
         local res = assert(buildingProduction.res)
         local numCards = assert(buildingProduction.numCards)
-        self:_giveResCardsTo(player, res, numCards)
+        self:_addToResCardCount(player, res, numCards)
     end)
 end
 

@@ -78,6 +78,10 @@ function catan:updateDisplayedInventory ()
     self.displayedInventory = displayedInventory
 end
 
+function catan:clearCardSelection ()
+    self.selectedResCards = {}
+end
+
 function catan:requestLayerUpdate (layername)
     self.layersPendingUpdate[layername] = true
 end
@@ -338,6 +342,7 @@ function catan:getRoadAngleForEdge (e)
 end
 
 function catan:afterMove ()
+    self:clearCardSelection()
     self:updateDisplayedInventory()
     self:requestAllLayersUpdate()
     self:requestClickableSpriteCacheUpdate()

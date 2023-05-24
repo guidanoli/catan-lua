@@ -59,4 +59,13 @@ function TableUtils:iter2d (t, f)
     end
 end
 
+-- |K| where K = { k | (k, v) ∊  t }
+function TableUtils:numOfPairs (t)
+    local n = 0
+    for _ in pairs(t) do
+        n = n + 1
+    end
+    return n
+end
+
 return TableUtils

@@ -418,6 +418,15 @@ function Game:isNumberOfResourceCardsAboveLimit (n)
     return n > 7
 end
 
+function Game:getNumberOfResourceCardsToDiscard (player)
+    local count = self:getNumberOfResourceCards(player)
+    if self:isNumberOfResourceCardsAboveLimit(count) then
+        return math.floor(count / 2)
+    else
+        return 0
+    end
+end
+
 function Game:canPlaceInitialSettlement (vertex)
     local ok, err = self:_isPhase"placingInitialSettlement"
     if not ok then
@@ -491,9 +500,9 @@ function Game:canDiscard (player, rescards)
         if self:hasDiscardedInThisRound(player) then
             return false, "player has discarded in this round already"
         end
-        local totalCurrentCount = self:getNumberOfResourceCards(player)
-        if not self:isNumberOfResourceCardsAboveLimit(totalCurrentCount) then
-            return false, "player does not need to discard"
+        local expectedTotalDiscardCount = self:getNumberOfResourceCardsToDiscard(player)
+        if expectedTotalDiscardCount == 0 then
+            return false, "player does not need to discard anything"
         end
         if rescards ~= nil then
             local valid, err = CatanSchema.ResourceCardHistogram:isValid(rescards)
@@ -508,7 +517,7 @@ function Game:canDiscard (player, rescards)
                 end
                 totalDiscardCount = totalDiscardCount + discardCount
             end
-            if totalDiscardCount ~= math.floor(totalCurrentCount / 2) then
+            if totalDiscardCount ~= expectedTotalDiscardCount then
                 return false, "player is not discarding half of their cards"
             end
         end

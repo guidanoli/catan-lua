@@ -16,6 +16,7 @@ local Grid = require "catan.logic.grid"
 local gutil = require "catan.gui.util"
 local Sprite = require "catan.gui.sprite"
 local Layer = require "catan.gui.layer"
+local Box = require "catan.gui.box"
 
 local catan = {}
 
@@ -715,36 +716,61 @@ function catan.renderers:table ()
     return layer
 end
 
+function catan:addToSelectedCardCount (res, n)
+    local player = self.displayedInventory.player
+    local count = self.game:getNumberOfResourceCardsOfType(player, res)
+    local selectedCount = (self.selectedResCards[res] or 0)
+    local newSelectedCount = selectedCount + n
+    if newSelectedCount >= 0 and newSelectedCount <= count then
+        self.selectedResCards[res] = newSelectedCount
+        self:requestLayerUpdate"inventory"
+        self:requestClickableSpriteCacheUpdate()
+    end
+end
+
+function catan:selectResCard (res)
+    self:addToSelectedCardCount(res, 1)
+end
+
+function catan:unselectResCard (res)
+    self:addToSelectedCardCount(res, -1)
+end
+
 function catan.renderers:inventory ()
     local layer = Layer:new()
 
     local W, H = love.window.getMode()
+
+    -- Margin between box and edge of window
     local XMARGIN = 20
     local YMARGIN = XMARGIN
+
+    -- Separation between card sequences
     local XSEP = 10
 
+    -- Separation between card groups
+    local YSEP = 10
+
+    -- Card height
+    local CARD_H
     do
-        local x0 = XMARGIN
-        local x = x0
-        local y = H - YMARGIN
+        local cardImg = self.images.card.dev.knight
+        CARD_H = cardImg:getHeight()
+    end
 
-        local hasCard = false
-        local rightX
-        local topY
-
+    do
         local CARD_COUNT_SX = 0.5
         local BLACK = {0, 0, 0}
 
-        local player = self.displayedInventory.player
+        -- Bounding box
+        local box
 
-        local function addCardSequence (img, count)
+        local function addCardSequence (x, y, img, count, onleftclick)
             if count == 0 then
                 return -- don't render anything
             else
                 assert(count > 0)
             end
-
-            hasCard = true
 
             local imgW = img:getWidth()
 
@@ -757,67 +783,126 @@ function catan.renderers:inventory ()
             }
 
             local line = {}
-            for i = 1, count do table.insert(line, img) end
+            for i = 1, count do
+                table.insert(line, {
+                    img,
+                    onleftclick = onleftclick,
+                })
+            end
             table.insert(t, line)
 
-            local bounds = layer:addSpriteTable(t)
+            local tableBox = layer:addSpriteTable(t)
 
-            rightX = bounds.x + bounds.w
-            topY = bounds.y
+            local tableRightX = tableBox:getRightX()
+            local tableTopY = tableBox:getTopY()
 
-            local cardCountSprite = layer:addSprite{
+            local cardCountCircleSprite = layer:addSprite{
                 self.images.cardcount,
-                x = rightX,
-                y = topY,
+                x = tableRightX,
+                y = tableTopY,
                 center = true,
                 sx = CARD_COUNT_SX,
             }
 
-            layer:addSprite{
+            local cardCountTextSprite = layer:addSprite{
                 self:newText(BLACK, count),
-                x = rightX,
-                y = topY,
+                x = tableRightX,
+                y = tableTopY,
                 center = true,
             }
 
-            x = rightX + XSEP
+            local sequenceBox = Box:fromUnion(
+                tableBox,
+                Box:fromSprite(cardCountCircleSprite),
+                Box:fromSprite(cardCountTextSprite)
+            )
 
-            -- we need to know the right-most x and top-most y for the correct rendering
-            -- of the translucent white background of the cards
-            rightX = cardCountSprite:getX() + cardCountSprite:getWidth()
-            topY = cardCountSprite:getY()
+            if box == nil then
+                box = sequenceBox
+            else
+                box = Box:fromUnion(box, sequenceBox)
+            end
+
+            return sequenceBox
         end
 
+        local x0 = XMARGIN
+        local y0 = H - YMARGIN
+
+        local x = x0
+        local y = y0
+
+        local player = self.displayedInventory.player
+        local reason = self.displayedInventory.reason
+
         local rescards = self.game.rescards[player]
+
         for _, res in ipairs(TableUtils:sortedKeys(rescards)) do
             local img = assert(self.images.card.res[res], "missing rescard sprite")
-            local count = assert(rescards[res])
-            addCardSequence(img, count)
+            local totalCount = assert(rescards[res])
+            local sequenceBox
+
+            if reason == "playing" then
+                sequenceBox = addCardSequence(x, y, img, totalCount)
+            else
+                assert(reason == "discarding")
+                local selectedCount = self.selectedResCards[res] or 0
+                local count = totalCount - selectedCount
+                assert(count >= 0)
+                sequenceBox = addCardSequence(x, y, img, count, function ()
+                    self:selectResCard(res)
+                end)
+            end
+
+            if sequenceBox then
+                x = sequenceBox:getRightX() + XSEP
+            end
         end
 
         local devcards = self.game.devcards[player]
+
         local devcardhist = {}
         for _, devcard in ipairs(devcards) do
             if devcard.roundPlayed == nil then
                 local kind = devcard.kind
-                local count = devcardhist[kind] or 0
-                devcardhist[kind] = count + 1
+                devcardhist[kind] = (devcardhist[kind] or 0) + 1
             end
         end
 
         for devcard, count in pairs(devcardhist) do
             local img = assert(self.images.card.dev[devcard], "missing devcard sprite")
-            addCardSequence(img, count)
+            local sequenceBox = addCardSequence(x, y, img, count)
+
+            if sequenceBox then
+                x = sequenceBox:getRightX() + XSEP
+            end
         end
 
-        if hasCard then
+        local y1 = y0 - CARD_H - 2 * self.BG_MARGIN - YMARGIN
+
+        local x = x0
+        local y = y1
+
+        for _, res in ipairs(TableUtils:sortedKeys(self.selectedResCards)) do
+            local img = assert(self.images.card.res[res], "missing rescard sprite")
+            local count = assert(self.selectedResCards[res])
+            local sequenceBox = addCardSequence(x, y, img, count, function ()
+                self:unselectResCard(res)
+            end)
+
+            if sequenceBox then
+                x = sequenceBox:getRightX() + XSEP
+            end
+        end
+
+        if box then
+            local grownBox = box:grow(2 * self.BG_MARGIN)
             table.insert(layer, 1, Sprite.new{
                 self.images.smoke,
-                x = x0 - self.BG_MARGIN,
-                y = y + self.BG_MARGIN,
-                sx = rightX - x0 + 2 * self.BG_MARGIN,
-                sy = y - topY + 2 * self.BG_MARGIN,
-                yalign = "bottom"
+                x = grownBox.x,
+                y = grownBox.y,
+                sx = grownBox.w,
+                sy = grownBox.h,
             })
         end
     end

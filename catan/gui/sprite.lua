@@ -161,24 +161,26 @@ end
 -- If (x, y) is inside sprite, trigger any "left click" callback
 -- @tparam number x x-coordinate
 -- @tparam number y y-coordinate
--- @param ... forwarded to the callback
--- @return whatever the callback returns
-function Sprite:leftclick (x, y, ...)
+-- @treturn boolean whether the callback was called
+function Sprite:leftclick (x, y)
     if self.onleftclick and self:contains(x, y) then
-        return self.onleftclick(...)
+        self.onleftclick()
+        return true
     end
+    return false
 end
 
 ---
 -- If (x, y) is inside sprite, trigger any "right click" callback
 -- @tparam number x x-coordinate
 -- @tparam number y y-coordinate
--- @param ... forwarded to the callback
--- @return whatever the callback returns
-function Sprite:rightclick (x, y, ...)
+-- @treturn boolean whether the callback was called
+function Sprite:rightclick (x, y)
     if self.onrightclick and self:contains(x, y) then
-        return self.onrightclick(...)
+        self.onrightclick()
+        return true
     end
+    return false
 end
 
 return Sprite

@@ -523,8 +523,14 @@ function Game:getVictimsAroundFace (face)
     local victims = {}
     for _, corner in ipairs(Grid:corners(Grid:unpack(face))) do
         local building = VertexMap:get(self.buildmap, corner)
-        if building and building.player ~= self.player then
-            victims[building.player] = true
+        if building then
+            local player = building.player
+            if player ~= self.player then
+                local numCards = self:getNumberOfResourceCards(player)
+                if numCards >= 1 then
+                    victims[player] = true
+                end
+            end
         end
     end
     return victims

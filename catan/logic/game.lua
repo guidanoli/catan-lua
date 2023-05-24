@@ -209,7 +209,7 @@ function Game:_validateBuildMap ()
         end
         -- unless the current player is still placing the road...
         if not isRoadEndpoint then
-            assert(self.phase == "placingInitialRoad")
+            assert(self:_isPhase"placingInitialRoad")
             assert(self.player == building.player)
             assert(building.kind == "settlement")
             numOfLonelySettlements = numOfLonelySettlements + 1
@@ -235,7 +235,7 @@ function Game:_validateBuildMap ()
                 if self.phase == "placingInitialRoad" then
                     assert(numOfBuildings[player] == 1)
                 else
-                    assert(self.phase == "placingInitialSettlement")
+                    assert(self:_isPhase"placingInitialSettlement")
                     assert(numOfBuildings[player] == 0)
                 end
             else
@@ -253,7 +253,7 @@ function Game:_validateBuildMap ()
                 if self.phase == "placingInitialRoad" then
                     assert(numOfBuildings[player] == 2)
                 else
-                    assert(self.phase == "placingInitialSettlement")
+                    assert(self:_isPhase"placingInitialSettlement")
                     assert(numOfBuildings[player] == 1)
                 end
             else
@@ -411,8 +411,9 @@ function Game:getNumberOfResourceCardsOfType(player, res)
 end
 
 function Game:canPlaceInitialSettlement (vertex)
-    if self.phase ~= "placingInitialSettlement" then
-        return false, "not in the right phase"
+    local ok, err = self:_isPhase"placingInitialSettlement"
+    if not ok then
+        return false, err
     end
     if vertex ~= nil then
         local valid, err = CatanSchema.Vertex:isValid(vertex)
@@ -433,8 +434,9 @@ function Game:canPlaceInitialSettlement (vertex)
 end
 
 function Game:canPlaceInitialRoad (edge)
-    if self.phase ~= "placingInitialRoad" then
-        return false, "not in the right phase"
+    local ok, err = self:_isPhase"placingInitialRoad"
+    if not ok then
+        return false, err
     end
     if edge ~= nil then
         local valid, err = CatanSchema.Edge:isValid(edge)
@@ -452,8 +454,9 @@ function Game:canPlaceInitialRoad (edge)
 end
 
 function Game:canRoll (dice)
-    if self.phase ~= "playingTurns" then
-        return false, "not in the right phase"
+    local ok, err = self:_isPhase"playingTurns"
+    if not ok then
+        return false, err
     end
     if self.dice ~= nil then
         return false, "the dice have been rolled in this turn already"
@@ -468,8 +471,9 @@ function Game:canRoll (dice)
 end
 
 function Game:canEndTurn ()
-    if self.phase ~= "playingTurns" then
-        return false, "not in the right phase"
+    local ok, err = self:_isPhase"playingTurns"
+    if not ok then
+        return false, err
     end
     if self.dice == nil then
         return false, "the dice haven't been rolled in this turn yet"
@@ -478,8 +482,9 @@ function Game:canEndTurn ()
 end
 
 function Game:canMoveRobber (face)
-    if self.phase ~= "movingRobber" then
-        return false, "not in the right phase"
+    local ok, err = self:_isPhase"movingRobber"
+    if not ok then
+        return false, err
     end
     if face ~= nil then
         local valid, err = CatanSchema.Face:isValid(face)
@@ -497,8 +502,9 @@ function Game:canMoveRobber (face)
 end
 
 function Game:canChooseVictim (player)
-    if self.phase ~= "choosingVictim" then
-        return false, "not in the right phase"
+    local ok, err = self:_isPhase"choosingVictim"
+    if not ok then
+        return false, err
     end
     if player ~= nil then
         local isVictim = self:getVictimsAroundFace(self.robber)
@@ -728,6 +734,13 @@ end
 --------------------------------
 -- Auxiliary functions
 --------------------------------
+
+function Game:_isPhase (phase)
+    if self.phase ~= phase then
+        return false, "phase is not " .. phase
+    end
+    return true
+end
 
 function Game:_stealRandomResCardFrom (victim)
     local res = self:choosePlayerResCardAtRandom(victim)

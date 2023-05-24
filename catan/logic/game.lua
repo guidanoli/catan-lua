@@ -555,7 +555,7 @@ function Game:canChooseVictim (player)
         if not valid then
             return false, err
         end
-        local isVictim = self:getVictimsAroundFace(self.robber)
+        local isVictim = self:_getVictimsAroundFace(self.robber)
         if not isVictim[player] then
             return false, "player is not a victim"
         end
@@ -582,37 +582,6 @@ function Game:iterProduction (production, f)
             return f(face, vertex, buildingProduction)
         end)
     end)
-end
-
-function Game:choosePlayerResCardAtRandom (player)
-    local n = self:getNumberOfResourceCards(player)
-    if n >= 1 then
-        local i = math.random(n)
-        local j = 0
-        for res, count in pairs(self.rescards[player]) do
-            j = j + count
-            if j >= i then
-                return res
-            end
-        end
-    end
-end
-
-function Game:getVictimsAroundFace (face)
-    local victims = {}
-    for _, corner in ipairs(Grid:corners(Grid:unpack(face))) do
-        local building = VertexMap:get(self.buildmap, corner)
-        if building then
-            local player = building.player
-            if player ~= self.player then
-                local numCards = self:getNumberOfResourceCards(player)
-                if numCards >= 1 then
-                    victims[player] = true
-                end
-            end
-        end
-    end
-    return victims
 end
 
 --------------------------------
@@ -760,7 +729,7 @@ function Game:moveRobber (face)
 
     self.robber = face
 
-    local victims = self:getVictimsAroundFace(face)
+    local victims = self:_getVictimsAroundFace(face)
 
     local numOfVictims = TableUtils:numOfPairs(victims)
 
@@ -808,6 +777,37 @@ end
 -- Auxiliary functions
 --------------------------------
 
+function Game:_choosePlayerResCardAtRandom (player)
+    local n = self:getNumberOfResourceCards(player)
+    if n >= 1 then
+        local i = math.random(n)
+        local j = 0
+        for res, count in pairs(self.rescards[player]) do
+            j = j + count
+            if j >= i then
+                return res
+            end
+        end
+    end
+end
+
+function Game:_getVictimsAroundFace (face)
+    local victims = {}
+    for _, corner in ipairs(Grid:corners(Grid:unpack(face))) do
+        local building = VertexMap:get(self.buildmap, corner)
+        if building then
+            local player = building.player
+            if player ~= self.player then
+                local numCards = self:getNumberOfResourceCards(player)
+                if numCards >= 1 then
+                    victims[player] = true
+                end
+            end
+        end
+    end
+    return victims
+end
+
 function Game:_isPhase (phase)
     if self.phase ~= phase then
         return false, "phase is not " .. phase
@@ -816,7 +816,7 @@ function Game:_isPhase (phase)
 end
 
 function Game:_stealRandomResCardFrom (victim)
-    local res = self:choosePlayerResCardAtRandom(victim)
+    local res = self:_choosePlayerResCardAtRandom(victim)
     assert(res ~= nil, "victim must have at least one card")
     self:_addToResCardCount(victim, res, -1)
     self:_addToResCardCount(self.player, res, 1)

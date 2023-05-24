@@ -566,6 +566,11 @@ function catan:renderTable (layer, x, y)
     local TABLE_XSEP = 20
     local TABLE_YSEP = 10
     local BLACK = {0, 0, 0}
+    local RED = {0.8, 0, 0}
+
+    local function redIff (cond)
+        return cond and RED or BLACK
+    end
 
     local t = {
         n = 1,
@@ -590,6 +595,9 @@ function catan:renderTable (layer, x, y)
     })
 
     for _, player in ipairs(self.game.players) do
+        local numResCards = self.game:getNumberOfResourceCards(player)
+        local isNumResCardsAboveLimit = self.game:isNumberOfResourceCardsAboveLimit(numResCards)
+
         table.insert(t, {
             (player == self.game.player) and {
                 self.images.arrow,
@@ -599,7 +607,7 @@ function catan:renderTable (layer, x, y)
                 self.images.settlement[player],
                 sx = 0.5,
             },
-            self:newText(BLACK, self.game:getNumberOfResourceCards(player)),
+            self:newText(redIff(isNumResCardsAboveLimit), numResCards),
             self:newText(BLACK, self.game:getNumberOfDevelopmentCards(player)),
             self:newText(BLACK, self.game:getArmySize(player)),
             self:newText(BLACK, "?"),

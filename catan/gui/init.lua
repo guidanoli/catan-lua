@@ -672,6 +672,12 @@ function catan.renderers:inventory ()
         local player = self.game.player
 
         local function addCardSequence (img, count)
+            if count == 0 then
+                return -- don't render anything
+            else
+                assert(count > 0)
+            end
+
             hasCard = true
 
             local imgW = img:getWidth()

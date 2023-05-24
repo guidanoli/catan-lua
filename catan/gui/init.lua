@@ -27,7 +27,7 @@ catan.DEBUG = os.getenv "DEBUG" ~= nil
 -- GUI constants
 
 catan.SEA_W = 900
-catan.SEA_H = 800
+catan.SEA_H = 700
 catan.BG_MARGIN = 10
 
 catan.LAYER_NAMES = {
@@ -196,7 +196,7 @@ function catan:keypressed (key)
 end
 
 function catan:getHexSize ()
-    return self.SEA_H / 12
+    return self.SEA_H / 11
 end
 
 function catan:getFaceCenter (q, r)

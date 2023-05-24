@@ -332,6 +332,11 @@ function catan:printProduction (production)
     end)
 end
 
+function catan:printRobbery (victim, res)
+    print(string.format('Player %s robbed a %s card from Player %s',
+                        self.game.player, res, victim))
+end
+
 function catan:placeInitialSettlement (q, r, v)
     local production = self.game:placeInitialSettlement(Grid:vertex(q, r, v))
 
@@ -371,8 +376,7 @@ function catan:moveRobber (q, r)
     local victim, res = self.game:moveRobber(face)
 
     if victim and res then
-        print(string.format('Player %s robbed a %s card from Player %s',
-                            self.game.player, res, victim))
+        self:printRobbery(victim, res)
     end
 
     self:afterMove()

@@ -56,6 +56,22 @@ function catan:loadImgDir (dir)
     return t
 end
 
+function catan:updateDisplayedInventory ()
+    local displayedInventory
+    if self.game:canDiscard() then
+        for _, player in ipairs(self.game.players) do
+            if self.game:canDiscard(player) then
+                displayedInventory = player
+                break -- choose first player that can discard
+            end
+        end
+        assert(displayedInventory ~= nil)
+    else
+        displayedInventory = self.game.player
+    end
+    self.displayedInventory = displayedInventory
+end
+
 function catan:requestLayerUpdate (layername)
     self.layersPendingUpdate[layername] = true
 end
@@ -316,6 +332,7 @@ function catan:getRoadAngleForEdge (e)
 end
 
 function catan:afterMove ()
+    self:updateDisplayedInventory()
     self:requestAllLayersUpdate()
     self:requestClickableSpriteCacheUpdate()
     self:requestValidation()
@@ -599,12 +616,16 @@ function catan:renderTable (layer, x, y)
         local isNumResCardsAboveLimit = self.game:isNumberOfResourceCardsAboveLimit(numResCards)
         local hasLargestArmy = self.game.largestarmy == player
         local hasLongestRoad = self.game.longestroad == player
+        local arrow
+
+        if player == self.displayedInventory then
+            local arrowColor = self.game:canDiscard() and "red" or "yellow"
+            local arrowImg = assert(self.images.arrow[arrowColor], "arrow sprite missing")
+            arrow = {arrowImg, sx=0.3}
+        end
 
         table.insert(t, {
-            (player == self.game.player) and {
-                self.images.arrow,
-                sx = 0.3,
-            },
+            arrow,
             {
                 self.images.settlement[player],
                 sx = 0.5,
@@ -698,7 +719,7 @@ function catan.renderers:inventory ()
         local CARD_COUNT_SX = 0.5
         local BLACK = {0, 0, 0}
 
-        local player = self.game.player
+        local player = self.displayedInventory
 
         local function addCardSequence (img, count)
             if count == 0 then

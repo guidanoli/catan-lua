@@ -409,26 +409,59 @@ function Game:getNumberOfResourceCardsOfType(player, res)
     return self.rescards[player][res] or 0
 end
 
-function Game:canPlaceInitialSettlement ()
+function Game:canPlaceInitialSettlement (vertex)
     if self.phase ~= "placingInitialSettlement" then
         return false, "not in the right phase"
     end
-    return true
-end
-
-function Game:canPlaceInitialRoad ()
-    if self.phase ~= "placingInitialRoad" then
-        return false, "not in the right phase"
+    if vertex ~= nil then
+        local valid, err = CatanSchema.Vertex:isValid(vertex)
+        if not valid then
+            return false, err
+        end
+        if not self:_isVertexCornerOfSomeHex(vertex) then
+            return false, "vertex not corner of some hex"
+        end
+        if VertexMap:get(self.buildmap, vertex) ~= nil then
+            return false, "vertex has building"
+        end
+        if self:_isVertexAdjacentToSomeBuilding(vertex) then
+            return false, "vertex adjacent to building"
+        end
     end
     return true
 end
 
-function Game:canRoll ()
+function Game:canPlaceInitialRoad (edge)
+    if self.phase ~= "placingInitialRoad" then
+        return false, "not in the right phase"
+    end
+    if edge ~= nil then
+        local valid, err = CatanSchema.Edge:isValid(edge)
+        if not valid then
+            return false, err
+        end
+        if not self:_isEdgeEndpointOfPlayerLonelySettlement(edge) then
+            return false, "edge not endpoint from player's lonely building"
+        end
+        if not self:_doesEdgeJoinFaceWithHex(Grid:unpack(edge)) then
+            return false, "edge does not join face with hex"
+        end
+    end
+    return true
+end
+
+function Game:canRoll (dice)
     if self.phase ~= "playingTurns" then
         return false, "not in the right phase"
     end
     if self.dice ~= nil then
         return false, "the dice have been rolled in this turn already"
+    end
+    if dice ~= nil then
+        local valid, err = CatanSchema.Dice:isValid(dice)
+        if not valid then
+            return false, err
+        end
     end
     return true
 end
@@ -443,9 +476,21 @@ function Game:canEndTurn ()
     return true
 end
 
-function Game:canMoveRobber ()
+function Game:canMoveRobber (face)
     if self.phase ~= "movingRobber" then
         return false, "not in the right phase"
+    end
+    if face ~= nil then
+        local valid, err = CatanSchema.Face:isValid(face)
+        if not valid then
+            return false, err
+        end
+        if FaceMap:get(self.hexmap, face) == nil then
+            return false, "face must have a hex on it"
+        end
+        if CatanSchema.Face:eq(face, self.robber) then
+            return false, "must move robber somewhere else"
+        end
     end
     return true
 end
@@ -494,12 +539,7 @@ end
 --------------------------------
 
 function Game:placeInitialSettlement (vertex)
-    assert(self:canPlaceInitialSettlement())
-
-    assert(CatanSchema.Vertex:isValid(vertex))
-    assert(self:_isVertexCornerOfSomeHex(vertex), "vertex not corner of some hex")
-    assert(VertexMap:get(self.buildmap, vertex) == nil, "vertex has building")
-    assert(not self:_isVertexAdjacentToSomeBuilding(vertex), "vertex adjacent to building")
+    assert(self:canPlaceInitialSettlement(vertex))
 
     VertexMap:set(self.buildmap, vertex, {
         kind = "settlement",
@@ -534,11 +574,7 @@ function Game:placeInitialSettlement (vertex)
 end
 
 function Game:placeInitialRoad (edge)
-    assert(self:canPlaceInitialRoad())
-
-    assert(CatanSchema.Edge:isValid(edge))
-    assert(self:_isEdgeEndpointOfPlayerLonelySettlement(edge), "edge not endpoint from player's lonely building")
-    assert(self:_doesEdgeJoinFaceWithHex(Grid:unpack(edge)), "edge does not join face with hex")
+    assert(self:canPlaceInitialRoad(edge))
 
     EdgeMap:set(self.roadmap, edge, self.player)
 
@@ -566,9 +602,7 @@ function Game:placeInitialRoad (edge)
 end
 
 function Game:roll (dice)
-    assert(self:canRoll())
-
-    assert(CatanSchema.Dice:isValid(dice))
+    assert(self:canRoll(dice))
 
     local diceSum = 0
     for _, die in ipairs(dice) do
@@ -640,11 +674,7 @@ function Game:endTurn ()
 end
 
 function Game:moveRobber (face)
-    assert(self:canMoveRobber())
-
-    assert(CatanSchema.Face:isValid(face))
-    assert(FaceMap:get(self.hexmap, face) ~= nil, "face must have a hex on it")
-    assert(not CatanSchema.Face:eq(face, self.robber), "must move robber somewhere else")
+    assert(self:canMoveRobber(face))
 
     self.robber = face
 

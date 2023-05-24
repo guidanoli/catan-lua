@@ -150,6 +150,7 @@ m.GameState = s.Struct{
     rescards = PlayerMap(ResourceCardHistogram),
     longestroad = s.Option(m.Player),
     largestarmy = s.Option(m.Player),
+    lastdiscard = PlayerMap(Int),
     -- free cards
     drawpile = s.Array(m.DevelopmentCardKind),
     bank = ResourceCardHistogram,

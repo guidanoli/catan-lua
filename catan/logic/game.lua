@@ -39,6 +39,7 @@ function Game:_init (players)
     self:_placeRobberInDesert()
     self:_createDevelopmentCards()
     self:_createResourceCards()
+    self.lastdiscard = {}
     self:_createDrawPile()
     self:_createBank()
 end

@@ -278,65 +278,28 @@ function catan:getShipImageFromHarbor (harbor)
     end
 end
 
-function catan:getAvailableVerticesForInitialSettlement ()
-    local available = {}
+function catan:getHexCorners ()
+    local corners = {}
 
-    -- Add all vertices to the set
     FaceMap:iter(self.game.hexmap, function (q, r)
         for i, vertex in ipairs(Grid:corners(q, r)) do
-            VertexMap:set(available, vertex, true)
+            VertexMap:set(corners, vertex, true)
         end
     end)
 
-    -- Remove all vertices occupied by some building or next to one
-    VertexMap:iter(self.game.buildmap, function (q, r, v)
-        VertexMap:set(available, Grid:vertex(q, r, v), nil)
-        for i, vertex in ipairs(Grid:adjacentVertices(q, r, v)) do
-            VertexMap:set(available, vertex, nil)
-        end
-    end)
-
-    return available
+    return corners
 end
 
-function catan:getAvailableEdgesForInitialRoad ()
-    local available = {}
+function catan:getHexBorders ()
+    local borders = {}
 
-    -- Find the player's building with no protruding roads and
-    -- add to the set only those edges that join some face with hex
-    VertexMap:iter(self.game.buildmap, function (q, r, v, building)
-        if building.player == self.game.player then
-            local protrudingEdges = Grid:protrudingEdges(q, r, v)
-            for i, edge in ipairs(protrudingEdges) do
-                if EdgeMap:get(self.game.roadmap, edge) then
-                    return false -- skip to next iteration
-                end
-            end
-            for i, edge in ipairs(protrudingEdges) do
-                if self:getJoinedFaceWithHex(edge) then
-                    EdgeMap:set(available, edge, true)
-                end
-            end
-            return true -- quit iteration
-        end
-    end)
-
-    return available
-end
-
-function catan:getAvailableFacesForRobber ()
-    local available = {}
-
-    -- Add only those faces that have a hex but are not
-    -- occupied by the robber currently
     FaceMap:iter(self.game.hexmap, function (q, r)
-        local face = Grid:face(q, r)
-        if not CatanSchema.Face:eq(face, self.game.robber) then
-            FaceMap:set(available, face, true)
+        for i, edge in ipairs(Grid:borders(q, r)) do
+            EdgeMap:set(borders, edge, true)
         end
     end)
 
-    return available
+    return borders
 end
 
 function catan:getRoadAngleForEdge (e)
@@ -471,19 +434,21 @@ function catan.renderers:board ()
 
     -- Face selection
     if self.game:canMoveRobber() then
-        local available = self:getAvailableFacesForRobber()
         local img = self.images.selection
-        FaceMap:iter(available, function (q, r)
-            local x, y = self:getFaceCenter(q, r)
-            layer:addSprite{
-                img,
-                x = x,
-                y = y,
-                center = true,
-                onleftclick = function ()
-                    self:moveRobber(q, r)
-                end
-            }
+        FaceMap:iter(self.game.hexmap, function (q, r)
+            local face = Grid:face(q, r)
+            if self.game:canMoveRobber(face) then
+                local x, y = self:getFaceCenter(q, r)
+                layer:addSprite{
+                    img,
+                    x = x,
+                    y = y,
+                    center = true,
+                    onleftclick = function ()
+                        self:moveRobber(q, r)
+                    end
+                }
+            end
         end)
     end
 
@@ -496,40 +461,46 @@ function catan.renderers:board ()
     end)
 
     -- Vertex selection
-    if self.game.phase == "placingInitialSettlement" then
-        local available = self:getAvailableVerticesForInitialSettlement()
+    if self.game:canPlaceInitialSettlement() then
+        local hexCorners = self:getHexCorners()
         local img = self.images.selection
-        VertexMap:iter(available, function (q, r, v)
-            local x, y = self:getVertexPos(q, r, v)
-            layer:addSprite{
-                img,
-                x = x,
-                y = y,
-                sx = 0.5,
-                center = true,
-                onleftclick = function ()
-                    self:placeInitialSettlement(q, r, v)
-                end,
-            }
+        VertexMap:iter(hexCorners, function (q, r, v)
+            local vertex = Grid:vertex(q, r, v)
+            if self.game:canPlaceInitialSettlement(vertex) then
+                local x, y = self:getVertexPos(q, r, v)
+                layer:addSprite{
+                    img,
+                    x = x,
+                    y = y,
+                    sx = 0.5,
+                    center = true,
+                    onleftclick = function ()
+                        self:placeInitialSettlement(q, r, v)
+                    end,
+                }
+            end
         end)
     end
 
     -- Edge selection
-    if self.game.phase == "placingInitialRoad" then
-        local available = self:getAvailableEdgesForInitialRoad()
+    if self.game:canPlaceInitialRoad() then
+        local hexBorders = self:getHexBorders()
         local img = self.images.selection
-        EdgeMap:iter(available, function (q, r, e)
-            local x, y = self:getEdgeCenter(q, r, e)
-            layer:addSprite{
-                img,
-                x = x,
-                y = y,
-                sx = 0.5,
-                center = true,
-                onleftclick = function ()
-                    self:placeInitialRoad(q, r, e)
-                end
-            }
+        EdgeMap:iter(hexBorders, function (q, r, e)
+            local edge = Grid:edge(q, r, e)
+            if self.game:canPlaceInitialRoad(edge) then
+                local x, y = self:getEdgeCenter(q, r, e)
+                layer:addSprite{
+                    img,
+                    x = x,
+                    y = y,
+                    sx = 0.5,
+                    center = true,
+                    onleftclick = function ()
+                        self:placeInitialRoad(q, r, e)
+                    end
+                }
+            end
         end)
     end
 

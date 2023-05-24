@@ -410,6 +410,10 @@ function Game:getNumberOfResourceCardsOfType (player, res)
     return self.rescards[player][res] or 0
 end
 
+function Game:hasDiscardedInThisRound (player)
+    return self.lastdiscard[player] == self.round
+end
+
 function Game:canPlaceInitialSettlement (vertex)
     local ok, err = self:_isPhase"placingInitialSettlement"
     if not ok then
@@ -465,6 +469,53 @@ function Game:canRoll (dice)
         local valid, err = CatanSchema.Dice:isValid(dice)
         if not valid then
             return false, err
+        end
+    end
+    return true
+end
+
+function Game:canDiscard (player, rescards)
+    local ok, err = self:_isPhase"discarding"
+    if not ok then
+        return false, err
+    end
+    if player ~= nil then
+        local valid, err = CatanSchema.Player:isValid(player)
+        if not valid then
+            return false, err
+        end
+        if self:hasDiscardedInThisRound(player) then
+            return false, "player has discarded in this round already"
+        end
+        local totalCurrentCount = self:getNumberOfResourceCards(player)
+        if totalCurrentCount <= 7 then
+            return false, "player does not need to discard"
+        end
+        if rescards ~= nil then
+            local valid, err = CatanSchema.ResourceCardHistogram:isValid(rescards)
+            if not valid then
+                return false, err
+            end
+            local totalDiscardCount = 0
+            for res, discardCount in pairs(rescards) do
+                local currentCount = self:getNumberOfResourceCardsOfType(player, res)
+                if discardCount > currentCount then
+                    return false, "player cannot discard more than they currently have"
+                end
+                totalDiscardCount = totalDiscardCount + discardCount
+            end
+            if totalDiscardCount ~= math.floor(totalCurrentCount / 2) then
+                return false, "player is not discarding half of their cards"
+            end
+        end
+    end
+    return true
+end
+
+function Game:nobodyCanDiscard ()
+    for _, player in ipairs(self.players) do
+        if self:canDiscard(player) then
+            return false
         end
     end
     return true
@@ -733,6 +784,20 @@ function Game:chooseVictim (player)
     self.phase = "playingTurns"
 
     return res
+end
+
+function Game:discard (player, rescards)
+    assert(self:canDiscard(player, rescards))
+
+    for res, discardCount in pairs(rescards) do
+        self:_addToResCardCount(player, res, -discardCount)
+    end
+
+    self.lastdiscard[player] = self.round
+
+    if self:nobodyCanDiscard() then
+        self.phase = "movingRobber"
+    end
 end
 
 --------------------------------

@@ -414,6 +414,10 @@ function Game:hasDiscardedInThisRound (player)
     return self.lastdiscard[player] == self.round
 end
 
+function Game:isNumberOfResourceCardsAboveLimit (n)
+    return n > 7
+end
+
 function Game:canPlaceInitialSettlement (vertex)
     local ok, err = self:_isPhase"placingInitialSettlement"
     if not ok then
@@ -488,7 +492,7 @@ function Game:canDiscard (player, rescards)
             return false, "player has discarded in this round already"
         end
         local totalCurrentCount = self:getNumberOfResourceCards(player)
-        if totalCurrentCount <= 7 then
+        if not self:isNumberOfResourceCardsAboveLimit(totalCurrentCount) then
             return false, "player does not need to discard"
         end
         if rescards ~= nil then
@@ -722,7 +726,7 @@ function Game:roll (dice)
         local mustDiscard = false
         for _, player in ipairs(self.players) do
             local numResCards = self:getNumberOfResourceCards(player)
-            if numResCards > 7 then
+            if self:isNumberOfResourceCardsAboveLimit(numResCards) then
                 mustDiscard = true
                 break
             end

@@ -849,6 +849,7 @@ function catan.renderers:inventory ()
         local reason = self.displayedInventory.reason
 
         local rescards = self.game.rescards[player]
+        local hasCardInInventory = false
 
         for _, res in ipairs(TableUtils:sortedKeys(rescards)) do
             local img = assert(self.images.card.res[res], "missing rescard sprite")
@@ -869,6 +870,7 @@ function catan.renderers:inventory ()
 
             if sequenceBox then
                 x = sequenceBox:getRightX() + XSEP
+                hasCardInInventory = true
             end
         end
 
@@ -888,13 +890,30 @@ function catan.renderers:inventory ()
 
             if sequenceBox then
                 x = sequenceBox:getRightX() + XSEP
+                hasCardInInventory = true
             end
         end
 
-        local y1 = y0 - CARD_H - 2 * self.BG_MARGIN - YMARGIN
+        local y0 = y0 - CARD_H - YMARGIN
+
+        -- Inventory text
+        if hasCardInInventory then
+            local textSprite = layer:addSprite{
+                self:newText(BLACK, "Inventory"),
+                x = x0,
+                y = y0,
+                yalign = "bottom",
+            }
+
+            local textBox = Box:fromSprite(textSprite)
+
+            addToBox(textBox)
+
+            y0 = textBox:getTopY() - YMARGIN
+        end
 
         local x = x0
-        local y = y1
+        local y = y0
 
         for _, res in ipairs(TableUtils:sortedKeys(self.selectedResCards)) do
             local img = assert(self.images.card.res[res], "missing rescard sprite")

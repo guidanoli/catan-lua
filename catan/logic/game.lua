@@ -495,6 +495,19 @@ function Game:canMoveRobber (face)
     return true
 end
 
+function Game:canChooseVictim (player)
+    if self.phase ~= "choosingVictim" then
+        return false, "not in the right phase"
+    end
+    if player ~= nil then
+        local isVictim = self:getVictimsAroundFace(self.robber)
+        if not isVictim[player] then
+            return false, "player is not a victim"
+        end
+    end
+    return true
+end
+
 function Game:iterProduction (production, f)
     return FaceMap:iter(production, function (q, r, hexProduction)
         local face = Grid:face(q, r)
@@ -699,6 +712,16 @@ function Game:moveRobber (face)
     end
 
     return victim, res
+end
+
+function Game:chooseVictim (player)
+    assert(self:canChooseVictim(player))
+
+    local res = self:_stealRandomResCardFrom(player)
+
+    self.phase = "playingTurns"
+
+    return res
 end
 
 --------------------------------

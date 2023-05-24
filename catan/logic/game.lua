@@ -726,18 +726,6 @@ function Game:chooseVictim (player)
 end
 
 --------------------------------
--- Checks
---------------------------------
-
-function Game:_phaseIs (expectedPhase)
-    if self.phase == expectedPhase then
-        return true
-    else
-        return false, "not " .. expectedPhase
-    end
-end
-
---------------------------------
 -- Auxiliary functions
 --------------------------------
 
@@ -813,16 +801,6 @@ function Game:_doesEdgeJoinFaceWithHex (q, r, e)
     return false
 end
 
-function Game:_numberOfBuildings ()
-    local n = 0
-    VertexMap:iter(self.buildmap, function (q, r, v, building)
-        if building.player == self.player then
-            n = n + 1
-        end
-    end)
-    return n
-end
-
 function Game:_isVertexCornerOfSomeHex (vertex)
     local found = false
     FaceMap:iter(self.hexmap, function (q, r, hex)
@@ -840,17 +818,6 @@ function Game:_isVertexAdjacentToSomeBuilding (vertex)
     local adjacentVertices = Grid:adjacentVertices(Grid:unpack(vertex))
     for _, adjacentVertex in ipairs(adjacentVertices) do
         if VertexMap:get(self.buildmap, adjacentVertex) then
-            return true
-        end
-    end
-    return false
-end
-
-function Game:_isVertexNearPlayersRoad (vertex)
-    local protrudingEdges = Grid:protrudingEdges(Grid:unpack(vertex))
-    for _, protrudingEdge in ipairs(protrudingEdges) do
-        local road = EdgeMap:get(self.roadmap, protrudingEdge)
-        if road == self.player then
             return true
         end
     end

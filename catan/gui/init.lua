@@ -618,14 +618,23 @@ function catan:renderTable (layer, x, y)
         bgmargin = self.BG_MARGIN,
     }
 
+    local W = self.images.card.res.back:getWidth()
+
+    local function scaleToWidth (img)
+        return {
+            img,
+            sx = W / img:getWidth(),
+        }
+    end
+
     table.insert(t, {
         nil,
         nil,
         self.images.card.res.back,
         self.images.card.dev.back,
-        self.images.card.dev.knight,
-        self.images.card.dev.roadbuilding,
-        self.images.card.dev.victorypoint,
+        scaleToWidth(self.images.knight),
+        scaleToWidth(self.images.roads),
+        scaleToWidth(self.images.vp),
     })
 
     for _, player in ipairs(self.game.players) do

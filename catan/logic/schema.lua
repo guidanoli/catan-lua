@@ -111,7 +111,7 @@ m.ResourceCard = s.Enum{
     'wool',
 }
 
-local ResourceCardHistogram = s.Map(m.ResourceCard, Int)
+m.ResourceCardHistogram = s.Map(m.ResourceCard, Int)
 
 local function FaceMap (t)
     return s.Map(Int, s.Map(Int, t))
@@ -147,13 +147,13 @@ m.GameState = s.Struct{
     -- players (dynamic)
     player = m.Player,
     devcards = PlayerMap(s.Array(m.DevelopmentCard)),
-    rescards = PlayerMap(ResourceCardHistogram),
+    rescards = PlayerMap(m.ResourceCardHistogram),
     longestroad = s.Option(m.Player),
     largestarmy = s.Option(m.Player),
     lastdiscard = PlayerMap(Int),
     -- free cards
     drawpile = s.Array(m.DevelopmentCardKind),
-    bank = ResourceCardHistogram,
+    bank = m.ResourceCardHistogram,
 }
 
 return m

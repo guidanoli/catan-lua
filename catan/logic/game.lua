@@ -507,6 +507,10 @@ function Game:canChooseVictim (player)
         return false, err
     end
     if player ~= nil then
+        local valid, err = CatanSchema.Player:isValid(player)
+        if not valid then
+            return false, err
+        end
         local isVictim = self:getVictimsAroundFace(self.robber)
         if not isVictim[player] then
             return false, "player is not a victim"

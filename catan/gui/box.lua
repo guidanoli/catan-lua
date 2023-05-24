@@ -90,6 +90,20 @@ function Box:grow (dw, dh)
 end
 
 ---
+-- Get box width
+-- @treturn number the box width
+function Box:getWidth ()
+    return self.w
+end
+
+---
+-- Get box height
+-- @treturn number the box height
+function Box:getHeight ()
+    return self.h
+end
+
+---
 -- Get box left x coordinate
 -- @treturn number the box left x coordinate
 function Box:getLeftX ()

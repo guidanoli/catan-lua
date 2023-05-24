@@ -519,19 +519,19 @@ function Game:choosePlayerResCardAtRandom (player)
     end
 end
 
-function Game:getPlayersAroundFace (face)
-    local playerset = {}
+function Game:getVictimsAroundFace (face)
+    local victimset = {}
     for _, corner in ipairs(Grid:corners(Grid:unpack(face))) do
         local building = VertexMap:get(self.buildmap, corner)
-        if building then
-            playerset[building.player] = true
+        if building and building.player ~= self.player then
+            victimset[building.player] = true
         end
     end
-    local players = {}
-    for player in pairs(playerset) do
-        table.insert(players, player)
+    local victims = {}
+    for victim in pairs(victimset) do
+        table.insert(victims, victim)
     end
-    return players
+    return victims
 end
 
 --------------------------------
@@ -678,7 +678,7 @@ function Game:moveRobber (face)
 
     self.robber = face
 
-    local victims = self:getPlayersAroundFace(face)
+    local victims = self:getVictimsAroundFace(face)
 
     local victim
     local res

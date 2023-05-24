@@ -692,7 +692,7 @@ function Game:moveRobber (face)
         end
     end
 
-    if #victims == 2 then
+    if #victims >= 2 then
         self.phase = "choosingVictim"
     else
         self.phase = "playingTurns"

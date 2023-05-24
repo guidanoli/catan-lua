@@ -525,17 +525,6 @@ function Game:nobodyCanDiscard ()
     return true
 end
 
-function Game:canEndTurn ()
-    local ok, err = self:_isPhase"playingTurns"
-    if not ok then
-        return false, err
-    end
-    if self.dice == nil then
-        return false, "the dice haven't been rolled in this turn yet"
-    end
-    return true
-end
-
 function Game:canMoveRobber (face)
     local ok, err = self:_isPhase"movingRobber"
     if not ok then
@@ -570,6 +559,17 @@ function Game:canChooseVictim (player)
         if not isVictim[player] then
             return false, "player is not a victim"
         end
+    end
+    return true
+end
+
+function Game:canEndTurn ()
+    local ok, err = self:_isPhase"playingTurns"
+    if not ok then
+        return false, err
+    end
+    if self.dice == nil then
+        return false, "the dice haven't been rolled in this turn yet"
     end
     return true
 end
@@ -741,17 +741,18 @@ function Game:roll (dice)
     return production
 end
 
-function Game:endTurn ()
-    assert(self:canEndTurn())
+function Game:discard (player, rescards)
+    assert(self:canDiscard(player, rescards))
 
-    local i = self:_getCurrentPlayerIndex()
-
-    if i == #self.players then
-        self.round = self.round + 1
+    for res, discardCount in pairs(rescards) do
+        self:_addToResCardCount(player, res, -discardCount)
     end
 
-    self.player = self:_getPlayerAfterIndex(i)
-    self.dice = nil
+    self.lastdiscard[player] = self.round
+
+    if self:nobodyCanDiscard() then
+        self.phase = "movingRobber"
+    end
 end
 
 function Game:moveRobber (face)
@@ -790,18 +791,17 @@ function Game:chooseVictim (player)
     return res
 end
 
-function Game:discard (player, rescards)
-    assert(self:canDiscard(player, rescards))
+function Game:endTurn ()
+    assert(self:canEndTurn())
 
-    for res, discardCount in pairs(rescards) do
-        self:_addToResCardCount(player, res, -discardCount)
+    local i = self:_getCurrentPlayerIndex()
+
+    if i == #self.players then
+        self.round = self.round + 1
     end
 
-    self.lastdiscard[player] = self.round
-
-    if self:nobodyCanDiscard() then
-        self.phase = "movingRobber"
-    end
+    self.player = self:_getPlayerAfterIndex(i)
+    self.dice = nil
 end
 
 --------------------------------

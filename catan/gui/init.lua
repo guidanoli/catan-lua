@@ -135,13 +135,13 @@ end
 
 function catan:onleftclick (x, y)
     self:iterClickableSprites(function (sprite)
-        sprite:leftclick(x, y)
+        return sprite:leftclick(x, y)
     end)
 end
 
 function catan:onrightclick (x, y)
     self:iterClickableSprites(function (sprite)
-        sprite:rightclick(x, y)
+        return sprite:rightclick(x, y)
     end)
 end
 
@@ -166,7 +166,7 @@ function catan:generateClickableSpritesArray ()
 end
 
 function catan:iterClickableSprites (f)
-    for _, sprite in ipairs(self.clickableSprites) do
+    for _, sprite in TableUtils:ipairsReversed(self.clickableSprites) do
         local ret = f(sprite)
         if ret then return ret end
     end

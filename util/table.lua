@@ -80,4 +80,18 @@ function TableUtils:ipairsReversed (t)
     return reversedipairsiter, t, #t + 1
 end
 
+local function foldrec (f, t, i)
+    i = i + 1
+    local v = t[i]
+    if v == nil then
+        return
+    else
+        return f(v, foldrec(f, t, i))
+    end
+end
+
+function TableUtils:fold (f, t)
+    return foldrec(f, t, 0)
+end
+
 return TableUtils

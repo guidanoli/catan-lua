@@ -20,6 +20,12 @@ luarocks install serpent ldoc
 
 ## Documentation
 
+### Deployment
+
+You can see the latest version of the documentation [here](https://guidanoli.github.io/catan-lua/).
+
+### Local
+
 Please make sure you have [LDoc] installed on your machine. Then, run the following command on the root of this repository:
 
 ```sh

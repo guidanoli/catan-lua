@@ -4,8 +4,10 @@
 --    local Class = require "util.class"
 --    local Dog = Class "Dog"
 --    local bob = Dog:__new{name = "Bob"}
---    print(bob)      --> Dog: 0x55b03f40fa70
---    print(bob.name) --> Bob
+--    print(bob)                   --> Dog: 0x55b03f40fa70
+--    print(bob.name)              --> Bob
+--    print(Dog:__isinstance{})    --> false
+--    print(Dog:__isinstance(bob)) --> true
 --
 -- @module util.class
 

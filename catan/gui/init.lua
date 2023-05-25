@@ -3,6 +3,8 @@
 --
 -- @module catan.gui
 
+require "util.safe"
+
 local platform = require "util.platform"
 local TableUtils = require "util.table"
 

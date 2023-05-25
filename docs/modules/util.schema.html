@@ -1,0 +1,521 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>Reference</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>Catan in Lua</h1>
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+<h2>Contents</h2>
+<ul>
+<li><a href="#Functions">Functions</a></li>
+</ul>
+
+
+<h2>Modules</h2>
+<ul class="nowrap">
+  <li><a href="../modules/catan.gui.box.html">catan.gui.box</a></li>
+  <li><a href="../modules/catan.gui.html">catan.gui</a></li>
+  <li><a href="../modules/catan.gui.layer.html">catan.gui.layer</a></li>
+  <li><a href="../modules/catan.gui.sprite.html">catan.gui.sprite</a></li>
+  <li><a href="../modules/catan.gui.util.html">catan.gui.util</a></li>
+  <li><a href="../modules/util.class.html">util.class</a></li>
+  <li><a href="../modules/util.platform.html">util.platform</a></li>
+  <li><a href="../modules/util.safe.html">util.safe</a></li>
+  <li><strong>util.schema</strong></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+<h1>Module <code>util.schema</code></h1>
+<p>Defines schemas and what each accepts.</p>
+<p>
+
+
+
+<pre>
+<span class="keyword">local</span> schema = <span class="global">require</span> <span class="string">"util.schema"</span>
+
+<span class="keyword">local</span> Number = schema.Type<span class="string">"number"</span>
+
+<span class="global">print</span>(Number:validate(<span class="number">10</span>))   <span class="comment">--&gt; true
+</span><span class="global">print</span>(Number:validate(<span class="number">3.14</span>)) <span class="comment">--&gt; true
+</span><span class="global">print</span>(Number:validate<span class="string">"foo"</span>)  <span class="comment">--&gt; false "" "not number"
+</span><span class="global">print</span>(Number:validate(<span class="keyword">nil</span>))  <span class="comment">--&gt; false "" "not number"
+</span>
+<span class="keyword">local</span> Int = schema.Integer()
+
+<span class="global">print</span>(Int:validate(<span class="number">10</span>))  <span class="comment">--&gt; true
+</span><span class="global">print</span>(Int:validate(<span class="number">1.5</span>)) <span class="comment">--&gt; false "" "not integer"
+</span><span class="global">print</span>(Int:validate<span class="string">"foo"</span>) <span class="comment">--&gt; false "" "not number"
+</span><span class="global">print</span>(Int:validate(<span class="keyword">nil</span>)) <span class="comment">--&gt; false "" "not number"
+</span>
+<span class="keyword">local</span> Season = schema.Enum{
+  <span class="string">"winter"</span>,
+  <span class="string">"spring"</span>,
+  <span class="string">"summer"</span>,
+  <span class="string">"autumn"</span>,
+}
+
+<span class="global">print</span>(Season:validate<span class="string">"winter"</span>) <span class="comment">--&gt; true
+</span><span class="global">print</span>(Season:validate<span class="string">"summer"</span>) <span class="comment">--&gt; true
+</span><span class="global">print</span>(Season:validate<span class="string">"frog"</span>)   <span class="comment">--&gt; false "" "not in enum"
+</span><span class="global">print</span>(Season:validate(<span class="number">123</span>))    <span class="comment">--&gt; false "" "not in enum"
+</span>
+<span class="keyword">local</span> Point = schema.Struct{
+  x = Number,
+  y = Number,
+}
+
+<span class="global">print</span>(Point:validate{x = <span class="number">10</span>, y = -<span class="number">20</span>})         <span class="comment">--&gt; true
+</span><span class="global">print</span>(Point:validate{x = <span class="number">10</span>, y = -<span class="number">20</span>, z = <span class="number">0</span>})  <span class="comment">--&gt; true
+</span><span class="global">print</span>(Point:validate{x = <span class="number">10</span>, y = <span class="string">'foo'</span>})       <span class="comment">--&gt; false ".y" "not number"
+</span><span class="global">print</span>(Point:validate{x = <span class="number">10</span>})                  <span class="comment">--&gt; false ".y" "not number"
+</span>
+<span class="keyword">local</span> OptionalNumber = schema.Option(Number)
+
+<span class="global">print</span>(OptionalNumber:validate(<span class="number">10</span>))   <span class="comment">--&gt; true
+</span><span class="global">print</span>(OptionalNumber:validate(<span class="number">3.14</span>)) <span class="comment">--&gt; true
+</span><span class="global">print</span>(OptionalNumber:validate<span class="string">"foo"</span>)  <span class="comment">--&gt; false "!" "not number"
+</span><span class="global">print</span>(OptionalNumber:validate(<span class="keyword">nil</span>))  <span class="comment">--&gt; true
+</span>
+<span class="keyword">local</span> Points = schema.Array(Point)
+
+<span class="keyword">local</span> p1 = {x = <span class="number">10</span>, y = -<span class="number">20</span>}
+<span class="keyword">local</span> p2 = {x = <span class="number">30</span>, y = <span class="number">50</span>}
+<span class="keyword">local</span> p3 = {x = -<span class="number">40</span>, y = <span class="number">70</span>}
+
+<span class="global">print</span>(Points:validate{})                  <span class="comment">--&gt; true
+</span><span class="global">print</span>(Points:validate{p1})                <span class="comment">--&gt; true
+</span><span class="global">print</span>(Points:validate{p1, p2, p3})        <span class="comment">--&gt; true
+</span><span class="global">print</span>(Points:validate{p1, p2, p3, a = <span class="number">1</span>}) <span class="comment">--&gt; true
+</span><span class="global">print</span>(Points:validate{p1, <span class="keyword">nil</span>, p3})       <span class="comment">--&gt; true
+</span><span class="global">print</span>(Points:validate{p1, <span class="number">123</span>, p3})       <span class="comment">--&gt; false "[2]" "not table"
+</span>
+<span class="keyword">local</span> RGB = schema.Array(Int, <span class="number">3</span>)
+
+<span class="global">print</span>(RGB:validate{<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>})    <span class="comment">--&gt; true
+</span><span class="global">print</span>(RGB:validate{<span class="number">0</span>, <span class="number">0</span>})       <span class="comment">--&gt; false "" "not number"
+</span><span class="global">print</span>(RGB:validate{<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>}) <span class="comment">--&gt; false "" "too big"
+</span>
+<span class="keyword">local</span> MinTemp = schema.Map(Season, Number)
+
+<span class="global">print</span>(MinTemp:validate{})               <span class="comment">--&gt; true
+</span><span class="global">print</span>(MinTemp:validate{winter = -<span class="number">10</span>})   <span class="comment">--&gt; true
+</span><span class="global">print</span>(MinTemp:validate{frog = <span class="number">7</span>})       <span class="comment">--&gt; false "[k]" "not in enum"
+</span><span class="global">print</span>(MinTemp:validate{summer = <span class="string">"foo"</span>}) <span class="comment">--&gt; false "[v]" "not number"</span>
+</pre>
+
+</p>
+
+
+<h2><a href="#Functions">Functions</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#Schema:new">Schema:new (t)</a></td>
+	<td class="summary">Instantiate the schema and validate input</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Schema:eq">Schema:eq (t1, t2)</a></td>
+	<td class="summary">Compares two inputs against a schema</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Schema:isValid">Schema:isValid (t)</a></td>
+	<td class="summary">Validate an input against a schema</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Schema:validate">Schema:validate (t)</a></td>
+	<td class="summary">Validate an input against a schema</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Type">Type (T)</a></td>
+	<td class="summary">Construct a "type" schema.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Integer">Integer ()</a></td>
+	<td class="summary">Construct an "integer" schema.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Enum">Enum (T)</a></td>
+	<td class="summary">Construct an "enum" schema.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Struct">Struct (T)</a></td>
+	<td class="summary">Construct a "struct" schema.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Option">Option (S)</a></td>
+	<td class="summary">Construct an "option" schema.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Array">Array (S, n)</a></td>
+	<td class="summary">Construct an "array" schema.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Map">Map (Sk, Sv)</a></td>
+	<td class="summary">Construct a "map" schema.</td>
+	</tr>
+</table>
+
+<br/>
+<br/>
+
+
+    <h2 class="section-header "><a name="Functions"></a>Functions</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "Schema:new"></a>
+    <strong>Schema:new (t)</strong>
+    </dt>
+    <dd>
+    Instantiate the schema and validate input
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">t</span>
+         input
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        input
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Schema:eq"></a>
+    <strong>Schema:eq (t1, t2)</strong>
+    </dt>
+    <dd>
+    Compares two inputs against a schema
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">t1</span>
+         first input
+        </li>
+        <li><span class="parameter">t2</span>
+         second input
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">boolean</span></span>
+        whether the inputs are equal according to the schema
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Schema:isValid"></a>
+    <strong>Schema:isValid (t)</strong>
+    </dt>
+    <dd>
+    Validate an input against a schema
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">t</span>
+         input
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+        <li>
+           <span class="types"><span class="type">boolean</span></span>
+        whether the schema accepted or rejected the input</li>
+        <li>
+           <span class="types">optional <a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+        an error message (if first return is <code>false</code>)</li>
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Schema:validate"></a>
+    <strong>Schema:validate (t)</strong>
+    </dt>
+    <dd>
+    Validate an input against a schema
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">t</span>
+         input
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+        <li>
+           <span class="types"><span class="type">boolean</span></span>
+        whether the schema accepted or rejected the input</li>
+        <li>
+           <span class="types">optional <a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+        the schema path where the error occurred (if first return is <code>false</code>)</li>
+        <li>
+           <span class="types">optional <a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+        the error message (if first return is <code>false</code>)</li>
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Type"></a>
+    <strong>Type (T)</strong>
+    </dt>
+    <dd>
+    Construct a "type" schema.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">T</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         the type string
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">Schema</span></span>
+        a schema that only accepts objects of type <code>T</code>
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Integer"></a>
+    <strong>Integer ()</strong>
+    </dt>
+    <dd>
+    Construct an "integer" schema.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">Schema</span></span>
+        a schema that only accepts integers
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Enum"></a>
+    <strong>Enum (T)</strong>
+    </dt>
+    <dd>
+    Construct an "enum" schema.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">T</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+         an array of values
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">Schema</span></span>
+        a schema that only accepts values in array <code>T</code>
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Struct"></a>
+    <strong>Struct (T)</strong>
+    </dt>
+    <dd>
+    Construct a "struct" schema.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">T</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+         a record of schemas with string keys
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">Schema</span></span>
+        a schema that only accepts tables <code>t</code>,
+ s.t. for all key-value pairs <code>(k,S)</code> in <code>T</code>, <code>S</code> accepts <code>t[k]</code>.
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Option"></a>
+    <strong>Option (S)</strong>
+    </dt>
+    <dd>
+    Construct an "option" schema.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">S</span>
+            <span class="types"><span class="type">Schema</span></span>
+
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">Schema</span></span>
+        a schema that accepts <code>nil</code> and anything accepted by <code>S</code>.
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Array"></a>
+    <strong>Array (S, n)</strong>
+    </dt>
+    <dd>
+    Construct an "array" schema.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">S</span>
+            <span class="types"><span class="type">Schema</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">n</span>
+            <span class="types">optional <span class="type">number</span></span>
+         the array length
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">Schema</span></span>
+        a schema that only accepts tables <code>t</code>,
+ s.t. for all index-value pairs <code>(i,v)</code> in <code>t</code>, <code>S</code> accepts <code>v</code>.
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Map"></a>
+    <strong>Map (Sk, Sv)</strong>
+    </dt>
+    <dd>
+    Construct a "map" schema.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">Sk</span>
+            <span class="types"><span class="type">Schema</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">Sv</span>
+            <span class="types"><span class="type">Schema</span></span>
+
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">Schema</span></span>
+         a schema that only accepts tables <code>t</code>,
+ s.t. for all key-value pairs <code>(k,v)</code> in <code>t</code>,
+ <code>Sk</code> accepts <code>k</code> and <code>Sv</code> accepts <code>v</code>.
+    </ol>
+
+
+
+
+</dd>
+</dl>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
+<i style="float:right;">Last updated 2023-05-25 00:34:11 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

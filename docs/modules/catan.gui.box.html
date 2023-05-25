@@ -1,0 +1,397 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>Reference</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>Catan in Lua</h1>
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+<h2>Contents</h2>
+<ul>
+<li><a href="#Class_Box">Class Box </a></li>
+</ul>
+
+
+<h2>Modules</h2>
+<ul class="nowrap">
+  <li><strong>catan.gui.box</strong></li>
+  <li><a href="../modules/catan.gui.html">catan.gui</a></li>
+  <li><a href="../modules/catan.gui.layer.html">catan.gui.layer</a></li>
+  <li><a href="../modules/catan.gui.sprite.html">catan.gui.sprite</a></li>
+  <li><a href="../modules/catan.gui.util.html">catan.gui.util</a></li>
+  <li><a href="../modules/util.class.html">util.class</a></li>
+  <li><a href="../modules/util.platform.html">util.platform</a></li>
+  <li><a href="../modules/util.safe.html">util.safe</a></li>
+  <li><a href="../modules/util.schema.html">util.schema</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+<h1>Module <code>catan.gui.box</code></h1>
+<p>Bounding box</p>
+<p>
+
+</p>
+
+
+<h2><a href="#Class_Box">Class Box </a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#Box.Input">Box.Input</a></td>
+	<td class="summary">Input for <a href="../modules/catan.gui.box.html#Box:new">catan.gui.box:new</a></td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Box:new">Box:new (t)</a></td>
+	<td class="summary">Create box</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Box:fromSprite">Box:fromSprite (sprite)</a></td>
+	<td class="summary">Create box from sprite</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Box:fromUnion">Box:fromUnion (boxes)</a></td>
+	<td class="summary">Create box from the union of boxes</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Box:grow">Box:grow (dw[, dh=dw])</a></td>
+	<td class="summary">Create box with grown width and height</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Box:getWidth">Box:getWidth ()</a></td>
+	<td class="summary">Get box width</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Box:getHeight">Box:getHeight ()</a></td>
+	<td class="summary">Get box height</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Box:getLeftX">Box:getLeftX ()</a></td>
+	<td class="summary">Get box left x coordinate</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Box:getRightX">Box:getRightX ()</a></td>
+	<td class="summary">Get box right x coordinate</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Box:getTopY">Box:getTopY ()</a></td>
+	<td class="summary">Get box top y coordinate</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Box:getBottomY">Box:getBottomY ()</a></td>
+	<td class="summary">Get box bottom y coordinate</td>
+	</tr>
+</table>
+
+<br/>
+<br/>
+
+
+    <h2 class="section-header "><a name="Class_Box"></a>Class Box </h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "Box.Input"></a>
+    <strong>Box.Input</strong>
+    </dt>
+    <dd>
+    Input for <a href="../modules/catan.gui.box.html#Box:new">catan.gui.box:new</a>
+
+
+    <h3>Fields:</h3>
+    <ul>
+        <li><span class="parameter">x</span>
+            <span class="types"><span class="type">number</span></span>
+         horizontal coordinate
+        </li>
+        <li><span class="parameter">y</span>
+            <span class="types"><span class="type">number</span></span>
+         vertical coordinate
+        </li>
+        <li><span class="parameter">w</span>
+            <span class="types"><span class="type">number</span></span>
+         width
+        </li>
+        <li><span class="parameter">h</span>
+            <span class="types"><span class="type">number</span></span>
+         height
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Box:new"></a>
+    <strong>Box:new (t)</strong>
+    </dt>
+    <dd>
+    Create box
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">t</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+         see <a href="../modules/catan.gui.box.html#Box.Input">catan.gui.box.Input</a>
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><a class="type" href="../modules/catan.gui.box.html#Box">catan.gui.box.Box</a></span>
+        the newly-created box
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Box:fromSprite"></a>
+    <strong>Box:fromSprite (sprite)</strong>
+    </dt>
+    <dd>
+    Create box from sprite
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">sprite</span>
+            <span class="types"><a class="type" href="../modules/catan.gui.sprite.html#Sprite">catan.gui.sprite.Sprite</a></span>
+         the sprite
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><a class="type" href="../modules/catan.gui.box.html#Box">catan.gui.box.Box</a></span>
+        the newly-created box
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Box:fromUnion"></a>
+    <strong>Box:fromUnion (boxes)</strong>
+    </dt>
+    <dd>
+    Create box from the union of boxes
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">boxes</span>
+            <span class="types"><a class="type" href="../modules/catan.gui.box.html#Box">catan.gui.box.Box,...</a></span>
+
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><a class="type" href="../modules/catan.gui.box.html#Box">catan.gui.box.Box</a></span>
+        the newly-created box
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Box:grow"></a>
+    <strong>Box:grow (dw[, dh=dw])</strong>
+    </dt>
+    <dd>
+    Create box with grown width and height
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">dw</span>
+            <span class="types"><span class="type">number</span></span>
+         amount to increase in width
+        </li>
+        <li><span class="parameter">dh</span>
+            <span class="types"><span class="type">number</span></span>
+         amount to increase in height
+         (<em>default</em> dw)
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><a class="type" href="../modules/catan.gui.box.html#Box">catan.gui.box.Box</a></span>
+        the newly-created box
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Box:getWidth"></a>
+    <strong>Box:getWidth ()</strong>
+    </dt>
+    <dd>
+    Get box width
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">number</span></span>
+        the box width
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Box:getHeight"></a>
+    <strong>Box:getHeight ()</strong>
+    </dt>
+    <dd>
+    Get box height
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">number</span></span>
+        the box height
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Box:getLeftX"></a>
+    <strong>Box:getLeftX ()</strong>
+    </dt>
+    <dd>
+    Get box left x coordinate
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">number</span></span>
+        the box left x coordinate
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Box:getRightX"></a>
+    <strong>Box:getRightX ()</strong>
+    </dt>
+    <dd>
+    Get box right x coordinate
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">number</span></span>
+        the box right x coordinate
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Box:getTopY"></a>
+    <strong>Box:getTopY ()</strong>
+    </dt>
+    <dd>
+    Get box top y coordinate
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">number</span></span>
+        the box top y coordinate
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Box:getBottomY"></a>
+    <strong>Box:getBottomY ()</strong>
+    </dt>
+    <dd>
+    Get box bottom y coordinate
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">number</span></span>
+        the box bottom y coordinate
+    </ol>
+
+
+
+
+</dd>
+</dl>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
+<i style="float:right;">Last updated 2023-05-25 00:34:11 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

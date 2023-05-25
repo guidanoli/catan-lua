@@ -31,9 +31,9 @@ end
 
 setmetatable(_G, {
     __index = function (t, k)
-        warn(string.format('unset global variable %s in %s', k, loc(2)))
+        warn(('unset global variable %s in %s'):format(k, loc(2)))
     end,
     __newindex = function (t, k, v)
-        warn(string.format('set global variable %s to %s in %s', k, v, loc(2)))
+        warn(('set global variable %s to %s in %s'):format(k, v, loc(2)))
     end,
 })

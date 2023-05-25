@@ -1,4 +1,7 @@
 docs:
 	ldoc -c config.lua .
 
-.PHONY: docs
+run:
+	love .
+
+.PHONY: docs run

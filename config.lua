@@ -6,6 +6,8 @@ description = 'The famous board game, now in Lua!'
 
 format = 'markdown'
 
+dir = 'docs'
+
 file = {
     'catan',
     'util',

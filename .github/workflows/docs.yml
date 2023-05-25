@@ -1,8 +1,7 @@
 name: Documentation
 on: [push]
 jobs:
-  docs:
-    name: Deploy
+  build:
     runs-on: ubuntu-latest
     steps:
       - name: Check out
@@ -12,8 +11,14 @@ jobs:
       - name: Upload GitHub Pages artifact
         uses: actions/upload-pages-artifact@v1
         with:
-          path: doc/
+          path: doc
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
       - name: Deploy
         uses: JamesIves/github-pages-deploy-action@v4
         with:
-          folder: doc/
+          folder: doc

@@ -1,0 +1,21 @@
+name: Documentation
+on: [push]
+jobs:
+  docs:
+    name: Deploy
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out
+        uses: actions/checkout@v3
+      - name: Generate documentation with LDoc
+        uses: lunarmodules/ldoc@v0
+        with:
+          args: -c config.lua .
+      - name: Upload GitHub Pages artifact
+        uses: actions/upload-pages-artifact@v1
+        with:
+          path: doc/
+      - name: Deploy
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          folder: doc/

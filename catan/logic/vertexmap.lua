@@ -43,7 +43,7 @@ function VertexMap:iter (map, f)
     for q, mapq in pairs(map) do
         for r, mapqr in pairs(mapq) do
             for v, mapqrv in pairs(mapqr) do
-                ret = f(q, r, v, mapqrv)
+                local ret = f(q, r, v, mapqrv)
                 if ret then return ret end
             end
         end

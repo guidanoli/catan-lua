@@ -34,7 +34,7 @@ end
 function FaceMap:iter (map, f)
     for q, mapq in pairs(map) do
         for r, mapqr in pairs(mapq) do
-            ret = f(q, r, mapqr)
+            local ret = f(q, r, mapqr)
             if ret then return ret end
         end
     end

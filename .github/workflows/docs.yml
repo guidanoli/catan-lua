@@ -1,8 +1,10 @@
 name: Documentation
 on: [push]
 jobs:
-  build:
+  build-and-deploy:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - name: Check out
         uses: actions/checkout@v3
@@ -12,13 +14,7 @@ jobs:
         uses: actions/upload-pages-artifact@v1
         with:
           path: doc
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-    steps:
-      - name: Deploy
+      - name: Deploy documentation to GitHub Pages
         uses: JamesIves/github-pages-deploy-action@v4
         with:
           folder: doc

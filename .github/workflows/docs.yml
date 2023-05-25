@@ -1,10 +1,9 @@
 name: Documentation
 on: [push]
 jobs:
-  build-and-deploy:
+  build:
+    name: Build
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
     steps:
       - name: Check out
         uses: actions/checkout@v3
@@ -13,8 +12,18 @@ jobs:
       - name: Upload GitHub Pages artifact
         uses: actions/upload-pages-artifact@v1
         with:
-          path: doc
+          path: doc/
+  deploy:
+    name: Deploy
+    needs: build
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
       - name: Deploy documentation to GitHub Pages
-        uses: JamesIves/github-pages-deploy-action@v4
-        with:
-          folder: doc
+        id: deployment
+        uses: actions/deploy-pages@v2

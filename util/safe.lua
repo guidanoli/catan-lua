@@ -11,6 +11,16 @@
 --
 -- @module util.safe
 
+local warn = warn
+
+if warn == nil then
+    warn = function (msg)
+        io.stderr:write(msg .. '\n')
+    end
+else
+    warn'@on'
+end
+
 setmetatable(_G, {
     __index = function (t, k)
         warn(string.format('unset global variable %s', k))
@@ -19,5 +29,3 @@ setmetatable(_G, {
         warn(string.format('set global variable %s to %s', k, v))
     end,
 })
-
-warn'@on'

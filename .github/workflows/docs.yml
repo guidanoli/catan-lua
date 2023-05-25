@@ -8,7 +8,7 @@ jobs:
       - name: Check out
         uses: actions/checkout@v3
       - name: Generate documentation with LDoc
-        uses: lunarmodules/ldoc@v0
+        uses: lunarmodules/ldoc@v1.5.0
         with:
           args: -c config.lua .
       - name: Upload GitHub Pages artifact

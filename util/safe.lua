@@ -21,11 +21,19 @@ else
     warn'@on'
 end
 
+local function loc (f)
+    local info = debug.getinfo(f + 1, "Sln")
+    local source = info.source:sub(2)
+    local line = info.currentline
+    local funcname = info.name
+    return ('%s:%d (function %s)'):format(source, line, funcname)
+end
+
 setmetatable(_G, {
     __index = function (t, k)
-        warn(string.format('unset global variable %s', k))
+        warn(string.format('unset global variable %s in %s', k, loc(2)))
     end,
     __newindex = function (t, k, v)
-        warn(string.format('set global variable %s to %s', k, v))
+        warn(string.format('set global variable %s to %s in %s', k, v, loc(2)))
     end,
 })

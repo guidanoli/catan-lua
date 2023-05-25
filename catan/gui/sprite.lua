@@ -144,8 +144,8 @@ end
 -- @tparam number x x-coordinate
 -- @tparam number y y-coordinate
 -- @treturn boolean whether point is inside sprite
-function Sprite:contains (localX, localY)
-    local globalX, globalY = self.transform:inverseTransformPoint(localX, localY)
+function Sprite:contains (x, y)
+    local globalX, globalY = self.transform:inverseTransformPoint(x, y)
     return globalX >= 0 and globalX <= self.w and
            globalY >= 0 and globalY <= self.h
 end

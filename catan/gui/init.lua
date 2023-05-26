@@ -195,10 +195,6 @@ function CatanGUI:mousemoved (x, y)
     end
 end
 
-function CatanGUI:keypressed (key)
-    -- TODO: process key strokes
-end
-
 function CatanGUI:getHexSize ()
     return self.SEA_H / 11
 end

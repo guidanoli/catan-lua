@@ -2,11 +2,9 @@
 -- Graphical User Interface for the Catan game logic back-end.
 -- Defines callbacks for LÖVE
 --
--- @classmod CatanGUI
+-- @module catan.gui
 
 require "util.safe"
-
-local Class = require "util.class"
 
 local platform = require "util.platform"
 local TableUtils = require "util.table"
@@ -23,7 +21,7 @@ local Sprite = require "catan.gui.sprite"
 local Layer = require "catan.gui.layer"
 local Box = require "catan.gui.box"
 
-local CatanGUI = Class"CatanGUI"
+local CatanGUI = {}
 
 -- Environment variables
 
@@ -108,6 +106,7 @@ end
 
 ---
 -- Callback triggered once at the beginning of the game.
+-- @function catan.gui:load
 -- @see love2d@love.load
 function CatanGUI:load ()
     love.window.setMode(1400, 1000)
@@ -144,6 +143,7 @@ end
 
 ---
 -- Callback used to draw on the screen every frame.
+-- @function catan.gui:draw
 -- @see love2d@love.draw
 function CatanGUI:draw ()
     self:iterSprites(function (sprite) sprite:draw() end)
@@ -163,6 +163,7 @@ end
 
 ---
 -- Callback triggered when a mouse button is pressed.
+-- @function catan.gui:mousepressed
 -- @tparam number x Mouse x position, in pixels
 -- @tparam number y Mouse y position, in pixels
 -- @tparam number button The button index that was pressed.
@@ -200,6 +201,7 @@ end
 
 ---
 -- Callback triggered when the mouse is moved.
+-- @function catan.gui:mousemoved
 -- @tparam number x Mouse x position, in pixels
 -- @tparam number y Mouse y position, in pixels
 -- @see love2d@love.mousemoved
@@ -1096,6 +1098,7 @@ end
 
 ---
 -- Callback used to update the state of the game every frame.
+-- @function catan.gui:update
 -- @tparam number dt Time since the last update in seconds.
 -- @see love2d@love.update
 function CatanGUI:update (dt)

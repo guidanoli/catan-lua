@@ -64,7 +64,7 @@ local Class = require "util.class"
 
 local TableUtils = require "util.table"
 
-local Box = Class"Box"
+local Box = Class "Box"
 
 ---
 -- Input for @{catan.gui.Box:new}.

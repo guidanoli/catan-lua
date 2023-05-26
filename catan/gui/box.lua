@@ -58,18 +58,16 @@
 --    print(box1u2:getTopY())    --> 0
 --    print(box1u2:getBottomY()) --> 10
 --
--- @classmod Box
+-- @classmod catan.gui.Box
 
 local Class = require "util.class"
 
 local TableUtils = require "util.table"
 
----
--- @type Box
 local Box = Class"Box"
 
 ---
--- Input for @{Box:new}.
+-- Input for @{catan.gui.Box:new}.
 -- @tfield number x x coordinate
 -- @tfield number y y coordinate
 -- @tfield number w width
@@ -78,8 +76,8 @@ Box.Input = {}
 
 ---
 -- Create box.
--- @tparam table t see @{Box.Input}
--- @treturn Box a newly-created box
+-- @tparam table t see @{catan.gui.Box.Input}
+-- @treturn catan.gui.Box a newly-created box
 function Box:new (t)
     assert(type(t.x) == "number", "missing x")
     assert(type(t.y) == "number", "missing y")
@@ -91,7 +89,7 @@ end
 ---
 -- Create box from sprite.
 -- @tparam Sprite sprite the sprite
--- @treturn Box a newly-created box
+-- @treturn catan.gui.Box a newly-created box
 function Box:fromSprite (sprite)
     return Box:new{
         x = sprite:getX(),
@@ -104,8 +102,8 @@ end
 ---
 -- Create box from the union of boxes.
 -- Must pass at least one box.
--- @tparam Box ... boxes
--- @treturn Box a newly-created box
+-- @tparam catan.gui.Box ... boxes
+-- @treturn catan.gui.Box a newly-created box
 function Box:fromUnion (...)
     local leftXs = {}
     local rightXs = {}
@@ -136,7 +134,7 @@ end
 -- Grow a box by width and height.
 -- @tparam number dw amount to increase symmetrically in width
 -- @tparam[opt=dw] number dh amount to symmetrically increase in height
--- @treturn Box a newly-created box
+-- @treturn catan.gui.Box a newly-created box
 function Box:grow (dw, dh)
     if dh == nil then dh = dw end
 

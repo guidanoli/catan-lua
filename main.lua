@@ -1,25 +1,25 @@
-local catan = require "catan.gui"
+local CatanGUI = require "catan.gui"
 
 function love.load (...)
-    return catan:load(...)
+    return CatanGUI:load(...)
 end
 
 function love.draw (...)
-    return catan:draw(...)
+    return CatanGUI:draw(...)
 end
 
 function love.update (...)
-    return catan:update(...)
+    return CatanGUI:update(...)
 end
 
 function love.mousepressed (...)
-    return catan:mousepressed(...)
+    return CatanGUI:mousepressed(...)
 end
 
 function love.mousemoved (...)
-    return catan:mousemoved(...)
+    return CatanGUI:mousemoved(...)
 end
 
 function love.keypressed (...)
-    return catan:keypressed(...)
+    return CatanGUI:keypressed(...)
 end

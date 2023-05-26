@@ -5,6 +5,8 @@
 
 require "util.safe"
 
+local Class = require "util.class"
+
 local platform = require "util.platform"
 local TableUtils = require "util.table"
 
@@ -20,26 +22,26 @@ local Sprite = require "catan.gui.sprite"
 local Layer = require "catan.gui.layer"
 local Box = require "catan.gui.box"
 
-local catan = {}
+local CatanGUI = Class"CatanGUI"
 
 -- Environment variables
 
-catan.DEBUG = os.getenv "DEBUG" ~= nil
+CatanGUI.DEBUG = os.getenv "DEBUG" ~= nil
 
 -- GUI constants
 
-catan.SEA_W = 900
-catan.SEA_H = 700
-catan.BG_MARGIN = 10
+CatanGUI.SEA_W = 900
+CatanGUI.SEA_H = 700
+CatanGUI.BG_MARGIN = 10
 
-catan.LAYER_NAMES = {
+CatanGUI.LAYER_NAMES = {
     "board",
     "table",
     "inventory",
     "buttons",
 }
 
-function catan:loadImgDir (dir)
+function CatanGUI:loadImgDir (dir)
     local t = {}
     local function setifnil (key, value)
         assert(rawget(t, key) == nil, "key conflict")
@@ -59,7 +61,7 @@ function catan:loadImgDir (dir)
     return t
 end
 
-function catan:updateDisplayedInventory ()
+function CatanGUI:updateDisplayedInventory ()
     local displayedInventory
     if self.game:canDiscard() then
         for _, player in ipairs(self.game.players) do
@@ -81,29 +83,29 @@ function catan:updateDisplayedInventory ()
     self.displayedInventory = displayedInventory
 end
 
-function catan:clearCardSelection ()
+function CatanGUI:clearCardSelection ()
     self.selectedResCards = {}
 end
 
-function catan:requestLayerUpdate (layername)
+function CatanGUI:requestLayerUpdate (layername)
     self.layersPendingUpdate[layername] = true
 end
 
-function catan:requestAllLayersUpdate ()
+function CatanGUI:requestAllLayersUpdate ()
     for i, layername in ipairs(self.LAYER_NAMES) do
         self:requestLayerUpdate(layername)
     end
 end
 
-function catan:requestClickableSpriteCacheUpdate ()
+function CatanGUI:requestClickableSpriteCacheUpdate ()
     self.clickableSpritesPendingUpdate = true
 end
 
-function catan:requestValidation ()
+function CatanGUI:requestValidation ()
     self.validationPending = true
 end
 
-function catan:load ()
+function CatanGUI:load ()
     love.window.setMode(1400, 1000)
     love.window.setTitle"Settlers of Catan"
     love.graphics.setBackgroundColor(love.math.colorFromBytes(17, 78, 232))
@@ -126,7 +128,7 @@ function catan:load ()
     self:afterMove()
 end
 
-function catan:iterSprites (f)
+function CatanGUI:iterSprites (f)
     for i, layername in ipairs(self.LAYER_NAMES) do
         local layer = self.layers[layername]
         if layer then
@@ -136,23 +138,23 @@ function catan:iterSprites (f)
     end
 end
 
-function catan:draw ()
+function CatanGUI:draw ()
     self:iterSprites(function (sprite) sprite:draw() end)
 end
 
-function catan:onleftclick (x, y)
+function CatanGUI:onleftclick (x, y)
     self:iterClickableSprites(function (sprite)
         return sprite:leftclick(x, y)
     end)
 end
 
-function catan:onrightclick (x, y)
+function CatanGUI:onrightclick (x, y)
     self:iterClickableSprites(function (sprite)
         return sprite:rightclick(x, y)
     end)
 end
 
-function catan:mousepressed (x, y, button)
+function CatanGUI:mousepressed (x, y, button)
     if button == 1 then
         self:onleftclick(x, y)
     elseif button == 2 then
@@ -160,7 +162,7 @@ function catan:mousepressed (x, y, button)
     end
 end
 
-function catan:generateClickableSpritesArray ()
+function CatanGUI:generateClickableSpritesArray ()
     local cache = {}
 
     self:iterSprites(function (sprite)
@@ -172,14 +174,14 @@ function catan:generateClickableSpritesArray ()
     return cache
 end
 
-function catan:iterClickableSprites (f)
+function CatanGUI:iterClickableSprites (f)
     for _, sprite in TableUtils:ipairsReversed(self.clickableSprites) do
         local ret = f(sprite)
         if ret then return ret end
     end
 end
 
-function catan:mousemoved (x, y)
+function CatanGUI:mousemoved (x, y)
     local found = self:iterClickableSprites(function(sprite)
         return sprite:contains(x, y)
     end)
@@ -193,15 +195,15 @@ function catan:mousemoved (x, y)
     end
 end
 
-function catan:keypressed (key)
+function CatanGUI:keypressed (key)
     -- TODO: process key strokes
 end
 
-function catan:getHexSize ()
+function CatanGUI:getHexSize ()
     return self.SEA_H / 11
 end
 
-function catan:getFaceCenter (q, r)
+function CatanGUI:getFaceCenter (q, r)
     local x0 = self.SEA_W / 2
     local y0 = self.SEA_H / 2
     local hexsize = self:getHexSize()
@@ -211,7 +213,7 @@ function catan:getFaceCenter (q, r)
     return x, y
 end
 
-function catan:getVertexPos (q, r, v)
+function CatanGUI:getVertexPos (q, r, v)
     local x, y = self:getFaceCenter(q, r)
     local hexsize = self:getHexSize()
     if v == 'N' then
@@ -223,7 +225,7 @@ function catan:getVertexPos (q, r, v)
     return x, y
 end
 
-function catan:getEdgeCenter (q, r, e)
+function CatanGUI:getEdgeCenter (q, r, e)
     local endpoints = Grid:endpoints(q, r, e)
     assert(#endpoints == 2)
     local x1, y1 = self:getVertexPos(Grid:unpack(endpoints[1]))
@@ -233,7 +235,7 @@ end
 
 
 -- Returns angles for north-vertex and south-vertex in CCW degrees
-function catan:harborAnglesFromOrientation (o)
+function CatanGUI:harborAnglesFromOrientation (o)
     if o == 'NE' then
         return 30, 90
     elseif o == 'NW' then
@@ -250,7 +252,7 @@ function catan:harborAnglesFromOrientation (o)
     end
 end
 
-function catan:getJoinedFaceWithHex (edge)
+function CatanGUI:getJoinedFaceWithHex (edge)
     for i, joinedFace in ipairs(Grid:joins(Grid:unpack(edge))) do
         if FaceMap:get(self.game.hexmap, joinedFace) then
             return joinedFace
@@ -258,7 +260,7 @@ function catan:getJoinedFaceWithHex (edge)
     end
 end
 
-function catan:getJoinedFaceWithoutHex (edge)
+function CatanGUI:getJoinedFaceWithoutHex (edge)
     for i, joinedFace in ipairs(Grid:joins(Grid:unpack(edge))) do
         if not FaceMap:get(self.game.hexmap, joinedFace) then
             return joinedFace
@@ -266,7 +268,7 @@ function catan:getJoinedFaceWithoutHex (edge)
     end
 end
 
-function catan:getHarborAngles (vertex1, vertex2)
+function CatanGUI:getHarborAngles (vertex1, vertex2)
     -- First, we get the edge between the vertices
     local edge = Grid:edgeInBetween(vertex1, vertex2)
 
@@ -299,7 +301,7 @@ function catan:getHarborAngles (vertex1, vertex2)
     return r1, r2, edge
 end
 
-function catan:getShipImageFromHarbor (harbor)
+function CatanGUI:getShipImageFromHarbor (harbor)
     if harbor == 'generic' then
         return self.images.harbor.ship3to1
     else
@@ -307,7 +309,7 @@ function catan:getShipImageFromHarbor (harbor)
     end
 end
 
-function catan:getHexCorners ()
+function CatanGUI:getHexCorners ()
     local corners = {}
 
     FaceMap:iter(self.game.hexmap, function (q, r)
@@ -319,7 +321,7 @@ function catan:getHexCorners ()
     return corners
 end
 
-function catan:getHexBorders ()
+function CatanGUI:getHexBorders ()
     local borders = {}
 
     FaceMap:iter(self.game.hexmap, function (q, r)
@@ -331,7 +333,7 @@ function catan:getHexBorders ()
     return borders
 end
 
-function catan:getRoadAngleForEdge (e)
+function CatanGUI:getRoadAngleForEdge (e)
     local r
     if e == 'NE' then
         r = 150
@@ -344,7 +346,7 @@ function catan:getRoadAngleForEdge (e)
     return gutil:ccwdeg2cwrad(r)
 end
 
-function catan:afterMove ()
+function CatanGUI:afterMove ()
     self:clearCardSelection()
     self:updateDisplayedInventory()
     self:requestAllLayersUpdate()
@@ -352,7 +354,7 @@ function catan:afterMove ()
     self:requestValidation()
 end
 
-function catan:printProduction (production)
+function CatanGUI:printProduction (production)
     self.game:iterProduction(production, function (face, vertex, buildingProduction)
         local player = buildingProduction.player
         local numCards = buildingProduction.numCards
@@ -363,12 +365,12 @@ function catan:printProduction (production)
     end)
 end
 
-function catan:printRobbery (victim, res)
+function CatanGUI:printRobbery (victim, res)
     print(string.format('Player %s robbed a %s card from Player %s',
                         self.game.player, res, victim))
 end
 
-function catan:placeInitialSettlement (q, r, v)
+function CatanGUI:placeInitialSettlement (q, r, v)
     local production = self.game:placeInitialSettlement(Grid:vertex(q, r, v))
 
     self:printProduction(production)
@@ -376,12 +378,12 @@ function catan:placeInitialSettlement (q, r, v)
     self:afterMove()
 end
 
-function catan:placeInitialRoad (q, r, e)
+function CatanGUI:placeInitialRoad (q, r, e)
     self.game:placeInitialRoad(Grid:edge(q, r, e))
     self:afterMove()
 end
 
-function catan:roll ()
+function CatanGUI:roll ()
     local dice = {}
     local N = 2 -- number of dice
     for i = 1, N do
@@ -395,13 +397,13 @@ function catan:roll ()
     self:afterMove()
 end
 
-function catan:endTurn ()
+function CatanGUI:endTurn ()
     self.game:endTurn()
 
     self:afterMove()
 end
 
-function catan:moveRobber (q, r)
+function CatanGUI:moveRobber (q, r)
     local face = Grid:face(q, r)
 
     local victim, res = self.game:moveRobber(face)
@@ -413,7 +415,7 @@ function catan:moveRobber (q, r)
     self:afterMove()
 end
 
-function catan:chooseVictim (victim)
+function CatanGUI:chooseVictim (victim)
     local res = self.game:chooseVictim(victim)
 
     self:printRobbery(victim, res)
@@ -421,15 +423,15 @@ function catan:chooseVictim (victim)
     self:afterMove()
 end
 
-function catan:discard (player, rescards)
+function CatanGUI:discard (player, rescards)
     self.game:discard(player, rescards)
 
     self:afterMove()
 end
 
-catan.renderers = {}
+CatanGUI.renderers = {}
 
-function catan.renderers:board ()
+function CatanGUI.renderers:board ()
     local layer = Layer:new()
 
     local W, H = love.window.getMode()
@@ -595,16 +597,16 @@ function catan.renderers:board ()
     return layer
 end
 
-function catan:newText (color, text)
+function CatanGUI:newText (color, text)
     return love.graphics.newText(self.font, {color, text})
 end
 
-catan.ARROW_COLOR_FOR_REASON = {
+CatanGUI.ARROW_COLOR_FOR_REASON = {
     playing = "yellow",
     discarding = "red",
 }
 
-function catan:renderTable (layer, x, y)
+function CatanGUI:renderTable (layer, x, y)
     local TABLE_XSEP = 20
     local TABLE_YSEP = 10
     local BLACK = {0, 0, 0}
@@ -678,7 +680,7 @@ function catan:renderTable (layer, x, y)
     return layer:addSpriteTable(t)
 end
 
-function catan:renderDice (layer, x, y)
+function CatanGUI:renderDice (layer, x, y)
     local DICE_XSEP = 10
     local DICE_SX = 0.5
 
@@ -703,7 +705,7 @@ function catan:renderDice (layer, x, y)
     return layer:addSpriteTable(t)
 end
 
-function catan.renderers:table ()
+function CatanGUI.renderers:table ()
     local layer = Layer:new()
 
     local W, H = love.window.getMode()
@@ -733,7 +735,7 @@ function catan.renderers:table ()
     return layer
 end
 
-function catan:addToSelectedCardCount (res, n)
+function CatanGUI:addToSelectedCardCount (res, n)
     local player = self.displayedInventory.player
     local count = self.game:getNumberOfResourceCardsOfType(player, res)
     local selectedCount = (self.selectedResCards[res] or 0)
@@ -745,15 +747,15 @@ function catan:addToSelectedCardCount (res, n)
     end
 end
 
-function catan:selectResCard (res)
+function CatanGUI:selectResCard (res)
     self:addToSelectedCardCount(res, 1)
 end
 
-function catan:unselectResCard (res)
+function CatanGUI:unselectResCard (res)
     self:addToSelectedCardCount(res, -1)
 end
 
-function catan:getNumberOfSelectedResCards ()
+function CatanGUI:getNumberOfSelectedResCards ()
     local n = 0
     for res, count in pairs(self.selectedResCards) do
         n = n + count
@@ -761,7 +763,7 @@ function catan:getNumberOfSelectedResCards ()
     return n
 end
 
-function catan.renderers:inventory ()
+function CatanGUI.renderers:inventory ()
     local layer = Layer:new()
 
     local W, H = love.window.getMode()
@@ -1006,7 +1008,7 @@ function catan.renderers:inventory ()
     return layer
 end
 
-function catan.renderers:buttons ()
+function CatanGUI.renderers:buttons ()
     local layer = Layer:new()
 
     local W, H = love.window.getMode()
@@ -1074,7 +1076,7 @@ function catan.renderers:buttons ()
     return layer
 end
 
-function catan:update (dt)
+function CatanGUI:update (dt)
     for layername in pairs(self.layersPendingUpdate) do
         local layer = self.renderers[layername](self)
         assert(layer, string.format('could not render layer "%s"', layername))
@@ -1095,4 +1097,4 @@ function catan:update (dt)
     -- TODO: update animations using `dt`
 end
 
-return catan
+return CatanGUI

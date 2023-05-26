@@ -9,6 +9,7 @@ format = 'markdown'
 file = {
     'catan',
     'util',
+    'main.lua',
 }
 
 local loveURL = "https://love2d.org/wiki/%s"

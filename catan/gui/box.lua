@@ -1,6 +1,64 @@
 ---
--- Bounding box
--- @module catan.gui.box
+-- A rectangle with width, height, and `(x, y)` coordinates.
+--
+--    -- (0, 0)      (5, 0)
+--    -- o-----------o
+--    -- |           |
+--    -- |           |
+--    -- o-----------o
+--    -- (0, 4)      (5, 4)
+--
+--    local box = Box:new{w=5, h=4, x=0, y=0}
+--
+--    print(box:getWidth())   --> 5
+--    print(box:getHeight())  --> 4
+--    print(box:getLeftX())   --> 0
+--    print(box:getRightX())  --> 5
+--    print(box:getTopY())    --> 0
+--    print(box:getBottomY()) --> 4
+--
+--    -- (-10, 20)            (15, 20)
+--    -- o--------------------o
+--    -- |                    |
+--    -- |                    |
+--    -- |                    |
+--    -- |                    |
+--    -- o--------------------o
+--    -- (-10, 24)            (15, 24)
+--
+--    local biggerBox = box:grow(20, 40)
+--
+--    print(biggerBox:getWidth())   --> 25
+--    print(biggerBox:getHeight())  --> 44
+--    print(biggerBox:getLeftX())   --> -10
+--    print(biggerBox:getRightX())  --> 15
+--    print(biggerBox:getTopY())    --> 20
+--    print(biggerBox:getBottomY()) --> 24
+--
+--    -- (0, 0)      (5, 0)                       (0, 0)              (12, 0)
+--    -- o---------------o                        o-------------------o
+--    -- |               |                        |                   |
+--    -- |        (4, 2) |       (12, 2)          |                   |
+--    -- |        o------+-------o                |                   |
+--    -- |        |      |       |          ===>  |                   |
+--    -- o--------+------o       |                |                   |
+--    -- (0, 7)   |      (5, 7)  |                |                   |
+--    --          |              |                |                   |
+--    --          o--------------o                o-------------------o
+--    --          (4, 10)        (12, 10)         (0, 10)             (12, 10)  
+--
+--    local box1 = Box:new{w=5, h=7, x=0, y=0}
+--    local box2 = Box:new{w=10, h=8, x=4, y=2}
+--    local box1u2 = Box:fromUnion(box1, box2)
+--
+--    print(box1u2:getWidth())   --> 12
+--    print(box1u2:getHeight())  --> 10
+--    print(box1u2:getLeftX())   --> 0
+--    print(box1u2:getRightX())  --> 12
+--    print(box1u2:getTopY())    --> 0
+--    print(box1u2:getBottomY()) --> 10
+--
+-- @classmod Box
 
 local Class = require "util.class"
 
@@ -11,17 +69,17 @@ local TableUtils = require "util.table"
 local Box = Class"Box"
 
 ---
--- Input for @{catan.gui.box:new}
--- @tfield number x horizontal coordinate
--- @tfield number y vertical coordinate
+-- Input for @{Box:new}.
+-- @tfield number x x coordinate
+-- @tfield number y y coordinate
 -- @tfield number w width
 -- @tfield number h height
 Box.Input = {}
 
 ---
--- Create box
--- @tparam table t see @{catan.gui.box.Input}
--- @treturn catan.gui.box.Box the newly-created box
+-- Create box.
+-- @tparam table t see @{Box.Input}
+-- @treturn Box a newly-created box
 function Box:new (t)
     assert(type(t.x) == "number", "missing x")
     assert(type(t.y) == "number", "missing y")
@@ -31,9 +89,9 @@ function Box:new (t)
 end
 
 ---
--- Create box from sprite
--- @tparam catan.gui.sprite.Sprite sprite the sprite
--- @treturn catan.gui.box.Box the newly-created box
+-- Create box from sprite.
+-- @tparam Sprite sprite the sprite
+-- @treturn Box a newly-created box
 function Box:fromSprite (sprite)
     return Box:new{
         x = sprite:getX(),
@@ -44,9 +102,10 @@ function Box:fromSprite (sprite)
 end
 
 ---
--- Create box from the union of boxes
--- @tparam catan.gui.box.Box,... boxes
--- @treturn catan.gui.box.Box the newly-created box
+-- Create box from the union of boxes.
+-- Must pass at least one box.
+-- @tparam Box ... boxes
+-- @treturn Box a newly-created box
 function Box:fromUnion (...)
     local leftXs = {}
     local rightXs = {}
@@ -74,10 +133,10 @@ function Box:fromUnion (...)
 end
 
 ---
--- Create box with grown width and height
--- @tparam number dw amount to increase in width
--- @tparam[opt=dw] number dh amount to increase in height
--- @treturn catan.gui.box.Box the newly-created box
+-- Grow a box by width and height.
+-- @tparam number dw amount to increase symmetrically in width
+-- @tparam[opt=dw] number dh amount to symmetrically increase in height
+-- @treturn Box a newly-created box
 function Box:grow (dw, dh)
     if dh == nil then dh = dw end
 
@@ -90,42 +149,42 @@ function Box:grow (dw, dh)
 end
 
 ---
--- Get box width
+-- Get box width.
 -- @treturn number the box width
 function Box:getWidth ()
     return self.w
 end
 
 ---
--- Get box height
+-- Get box height.
 -- @treturn number the box height
 function Box:getHeight ()
     return self.h
 end
 
 ---
--- Get box left x coordinate
+-- Get box left x coordinate.
 -- @treturn number the box left x coordinate
 function Box:getLeftX ()
     return self.x
 end
 
 ---
--- Get box right x coordinate
+-- Get box right x coordinate.
 -- @treturn number the box right x coordinate
 function Box:getRightX ()
     return self.x + self.w
 end
 
 ---
--- Get box top y coordinate
+-- Get box top y coordinate.
 -- @treturn number the box top y coordinate
 function Box:getTopY ()
     return self.y
 end
 
 ---
--- Get box bottom y coordinate
+-- Get box bottom y coordinate.
 -- @treturn number the box bottom y coordinate
 function Box:getBottomY ()
     return self.y + self.h

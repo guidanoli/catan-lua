@@ -1,7 +1,8 @@
 ---
--- Renders a game of Catan using LÖVE2D.
+-- Graphical User Interface for the Catan game logic back-end.
+-- Defines callbacks for LÖVE
 --
--- @module catan.gui
+-- @classmod CatanGUI
 
 require "util.safe"
 
@@ -105,6 +106,9 @@ function CatanGUI:requestValidation ()
     self.validationPending = true
 end
 
+---
+-- Callback triggered once at the beginning of the game.
+-- @see love2d@love.load
 function CatanGUI:load ()
     love.window.setMode(1400, 1000)
     love.window.setTitle"Settlers of Catan"
@@ -138,6 +142,9 @@ function CatanGUI:iterSprites (f)
     end
 end
 
+---
+-- Callback used to draw on the screen every frame.
+-- @see love2d@love.draw
 function CatanGUI:draw ()
     self:iterSprites(function (sprite) sprite:draw() end)
 end
@@ -154,6 +161,16 @@ function CatanGUI:onrightclick (x, y)
     end)
 end
 
+---
+-- Callback triggered when a mouse button is pressed.
+-- @tparam number x Mouse x position, in pixels
+-- @tparam number y Mouse y position, in pixels
+-- @tparam number button The button index that was pressed.
+-- 1 is the primary mouse button,
+-- 2 is the secondary mouse button and
+-- 3 is the middle button.
+-- Further buttons are mouse dependent.
+-- @see love2d@love.mousepressed
 function CatanGUI:mousepressed (x, y, button)
     if button == 1 then
         self:onleftclick(x, y)
@@ -181,6 +198,11 @@ function CatanGUI:iterClickableSprites (f)
     end
 end
 
+---
+-- Callback triggered when the mouse is moved.
+-- @tparam number x Mouse x position, in pixels
+-- @tparam number y Mouse y position, in pixels
+-- @see love2d@love.mousemoved
 function CatanGUI:mousemoved (x, y)
     local found = self:iterClickableSprites(function(sprite)
         return sprite:contains(x, y)
@@ -1072,6 +1094,10 @@ function CatanGUI.renderers:buttons ()
     return layer
 end
 
+---
+-- Callback used to update the state of the game every frame.
+-- @tparam number dt Time since the last update in seconds.
+-- @see love2d@love.update
 function CatanGUI:update (dt)
     for layername in pairs(self.layersPendingUpdate) do
         local layer = self.renderers[layername](self)

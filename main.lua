@@ -19,7 +19,3 @@ end
 function love.mousemoved (...)
     return CatanGUI:mousemoved(...)
 end
-
-function love.keypressed (...)
-    return CatanGUI:keypressed(...)
-end

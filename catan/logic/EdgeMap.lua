@@ -42,8 +42,8 @@ end
 function EdgeMap:iter (f)
     for q, mapq in pairs(self) do
         for r, mapqr in pairs(mapq) do
-            for e, mapqre in pairs(mapqr) do
-                local ret = f(q, r, e, mapqre)
+            for e, o in pairs(mapqr) do
+                local ret = f(q, r, e, o)
                 if ret then return ret end
             end
         end

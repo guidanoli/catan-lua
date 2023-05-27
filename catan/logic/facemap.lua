@@ -33,8 +33,8 @@ end
 
 function FaceMap:iter (f)
     for q, mapq in pairs(self) do
-        for r, mapqr in pairs(mapq) do
-            local ret = f(q, r, mapqr)
+        for r, o in pairs(mapq) do
+            local ret = f(q, r, o)
             if ret then return ret end
         end
     end

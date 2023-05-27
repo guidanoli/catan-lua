@@ -28,10 +28,10 @@ Constants.terrainFaces = {
 
 do
     -- Check for duplicate coordinates
-    local map = {}
+    local map = FaceMap:new()
     for _, face in pairs(Constants.terrainFaces) do
-        assert(FaceMap:get(map, face) == nil)
-        FaceMap:set(map, face, true)
+        assert(map:get(face) == nil)
+        map:set(face, true)
     end
 end
 

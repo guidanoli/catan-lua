@@ -77,19 +77,19 @@ function Game:_createHexMap ()
         end
     end
     TableUtils:shuffleInPlace(hexes)
-    self.hexmap = {}
+    self.hexmap = FaceMap:new()
     for i, hex in ipairs(hexes) do
-        FaceMap:set(self.hexmap, Constants.terrainFaces[i], hex)
+        self.hexmap:set(Constants.terrainFaces[i], hex)
     end
 end
 
 function Game:_createNumberMap ()
     local i = 1
-    self.numbermap = {}
+    self.numbermap = FaceMap:new()
     for _, face in ipairs(Constants.terrainFaces) do
-        local hex = FaceMap:get(self.hexmap, face)
+        local hex = self.hexmap:get(face)
         if hex ~= 'desert' then
-            FaceMap:set(self.numbermap, face, Constants.numbers[i])
+            self.numbermap:set(face, Constants.numbers[i])
             i = i + 1
         end
     end
@@ -103,7 +103,7 @@ function Game:_createHarborMap ()
 end
 
 function Game:_placeRobberInDesert ()
-    FaceMap:iter(self.hexmap, function (q, r, hex)
+    self.hexmap:iter(function (q, r, hex)
         if hex == 'desert' then
             self.robber = Grid:face(q, r)
             return true -- quit iteration
@@ -190,7 +190,7 @@ function Game:_validateBuildMap ()
         -- the vertex must touch a face with hex
         local touchesFaceWithHex = false
         for _, touchingFace in ipairs(Grid:touches(q, r, v)) do
-            if FaceMap:get(self.hexmap, touchingFace) then
+            if self.hexmap:get(touchingFace) then
                 touchesFaceWithHex = true
                 break
             end
@@ -544,7 +544,7 @@ function Game:canMoveRobber (face)
         if not valid then
             return false, err
         end
-        if FaceMap:get(self.hexmap, face) == nil then
+        if self.hexmap:get(face) == nil then
             return false, "face must have a hex on it"
         end
         if CatanSchema.Face:eq(face, self.robber) then
@@ -584,7 +584,7 @@ function Game:canEndTurn ()
 end
 
 function Game:iterProduction (production, f)
-    return FaceMap:iter(production, function (q, r, hexProduction)
+    return production:iter(function (q, r, hexProduction)
         local face = Grid:face(q, r)
         return VertexMap:iter(hexProduction, function (q, r, v, buildingProduction)
             local vertex = Grid:vertex(q, r, v)
@@ -605,12 +605,12 @@ function Game:placeInitialSettlement (vertex)
         player = self.player,
     })
 
-    local production = {}
+    local production = FaceMap:new()
 
     if self.round == 2 then
         for _, touchingFace in ipairs(Grid:touches(Grid:unpack(vertex))) do
             local hexProduction = {}
-            local touchingHex = FaceMap:get(self.hexmap, touchingFace)
+            local touchingHex = self.hexmap:get(touchingFace)
             if touchingHex ~= nil then
                 local res = self:resFromHex(touchingHex)
                 if res ~= nil then
@@ -621,7 +621,7 @@ function Game:placeInitialSettlement (vertex)
                     })
                 end
             end
-            FaceMap:set(production, touchingFace, hexProduction)
+            production:set(touchingFace, hexProduction)
         end
     end
 
@@ -668,15 +668,15 @@ function Game:roll (dice)
         diceSum = diceSum + die
     end
 
-    local production = {}
+    local production = FaceMap:new()
 
-    FaceMap:iter(self.numbermap, function (q, r, number)
+    self.numbermap:iter(function (q, r, number)
         if number == diceSum then
             local face = Grid:face(q, r)
             if CatanSchema.Face:eq(self.robber, face) then
                 return false -- skip to next iteration
             end
-            local hex = assert(FaceMap:get(self.hexmap, face))
+            local hex = assert(self.hexmap:get(face))
             local res = self:resFromHex(hex)
             if res ~= nil then
                 local hexProduction = {}
@@ -691,7 +691,7 @@ function Game:roll (dice)
                         })
                     end
                 end
-                FaceMap:set(production, face, hexProduction)
+                production:set(face, hexProduction)
             end
         end
     end)
@@ -889,7 +889,7 @@ end
 
 function Game:_doesEdgeJoinFaceWithHex (q, r, e)
     for i, joinedFace in ipairs(Grid:joins(q, r, e)) do
-        if FaceMap:get(self.hexmap, joinedFace) then
+        if self.hexmap:get(joinedFace) then
             return true
         end
     end
@@ -898,7 +898,7 @@ end
 
 function Game:_isVertexCornerOfSomeHex (vertex)
     local found = false
-    FaceMap:iter(self.hexmap, function (q, r, hex)
+    self.hexmap:iter(function (q, r, hex)
         for _, corner in ipairs(Grid:corners(q, r)) do
             if CatanSchema.Vertex:eq(corner, vertex) then
                 found = true

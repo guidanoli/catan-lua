@@ -269,7 +269,7 @@ end
 
 function gui:getJoinedFaceWithHex (edge)
     for i, joinedFace in ipairs(Grid:joins(Grid:unpack(edge))) do
-        if FaceMap:get(self.game.hexmap, joinedFace) then
+        if self.game.hexmap:get(joinedFace) then
             return joinedFace
         end
     end
@@ -277,7 +277,7 @@ end
 
 function gui:getJoinedFaceWithoutHex (edge)
     for i, joinedFace in ipairs(Grid:joins(Grid:unpack(edge))) do
-        if not FaceMap:get(self.game.hexmap, joinedFace) then
+        if not self.game.hexmap:get(joinedFace) then
             return joinedFace
         end
     end
@@ -327,7 +327,7 @@ end
 function gui:getHexCorners ()
     local corners = {}
 
-    FaceMap:iter(self.game.hexmap, function (q, r)
+    self.game.hexmap:iter(function (q, r)
         for i, vertex in ipairs(Grid:corners(q, r)) do
             VertexMap:set(corners, vertex, true)
         end
@@ -339,7 +339,7 @@ end
 function gui:getHexBorders ()
     local borders = EdgeMap:new()
 
-    FaceMap:iter(self.game.hexmap, function (q, r)
+    self.game.hexmap:iter(function (q, r)
         for i, edge in ipairs(Grid:borders(q, r)) do
             borders:set(edge, true)
         end
@@ -491,7 +491,7 @@ function gui.renderers:board ()
     end
 
     -- Hexes
-    FaceMap:iter(self.game.hexmap, function (q, r, hex)
+    self.game.hexmap:iter(function (q, r, hex)
         local img = assert(self.images.hex[hex], "missing hex sprite")
         local x, y = self:getFaceCenter(q, r)
         local s = hexsize / (img:getHeight() / 2)
@@ -501,7 +501,7 @@ function gui.renderers:board ()
     -- Face selection
     if self.game:canMoveRobber() then
         local img = self.images.selection
-        FaceMap:iter(self.game.hexmap, function (q, r)
+        self.game.hexmap:iter(function (q, r)
             local face = Grid:face(q, r)
             if self.game:canMoveRobber(face) then
                 local x, y = self:getFaceCenter(q, r)
@@ -518,7 +518,7 @@ function gui.renderers:board ()
     end
 
     -- Number tokens
-    FaceMap:iter(self.game.numbermap, function (q, r, number)
+    self.game.numbermap:iter(function (q, r, number)
         local img = assert(self.images.number[tostring(number)], "missing token sprite")
         local x, y = self:getFaceCenter(q, r)
         local s = (0.6 * hexsize) / img:getHeight()

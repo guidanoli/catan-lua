@@ -180,13 +180,15 @@ function Layer:addSpriteTable (t)
     end
 
     if bgimg ~= nil then
-        self:addSprite{
+        self:addSprite(
             bgimg,
-            x = x0 - bgmargin,
-            y = y0 - bgmargin,
-            sx = w + 2 * bgmargin,
-            sy = h + 2 * bgmargin,
-        }
+                {
+                x = x0 - bgmargin,
+                y = y0 - bgmargin,
+                sx = w + 2 * bgmargin,
+                sy = h + 2 * bgmargin,
+            }
+        )
     end
 
     y = y0
@@ -197,16 +199,18 @@ function Layer:addSpriteTable (t)
             for j = 1, m do
                 local cell = line[j]
                 if cell then
-                    self:addSprite{
+                    self:addSprite(
                         cellimg(cell),
-                        x = x + columnWidths[j] / 2,
-                        y = y + lineHeights[i] / 2,
-                        sx = cellsx(cell),
-                        sy = cellsy(cell),
-                        onleftclick = cellonleftclick(cell),
-                        onrightclick = cellonrightclick(cell),
-                        center = true,
-                    }
+                        {
+                            x = x + columnWidths[j] / 2,
+                            y = y + lineHeights[i] / 2,
+                            sx = cellsx(cell),
+                            sy = cellsy(cell),
+                            onleftclick = cellonleftclick(cell),
+                            onrightclick = cellonrightclick(cell),
+                            center = true,
+                        }
+                    )
                 end
                 x = x + columnWidths[j] + xsep
             end

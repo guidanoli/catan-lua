@@ -475,20 +475,20 @@ function CatanGUI.renderers:board ()
                     local x1, y1 = self:getVertexPos(q1, r1, v1)
                     local x2, y2 = self:getVertexPos(Grid:unpack(vertex2))
                     local a1, a2, edge = self:getHarborAngles(vertex1, vertex2)
-                    layer:addSprite{boardImg, x=x1, y=y1, r=a1, oy=oy}
-                    layer:addSprite{boardImg, x=x2, y=y2, r=a2, oy=oy}
+                    layer:addSprite(boardImg, {x=x1, y=y1, r=a1, oy=oy})
+                    layer:addSprite(boardImg, {x=x2, y=y2, r=a2, oy=oy})
 
                     local seaFace = self:getJoinedFaceWithoutHex(edge)
                     local x3, y3 = self:getFaceCenter(Grid:unpack(seaFace))
                     local shipImg = self:getShipImageFromHarbor(harbor)
-                    local shipSprite = layer:addSprite{shipImg, x=x3, y=y3, center=true}
+                    local shipSprite = layer:addSprite(shipImg, {x=x3, y=y3, center=true})
                     local shipX, shipY = shipSprite:getCoords()
                     local resImg = self.images.resource[harbor]
                     if resImg ~= nil then
                         local s = RES_SIZE / resImg:getHeight()
                         local x4 = shipX + RES_OX
                         local y4 = shipY + RES_OY
-                        layer:addSprite{resImg, x=x4, y=y4, sx=s}
+                        layer:addSprite(resImg, {x=x4, y=y4, sx=s})
                     end
                 end
             end
@@ -500,7 +500,7 @@ function CatanGUI.renderers:board ()
         local img = assert(self.images.hex[hex], "missing hex sprite")
         local x, y = self:getFaceCenter(q, r)
         local s = hexsize / (img:getHeight() / 2)
-        layer:addSprite{img, x=x, y=y, sx=s, center=true}
+        layer:addSprite(img, {x=x, y=y, sx=s, center=true})
     end)
 
     -- Face selection
@@ -510,15 +510,14 @@ function CatanGUI.renderers:board ()
             local face = Grid:face(q, r)
             if self.game:canMoveRobber(face) then
                 local x, y = self:getFaceCenter(q, r)
-                layer:addSprite{
-                    img,
+                layer:addSprite(img, {
                     x = x,
                     y = y,
                     center = true,
                     onleftclick = function ()
                         self:moveRobber(q, r)
                     end
-                }
+                })
             end
         end)
     end
@@ -528,7 +527,7 @@ function CatanGUI.renderers:board ()
         local img = assert(self.images.number[tostring(number)], "missing token sprite")
         local x, y = self:getFaceCenter(q, r)
         local s = (0.6 * hexsize) / img:getHeight()
-        layer:addSprite{img, x=x, y=y, sx=s, center=true}
+        layer:addSprite(img, {x=x, y=y, sx=s, center=true})
     end)
 
     -- Vertex selection
@@ -539,8 +538,7 @@ function CatanGUI.renderers:board ()
             local vertex = Grid:vertex(q, r, v)
             if self.game:canPlaceInitialSettlement(vertex) then
                 local x, y = self:getVertexPos(q, r, v)
-                layer:addSprite{
-                    img,
+                layer:addSprite(img, {
                     x = x,
                     y = y,
                     sx = 0.5,
@@ -548,7 +546,7 @@ function CatanGUI.renderers:board ()
                     onleftclick = function ()
                         self:placeInitialSettlement(q, r, v)
                     end,
-                }
+                })
             end
         end)
     end
@@ -561,8 +559,7 @@ function CatanGUI.renderers:board ()
             local edge = Grid:edge(q, r, e)
             if self.game:canPlaceInitialRoad(edge) then
                 local x, y = self:getEdgeCenter(q, r, e)
-                layer:addSprite{
-                    img,
+                layer:addSprite(img, {
                     x = x,
                     y = y,
                     sx = 0.5,
@@ -570,7 +567,7 @@ function CatanGUI.renderers:board ()
                     onleftclick = function ()
                         self:placeInitialRoad(q, r, e)
                     end
-                }
+                })
             end
         end)
     end
@@ -581,7 +578,7 @@ function CatanGUI.renderers:board ()
             local x, y = self:getEdgeCenter(q, r, e)
             local r = self:getRoadAngleForEdge(e)
             local img = assert(self.images.road[player], "missing road image")
-            layer:addSprite{img, x=x, y=y, r=r, sx=0.25, center=true}
+            layer:addSprite(img, {x=x, y=y, r=r, sx=0.25, center=true})
         end)
     end
 
@@ -598,7 +595,7 @@ function CatanGUI.renderers:board ()
             end
             if building.kind == "settlement" then
                 local img = assert(self.images.settlement[building.player], "missing settlement image")
-                layer:addSprite{img, x=x, y=y, sx=0.5, center=true, onleftclick=onleftclick}
+                layer:addSprite(img, {x=x, y=y, sx=0.5, center=true, onleftclick=onleftclick})
             else
                 assert(building.kind == "city")
                 -- TODO: render cities
@@ -611,7 +608,7 @@ function CatanGUI.renderers:board ()
         local img = self.images.robber
         local x, y = self:getFaceCenter(Grid:unpack(self.game.robber))
         local s = (0.8 * hexsize) / img:getHeight()
-        layer:addSprite{img, x=x, y=y, sx=s, center=true}
+        layer:addSprite(img, {x=x, y=y, sx=s, center=true})
     end
 
     return layer
@@ -853,20 +850,24 @@ function CatanGUI.renderers:inventory ()
             local tableRightX = tableBox:getRightX()
             local tableTopY = tableBox:getTopY()
 
-            local cardCountCircleSprite = layer:addSprite{
+            local cardCountCircleSprite = layer:addSprite(
                 self.images.cardcount,
-                x = tableRightX,
-                y = tableTopY,
-                center = true,
-                sx = CARD_COUNT_SX,
-            }
+                {
+                    x = tableRightX,
+                    y = tableTopY,
+                    center = true,
+                    sx = CARD_COUNT_SX,
+                }
+            )
 
-            local cardCountTextSprite = layer:addSprite{
+            local cardCountTextSprite = layer:addSprite(
                 self:newText(BLACK, count),
-                x = tableRightX,
-                y = tableTopY,
-                center = true,
-            }
+                {
+                    x = tableRightX,
+                    y = tableTopY,
+                    center = true,
+                }
+            )
 
             local sequenceBox = Box:fromUnion(
                 tableBox,
@@ -938,12 +939,14 @@ function CatanGUI.renderers:inventory ()
 
         -- Inventory text
         if hasCardInInventory then
-            local textSprite = layer:addSprite{
+            local textSprite = layer:addSprite(
                 self:newText(BLACK, "Inventory"),
-                x = x0,
-                y = y0,
-                yalign = "bottom",
-            }
+                {
+                    x = x0,
+                    y = y0,
+                    yalign = "bottom",
+                }
+            )
 
             local textBox = Box:fromSprite(textSprite)
 
@@ -980,12 +983,14 @@ function CatanGUI.renderers:inventory ()
             local text = string.format("To be discarded (%d/%d)", numSelectedCards, expectedNumOfCards)
             local color = playerCanDiscard and GREEN or RED
 
-            local textSprite = layer:addSprite{
+            local textSprite = layer:addSprite(
                 self:newText(color, text),
-                x = x0,
-                y = y0,
-                yalign = "bottom",
-            }
+                {
+                    x = x0,
+                    y = y0,
+                    yalign = "bottom",
+                }
+            )
 
             local textBox = Box:fromSprite(textSprite)
 
@@ -994,16 +999,18 @@ function CatanGUI.renderers:inventory ()
             if playerCanDiscard then
                 local okImg = self.images.btn.ok
 
-                local okSprite = layer:addSprite{
+                local okSprite = layer:addSprite(
                     okImg,
-                    x = textBox:getRightX() + XSEP,
-                    y = y0,
-                    yalign = "bottom",
-                    sx = textBox:getHeight() / okImg:getHeight(),
-                    onleftclick = function ()
-                        self:discard(player, rescards)
-                    end,
-                }
+                    {
+                        x = textBox:getRightX() + XSEP,
+                        y = y0,
+                        yalign = "bottom",
+                        sx = textBox:getHeight() / okImg:getHeight(),
+                        onleftclick = function ()
+                            self:discard(player, rescards)
+                        end,
+                    }
+                )
 
                 local okBox = Box:fromSprite(okSprite)
 
@@ -1015,13 +1022,13 @@ function CatanGUI.renderers:inventory ()
 
         if box then
             local grownBox = box:grow(2 * self.BG_MARGIN)
-            table.insert(layer, 1, Sprite.new{
-                self.images.smoke,
+            local sprite = Sprite:new(self.images.smoke, {
                 x = grownBox.x,
                 y = grownBox.y,
                 sx = grownBox.w,
                 sy = grownBox.h,
             })
+            table.insert(layer, 1, sprite)
         end
     end
 

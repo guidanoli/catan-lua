@@ -56,6 +56,8 @@ function EdgeMap:iter (f)
     end
 end
 
+-- TODO: deprecate and move to util.table
+-- TODO: remove _set and _get
 function EdgeMap:contains (other)
     local ret = true
     other:iter(function (q, r, e, o)
@@ -67,6 +69,7 @@ function EdgeMap:contains (other)
     return ret
 end
 
+-- TODO: deprecate and move to util.table
 function EdgeMap:equals (other)
     return self:contains(other) and
            other:contains(self)

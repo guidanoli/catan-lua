@@ -13,10 +13,7 @@ end
 
 function FaceMap:get (face)
     assert(Face:isValid(face))
-    return self:_get(Grid:unpack(face))
-end
-
-function FaceMap:_get (q, r)
+    local q, r = Grid:unpack(face)
     local mapq = rawget(self, q)
     if mapq then
         return rawget(mapq, r)
@@ -25,10 +22,7 @@ end
 
 function FaceMap:set (face, o)
     assert(Face:isValid(face))
-    self:_set(o, Grid:unpack(face))
-end
-
-function FaceMap:_set (o, q, r)
+    local q, r = Grid:unpack(face)
     local mapq = rawget(self, q)
     if mapq == nil then
         mapq = {}

@@ -7,26 +7,6 @@ function TableUtils:shuffleInPlace (t)
     end
 end
 
--- ∃ k s.t. (k, v) ∊ t
-function TableUtils:contains (t, v1)
-    for k, v2 in pairs(t) do
-        if v1 == v2 then
-            return true
-        end
-    end
-    return false
-end
-
--- ∀ (k, v) ∊ ta, ∃ k' s.t. (k', v) ∊ tb
-function TableUtils:isContainedIn (ta, tb)
-    for k, v in pairs(ta) do
-        if not self:contains(tb, v) then
-            return false
-        end
-    end
-    return true
-end
-
 -- ∃ N s.t. ∀ (k, v) ∊ t, k ∊ [1, N]
 function TableUtils:isArray (t)
     local i = 1
@@ -47,16 +27,6 @@ function TableUtils:sortedKeys (t)
     end
     table.sort(st)
     return st
-end
-
--- Iterate over 2d array
-function TableUtils:iter2d (t, f)
-    for i, line in pairs(t) do
-        for j, elem in pairs(line) do
-            local ret = f(i, j, elem)
-            if ret then return ret end
-        end
-    end
 end
 
 -- |K| where K = { k | (k, v) ∊  t }

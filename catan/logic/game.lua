@@ -311,7 +311,7 @@ function Game:_validatePlayerRoads (player)
     VertexMap:iter(allVertices, visit)
 
     -- Check if every edge from the player was visited by the DFS
-    assert(allEdges:equal(visitedEdges))
+    assert(allEdges:equals(visitedEdges))
 end
 
 --------------------------------

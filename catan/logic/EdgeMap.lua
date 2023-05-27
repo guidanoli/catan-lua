@@ -56,7 +56,7 @@ function EdgeMap:iter (f)
     end
 end
 
-function EdgeMap:contain (other)
+function EdgeMap:contains (other)
     local ret = true
     other:iter(function (q, r, e, o)
         if self:_get(q, r, e) ~= o then
@@ -67,9 +67,9 @@ function EdgeMap:contain (other)
     return ret
 end
 
-function EdgeMap:equal (other)
-    return self:contain(other) and
-           other:contain(self)
+function EdgeMap:equals (other)
+    return self:contains(other) and
+           other:contains(self)
 end
 
 return EdgeMap

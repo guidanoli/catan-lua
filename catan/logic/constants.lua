@@ -1,4 +1,4 @@
-local FaceMap = require "catan.logic.facemap"
+local FaceMap = require "catan.logic.FaceMap"
 local VertexMap = require "catan.logic.vertexmap"
 
 local Constants = {}

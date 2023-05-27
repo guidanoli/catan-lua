@@ -4,7 +4,7 @@ local TableUtils = require "util.table"
 local CatanSchema = require "catan.logic.schema"
 local Constants = require "catan.logic.constants"
 local Grid = require "catan.logic.grid"
-local FaceMap = require "catan.logic.facemap"
+local FaceMap = require "catan.logic.FaceMap"
 local VertexMap = require "catan.logic.vertexmap"
 local EdgeMap = require "catan.logic.EdgeMap"
 

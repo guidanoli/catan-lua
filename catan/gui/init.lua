@@ -22,10 +22,6 @@ local Box = require "catan.gui.Box"
 
 local gui = {}
 
--- Environment variables
-
-gui.DEBUG = os.getenv "DEBUG" ~= nil
-
 -- GUI constants
 
 gui.SEA_W = 900

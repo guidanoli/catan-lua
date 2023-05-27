@@ -40,6 +40,10 @@ gui.LAYER_NAMES = {
     "buttons",
 }
 
+function gui:ccwdeg2cwrad (a)
+    return - math.pi * a / 180.
+end
+
 function gui:loadImgDir (dir)
     local t = {}
     local function setifnil (key, value)
@@ -311,8 +315,8 @@ function gui:getHarborAngles (vertex1, vertex2)
     end
 
     -- Now, we convert CCW degrees to CW radians
-    r1 = gutil:ccwdeg2cwrad(r1)
-    r2 = gutil:ccwdeg2cwrad(r2)
+    r1 = self:ccwdeg2cwrad(r1)
+    r2 = self:ccwdeg2cwrad(r2)
 
     return r1, r2, edge
 end
@@ -359,7 +363,7 @@ function gui:getRoadAngleForEdge (e)
         assert(e == 'W')
         r = 270
     end
-    return gutil:ccwdeg2cwrad(r)
+    return self:ccwdeg2cwrad(r)
 end
 
 function gui:afterMove ()

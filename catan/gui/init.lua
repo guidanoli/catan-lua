@@ -337,11 +337,11 @@ function gui:getHexCorners ()
 end
 
 function gui:getHexBorders ()
-    local borders = {}
+    local borders = EdgeMap:new()
 
     FaceMap:iter(self.game.hexmap, function (q, r)
         for i, edge in ipairs(Grid:borders(q, r)) do
-            EdgeMap:set(borders, edge, true)
+            borders:set(edge, true)
         end
     end)
 
@@ -550,7 +550,7 @@ function gui.renderers:board ()
     if self.game:canPlaceInitialRoad() then
         local hexBorders = self:getHexBorders()
         local img = self.images.selection
-        EdgeMap:iter(hexBorders, function (q, r, e)
+        hexBorders:iter(function (q, r, e)
             local edge = Grid:edge(q, r, e)
             if self.game:canPlaceInitialRoad(edge) then
                 local x, y = self:getEdgeCenter(q, r, e)
@@ -569,7 +569,7 @@ function gui.renderers:board ()
 
     -- Roads
     do
-        EdgeMap:iter(self.game.roadmap, function (q, r, e, player)
+        self.game.roadmap:iter(function (q, r, e, player)
             local x, y = self:getEdgeCenter(q, r, e)
             local r = self:getRoadAngleForEdge(e)
             local img = assert(self.images.road[player], "missing road image")

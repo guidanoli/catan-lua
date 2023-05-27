@@ -35,7 +35,7 @@ function Game:_init (players)
     self:_createNumberMap()
     self:_createHarborMap()
     self.buildmap = {}
-    self.roadmap = {}
+    self.roadmap = EdgeMap:new()
     self:_placeRobberInDesert()
     self:_createDevelopmentCards()
     self:_createResourceCards()
@@ -201,7 +201,7 @@ function Game:_validateBuildMap ()
         -- (in other words, the vertex must be a road endpoint of same color)
         local isRoadEndpoint = false
         for _, protrudingEdge in ipairs(Grid:protrudingEdges(q, r, v)) do
-            local player = EdgeMap:get(self.roadmap, protrudingEdge)
+            local player = self.roadmap:get(protrudingEdge)
             if building.player == player then
                 isRoadEndpoint = true
                 break
@@ -270,7 +270,7 @@ end
 
 function Game:_validateRoadMap ()
     -- Check if every road is next to a hex
-    EdgeMap:iter(self.roadmap, function (q, r, e)
+    self.roadmap:iter(function (q, r, e)
         assert(self:_doesEdgeJoinFaceWithHex(q, r, e))
     end)
 
@@ -290,20 +290,20 @@ function Game:_validatePlayerRoads (player)
     end)
 
     -- List all edges that contain a road from the player
-    local allEdges = {}
-    EdgeMap:iter(self.roadmap, function (q, r, e, p)
+    local allEdges = EdgeMap:new()
+    self.roadmap:iter(function (q, r, e, p)
         if p == player then
-            EdgeMap:set(allEdges, Grid:edge(q, r, e), true)
+            allEdges:set(Grid:edge(q, r, e), true)
         end
     end)
 
     -- Do a depth-first search on every vertex with a building from the player
     -- and list all the visited edges
-    local visitedEdges = {}
+    local visitedEdges = EdgeMap:new()
     local function visit (q, r, v)
         for _, pair in ipairs(Grid:adjacentEdgeVertexPairs(q, r, v)) do
-            if EdgeMap:get(allEdges, pair.edge) and not EdgeMap:get(visitedEdges, pair.edge) then
-                EdgeMap:set(visitedEdges, pair.edge, true)
+            if allEdges:get(pair.edge) and not visitedEdges:get(pair.edge) then
+                visitedEdges:set(pair.edge, true)
                 visit(Grid:unpack(pair.vertex))
             end
         end
@@ -311,7 +311,7 @@ function Game:_validatePlayerRoads (player)
     VertexMap:iter(allVertices, visit)
 
     -- Check if every edge from the player was visited by the DFS
-    assert(EdgeMap:equal(allEdges, visitedEdges))
+    assert(allEdges:equal(visitedEdges))
 end
 
 --------------------------------
@@ -635,7 +635,7 @@ end
 function Game:placeInitialRoad (edge)
     assert(self:canPlaceInitialRoad(edge))
 
-    EdgeMap:set(self.roadmap, edge, self.player)
+    self.roadmap:set(edge, self.player)
 
     local i = self:_getCurrentPlayerIndex()
 
@@ -874,7 +874,7 @@ function Game:_isEdgeEndpointOfPlayerLonelySettlement (edge)
             assert(building.kind == "settlement")
             local isSettlementLonely = true
             for _, protrudingEdge in ipairs(Grid:protrudingEdges(Grid:unpack(endpoint))) do
-                if EdgeMap:get(self.roadmap, protrudingEdge) then
+                if self.roadmap:get(protrudingEdge) then
                     isSettlementLonely = false
                     break
                 end

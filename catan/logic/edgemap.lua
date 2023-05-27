@@ -1,17 +1,23 @@
+local Class = require "util.class"
+
 local Grid = require "catan.logic.grid"
 local CatanSchema = require "catan.logic.schema"
 
 local Edge = CatanSchema.Edge
 
-local EdgeMap = {}
+local EdgeMap = Class "EdgeMap"
 
-function EdgeMap:get (map, edge)
-    assert(Edge:isValid(edge))
-    return self:_get(map, Grid:unpack(edge))
+function EdgeMap:new ()
+    return EdgeMap:__new{}
 end
 
-function EdgeMap:_get (map, q, r, e)
-    local mapq = map[q]
+function EdgeMap:get (edge)
+    assert(Edge:isValid(edge))
+    return self:_get(Grid:unpack(edge))
+end
+
+function EdgeMap:_get (q, r, e)
+    local mapq = self[q]
     if mapq then
         local mapqr = mapq[r]
         if mapqr then
@@ -20,16 +26,16 @@ function EdgeMap:_get (map, q, r, e)
     end
 end
 
-function EdgeMap:set (map, edge, o)
+function EdgeMap:set (edge, o)
     assert(Edge:isValid(edge))
-    self:_set(map, o, Grid:unpack(edge))
+    self:_set(o, Grid:unpack(edge))
 end
 
-function EdgeMap:_set (map, o, q, r, e)
-    local mapq = map[q]
+function EdgeMap:_set (o, q, r, e)
+    local mapq = self[q]
     if mapq == nil then
         mapq = {}
-        map[q] = mapq
+        self[q] = mapq
     end
     local mapqr = mapq[r]
     if mapqr == nil then
@@ -39,8 +45,8 @@ function EdgeMap:_set (map, o, q, r, e)
     mapqr[e] = o
 end
 
-function EdgeMap:iter (map, f)
-    for q, mapq in pairs(map) do
+function EdgeMap:iter (f)
+    for q, mapq in pairs(self) do
         for r, mapqr in pairs(mapq) do
             for e, mapqre in pairs(mapqr) do
                 local ret = f(q, r, e, mapqre)
@@ -50,10 +56,10 @@ function EdgeMap:iter (map, f)
     end
 end
 
-function EdgeMap:contain (map1, map2)
+function EdgeMap:contain (other)
     local ret = true
-    self:iter(map2, function (q, r, e, o)
-        if self:_get(map1, q, r, e) ~= o then
+    other:iter(function (q, r, e, o)
+        if self:_get(q, r, e) ~= o then
             ret = false
             return true -- quit iteration
         end
@@ -61,9 +67,9 @@ function EdgeMap:contain (map1, map2)
     return ret
 end
 
-function EdgeMap:equal (map1, map2)
-    return self:contain(map1, map2) and
-           self:contain(map2, map1)
+function EdgeMap:equal (other)
+    return self:contain(other) and
+           other:contain(self)
 end
 
 return EdgeMap

@@ -300,7 +300,7 @@ function Game:_validatePlayerRoads (player)
     -- Do a depth-first search on every vertex with a building from the player
     -- and list all the visited edges
     local visitedEdges = {}
-    local function visit(q, r, v)
+    local function visit (q, r, v)
         for _, pair in ipairs(Grid:adjacentEdgeVertexPairs(q, r, v)) do
             if EdgeMap:get(allEdges, pair.edge) and not EdgeMap:get(visitedEdges, pair.edge) then
                 EdgeMap:set(visitedEdges, pair.edge, true)

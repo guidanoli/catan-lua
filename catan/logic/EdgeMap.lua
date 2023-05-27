@@ -13,11 +13,7 @@ end
 
 function EdgeMap:get (edge)
     assert(Edge:isValid(edge))
-    return self:_get(Grid:unpack(edge))
-end
-
--- TODO: deprecate
-function EdgeMap:_get (q, r, e)
+    local q, r, e = Grid:unpack(edge)
     local mapq = rawget(self, q)
     if mapq then
         local mapqr = rawget(mapq, r)
@@ -29,11 +25,7 @@ end
 
 function EdgeMap:set (edge, o)
     assert(Edge:isValid(edge))
-    self:_set(o, Grid:unpack(edge))
-end
-
--- TODO: deprecate
-function EdgeMap:_set (o, q, r, e)
+    local q, r, e = Grid:unpack(edge)
     local mapq = rawget(self, q)
     if mapq == nil then
         mapq = {}

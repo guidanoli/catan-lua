@@ -67,23 +67,19 @@ local TableUtils = require "util.table"
 local Box = Class "Box"
 
 ---
--- Input for @{catan.gui.Box:new}.
--- @tfield number x x coordinate
--- @tfield number y y coordinate
--- @tfield number w width
--- @tfield number h height
-Box.Input = {}
-
----
 -- Create box.
--- @tparam table t see @{catan.gui.Box.Input}
+-- @tparam table t box data
+-- @tparam number t.x x coordinate
+-- @tparam number t.y y coordinate
+-- @tparam number t.w width
+-- @tparam number t.h height
 -- @treturn catan.gui.Box a newly-created box
 function Box:new (t)
     assert(type(t.x) == "number", "missing x")
     assert(type(t.y) == "number", "missing y")
     assert(type(t.w) == "number", "missing w")
     assert(type(t.h) == "number", "missing h")
-    return Box:__new(t)
+    return self:__new(t)
 end
 
 ---
@@ -91,7 +87,7 @@ end
 -- @tparam Sprite sprite the sprite
 -- @treturn catan.gui.Box a newly-created box
 function Box:fromSprite (sprite)
-    return Box:new{
+    return self:new{
         x = sprite:getX(),
         y = sprite:getY(),
         w = sprite:getWidth(),
@@ -122,7 +118,7 @@ function Box:fromUnion (...)
     local topY = TableUtils:fold(math.min, topYs)
     local bottomY = TableUtils:fold(math.max, bottomYs)
 
-    return Box:new{
+    return self:new{
         x = leftX,
         y = topY,
         w = rightX - leftX,

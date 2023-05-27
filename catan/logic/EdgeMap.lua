@@ -8,7 +8,7 @@ local Edge = CatanSchema.Edge
 local EdgeMap = Class "EdgeMap"
 
 function EdgeMap:new ()
-    return EdgeMap:__new{}
+    return self:__new{}
 end
 
 function EdgeMap:get (edge)

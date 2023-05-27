@@ -17,11 +17,11 @@ function EdgeMap:get (edge)
 end
 
 function EdgeMap:_get (q, r, e)
-    local mapq = self[q]
+    local mapq = rawget(self, q)
     if mapq then
-        local mapqr = mapq[r]
+        local mapqr = rawget(mapq, r)
         if mapqr then
-            return mapqr[e]
+            return rawget(mapqr, e)
         end
     end
 end
@@ -32,17 +32,17 @@ function EdgeMap:set (edge, o)
 end
 
 function EdgeMap:_set (o, q, r, e)
-    local mapq = self[q]
+    local mapq = rawget(self, q)
     if mapq == nil then
         mapq = {}
-        self[q] = mapq
+        rawset(self, q, mapq)
     end
-    local mapqr = mapq[r]
+    local mapqr = rawget(mapq, r)
     if mapqr == nil then
         mapqr = {}
-        mapq[r] = mapqr
+        rawset(mapq, r, mapqr)
     end
-    mapqr[e] = o
+    rawset(mapqr, e, o)
 end
 
 function EdgeMap:iter (f)

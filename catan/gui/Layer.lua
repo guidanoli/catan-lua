@@ -5,7 +5,7 @@
 
 local Class = require "util.class"
 
-local Sprite = require "catan.gui.sprite"
+local Sprite = require "catan.gui.Sprite"
 local Box = require "catan.gui.Box"
 
 local Layer = Class "Layer"

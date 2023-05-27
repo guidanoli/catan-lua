@@ -16,6 +16,7 @@ function EdgeMap:get (edge)
     return self:_get(Grid:unpack(edge))
 end
 
+-- TODO: deprecate
 function EdgeMap:_get (q, r, e)
     local mapq = rawget(self, q)
     if mapq then
@@ -31,6 +32,7 @@ function EdgeMap:set (edge, o)
     self:_set(o, Grid:unpack(edge))
 end
 
+-- TODO: deprecate
 function EdgeMap:_set (o, q, r, e)
     local mapq = rawget(self, q)
     if mapq == nil then
@@ -54,25 +56,6 @@ function EdgeMap:iter (f)
             end
         end
     end
-end
-
--- TODO: deprecate and move to util.table
--- TODO: remove _set and _get
-function EdgeMap:contains (other)
-    local ret = true
-    other:iter(function (q, r, e, o)
-        if self:_get(q, r, e) ~= o then
-            ret = false
-            return true -- quit iteration
-        end
-    end)
-    return ret
-end
-
--- TODO: deprecate and move to util.table
-function EdgeMap:equals (other)
-    return self:contains(other) and
-           other:contains(self)
 end
 
 return EdgeMap

@@ -1,63 +1,76 @@
 ---
--- Array of sprites
--- @module catan.gui.layer
+-- An array of @{catan.gui.Sprite} objects.
+--
+-- @classmod catan.gui.Layer
 
 local Class = require "util.class"
 
 local Sprite = require "catan.gui.sprite"
 local Box = require "catan.gui.box"
 
----
--- A layer of sprites
--- @type Layer
 local Layer = Class "Layer"
 
 ---
 -- Create an empty layer
--- @treturn catan.gui.layer.Layer the newly-created layer
+-- @treturn catan.gui.Layer the newly-created layer
 function Layer:new ()
-    return Layer:__new{}
+    return self:__new{}
 end
 
 ---
 -- Add sprite to layer
--- @tparam table t input to `Sprite`
--- @treturn catan.gui.sprite.Sprite the newly-created sprite
-function Layer:addSprite (t)
-    local sprite = Sprite.new(t)
+-- @param ... arguments passed to @{catan.gui.Sprite:new}
+-- @treturn catan.gui.Sprite the newly-created sprite
+-- @usage
+-- local sprite = layer:addSprite{
+--   img,
+--   x = 100,
+--   y = 300,
+--   sx = 0.5,
+-- }
+function Layer:addSprite (...)
+    local sprite = Sprite:new(...)
     table.insert(self, sprite)
     return sprite
 end
 
 ---
--- Table cell in  @{catan.gui.layer:addSpriteTable}
+-- Table cell in  @{catan.gui.Layer:addSpriteTable}
 -- @tfield Drawable 1 the drawable object
 -- @tfield[opt=1] number sx the horizontal scaling factor
 -- @tfield[opt=sx] number sy the vertical scaling factor
 -- @tfield[opt=nil] function onleftclick left-click callback
 -- @tfield[opt=nil] function onrightclick right-click callback
 -- @see love2d@Drawable
-Layer.SpriteTableCell = {}
-
----
--- Input for @{catan.gui.layer:addSpriteTable}
--- @tfield[opt=1] number n number of table lines
--- @tfield[opt=1] number m number of table columns
--- @tfield[opt=0] number x the sprite line horizontal coordinate
--- @tfield[opt=0] number y the sprite line vertical coordinate
--- @tfield[opt=0] number xsep the horizontal space between sprites
--- @tfield[opt=0] number ysep the vertical space between sprites
--- @tfield[opt='left'] string xalign the horizontal alignment for the whole sprite line
--- @tfield[opt='top'] string yalign the vertical alignment for the whole sprite line
--- @tfield[opt=nil] Drawable bgimg background image
--- @tfield[opt=0] number bgmargin background margin
-Layer.SpriteTableInput = {}
+Layer.TableCell = {}
 
 ---
 -- Add a table of sprites
--- @tparam table t 2D array of @{catan.gui.layer.SpriteTableCell} or `Drawable` and fields in @{catan.gui.layer.SpriteTableInput}
--- @treturn catan.gui.box.Box 2D array with all the newly-created sprites
+-- @tparam table t a table of tables of cells, which can be
+-- either @{catan.gui.Layer.TableCell}, `Drawable` or `nil`.
+-- @tparam[opt=1] number t.n number of table lines
+-- @tparam[opt=1] number t.m number of table columns
+-- @tparam[opt=0] number t.x the sprite line horizontal coordinate
+-- @tparam[opt=0] number t.y the sprite line vertical coordinate
+-- @tparam[opt=0] number t.xsep the horizontal space between sprites
+-- @tparam[opt=0] number t.ysep the vertical space between sprites
+-- @tparam[opt='left'] string t.xalign the horizontal alignment for the whole sprite line
+-- @tparam[opt='top'] string t.yalign the vertical alignment for the whole sprite line
+-- @tparam[opt=nil] Drawable t.bgimg background image
+-- @tparam[opt=0] number t.bgmargin background margin
+-- @treturn catan.gui.Box box that bounds all sprites in the table
 -- @see love2d@Drawable
+-- @usage
+-- local box = layer:addSpriteTable{
+--   { img11, img12, img13 }, -- 1st line
+--   { img21, img22, img23 }, -- 2nd line
+--   n = 2,
+--   m = 3,
+--   x = 700,
+--   y = 500,
+--   xsep = 10,
+--   ysep = 20,
+-- }
 function Layer:addSpriteTable (t)
     local n = t.n or 1
     local m = t.m or 1
@@ -218,6 +231,14 @@ function Layer:addSpriteTable (t)
     end
 end
 
+---
+-- Iterate through sprites in layer
+-- @tparam function f an iterator function to be called with each sprite
+-- @return the first value returned by `f` that is not `false` or `nil`
+-- @usage
+-- layer:iterSprites(function (sprite)
+--   sprite:draw() -- draws each sprite onto the screen
+-- end)
 function Layer:iterSprites (f)
     for i, sprite in ipairs(self) do
         local ret = f(sprite)

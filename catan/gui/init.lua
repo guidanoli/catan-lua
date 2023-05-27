@@ -13,7 +13,7 @@ local CatanSchema = require "catan.logic.schema"
 local Game = require "catan.logic.game"
 local FaceMap = require "catan.logic.facemap"
 local VertexMap = require "catan.logic.vertexmap"
-local EdgeMap = require "catan.logic.edgemap"
+local EdgeMap = require "catan.logic.EdgeMap"
 local Grid = require "catan.logic.grid"
 
 local Sprite = require "catan.gui.Sprite"

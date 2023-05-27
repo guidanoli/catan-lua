@@ -6,7 +6,7 @@ local Constants = require "catan.logic.constants"
 local Grid = require "catan.logic.grid"
 local FaceMap = require "catan.logic.facemap"
 local VertexMap = require "catan.logic.vertexmap"
-local EdgeMap = require "catan.logic.edgemap"
+local EdgeMap = require "catan.logic.EdgeMap"
 
 --------------------------------
 

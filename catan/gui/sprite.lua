@@ -1,51 +1,47 @@
 ---
--- Game sprites ready to be drawn
+-- Drawable objects with extra rendering information.
 --
--- @module catan.gui.sprite
+-- Every sprite carries a drawable object (e.g. an image),
+-- and rendering information (which are used when drawing the
+-- object onto the screen).
+--
+-- @classmod catan.gui.Sprite
 
 local Class = require "util.class"
 
----
--- @type Sprite
 local Sprite = Class "Sprite"
 
 ---
--- Input to @{catan.gui.sprite:new}
--- @tfield Drawable 1 image
--- @tfield[opt=0] number x x-coordinate
--- @tfield[opt=0] number y y-coordinate
--- @tfield[opt=0] number r clockwise rotation in radians
--- @tfield[opt=1] number sx x-scale factor
--- @tfield[opt=sx] number sy y-scale factor
--- @tfield[opt=0] number ox x-origin
--- @tfield[opt=0] number oy y-origin
--- @tfield[opt=true] boolean center center image, overwrites `xalign` and `yalign`
--- @tfield[opt='left'] string xalign how to align the image horizontally, overwrites `ox` (can be 'left', 'center' or 'right')
--- @tfield[opt='top'] string yalign how to align the image vertically, overwrites `oy` (can be 'top', 'center', 'bottom')
--- @tfield function onleftclick callback for when sprite is clicked with left mouse button
--- @tfield function onrightclick callback for when sprite is clicked with right mouse button
-Sprite.Input = {}
-
----
 -- Create a sprite
--- @tparam table s see @{catan.gui.sprite.Input}
+-- @tparam Drawable img drawable object
+-- @tparam table t sprite metadata
+-- @tparam[opt=0] number t.x x-coordinate
+-- @tparam[opt=0] number t.y y-coordinate
+-- @tparam[opt=0] number t.r clockwise rotation in radians
+-- @tparam[opt=1] number t.sx x-scale factor
+-- @tparam[opt=sx] number t.sy y-scale factor
+-- @tparam[opt=0] number t.ox x-origin
+-- @tparam[opt=0] number t.oy y-origin
+-- @tparam[opt=true] boolean t.center center image, overwrites `xalign` and `yalign`
+-- @tparam[opt='left'] string t.xalign how to align the image horizontally, overwrites `ox` (can be 'left', 'center' or 'right')
+-- @tparam[opt='top'] string t.yalign how to align the image vertically, overwrites `oy` (can be 'top', 'center', 'bottom')
+-- @tparam function t.onleftclick callback for when sprite is clicked with left mouse button
+-- @tparam function t.onrightclick callback for when sprite is clicked with right mouse button
 -- @see love2d@Drawable
--- @treturn catan.gui.sprite.Sprite the newly-created sprite
-function Sprite.new (s)
-    local img = s[1]
+-- @treturn catan.gui.Sprite the newly-created sprite
+function Sprite:new (img, t)
+    local x = math.floor(t.x or 0)
+    local y = math.floor(t.y or 0)
 
-    local x = math.floor(s.x or 0)
-    local y = math.floor(s.y or 0)
+    local r = t.r or 0
 
-    local r = s.r or 0
+    local sx = t.sx or 1
+    local sy = t.sy or sx
 
-    local sx = s.sx or 1
-    local sy = s.sy or sx
+    local xalign = t.xalign or 'left'
+    local yalign = t.yalign or 'top'
 
-    local xalign = s.xalign
-    local yalign = s.yalign
-
-    if s.center then
+    if t.center then
         xalign = 'center'
         yalign = 'center'
     end
@@ -58,7 +54,8 @@ function Sprite.new (s)
     elseif xalign == 'center' then
         ox = w/2
     else
-        ox = s.ox or 0
+        assert(xalign == 'left')
+        ox = t.ox or 0
     end
 
     local oy
@@ -67,12 +64,13 @@ function Sprite.new (s)
     elseif yalign == 'center' then
         oy = h/2
     else
-        oy = s.oy or 0
+        assert(yalign == 'top')
+        oy = t.oy or 0
     end
 
     local transform = love.math.newTransform(x, y, r, sx, sy, ox, oy)
 
-    return Sprite:__new{
+    return self:__new{
         x = x,
         y = y,
         w = w,
@@ -84,8 +82,8 @@ function Sprite.new (s)
         oy = oy,
         img = img,
         transform = transform,
-        onleftclick = s.onleftclick,
-        onrightclick = s.onrightclick,
+        onleftclick = t.onleftclick,
+        onrightclick = t.onrightclick,
     }
 end
 

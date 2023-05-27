@@ -16,7 +16,6 @@ local VertexMap = require "catan.logic.vertexmap"
 local EdgeMap = require "catan.logic.edgemap"
 local Grid = require "catan.logic.grid"
 
-local gutil = require "catan.gui.util"
 local Sprite = require "catan.gui.Sprite"
 local Layer = require "catan.gui.Layer"
 local Box = require "catan.gui.Box"

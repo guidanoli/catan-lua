@@ -19,7 +19,7 @@ local Grid = require "catan.logic.grid"
 local gutil = require "catan.gui.util"
 local Sprite = require "catan.gui.sprite"
 local Layer = require "catan.gui.layer"
-local Box = require "catan.gui.box"
+local Box = require "catan.gui.Box"
 
 local CatanGUI = {}
 

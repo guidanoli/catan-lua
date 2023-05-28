@@ -6,25 +6,25 @@ local Face = CatanSchema.Face
 local Edge = CatanSchema.Edge
 local Vertex = CatanSchema.Vertex
 
-local Grid = {}
+local grid = {}
 
-function Grid:face (q, r)
+function grid:face (q, r)
     return Face:new{q = q, r = r}
 end
 
-function Grid:edge (q, r, e)
+function grid:edge (q, r, e)
     return Edge:new{q = q, r = r, e = e}
 end
 
-function Grid:vertex (q, r, v)
+function grid:vertex (q, r, v)
     return Vertex:new{q = q, r = r, v = v}
 end
 
-function Grid:unpack (x)
+function grid:unpack (x)
     return x.q, x.r, x.v or x.e
 end
 
-function Grid:neighbors (q, r)
+function grid:neighbors (q, r)
     return {
         self:face(q, r+1),
         self:face(q+1, r),
@@ -35,7 +35,7 @@ function Grid:neighbors (q, r)
     }
 end
 
-function Grid:borders (q, r)
+function grid:borders (q, r)
     return {
         self:edge(q, r, 'NE'),
         self:edge(q, r, 'NW'),
@@ -46,7 +46,7 @@ function Grid:borders (q, r)
     }
 end
 
-function Grid:corners (q, r)
+function grid:corners (q, r)
     return {
         self:vertex(q, r, 'N'),
         self:vertex(q, r-1, 'S'),
@@ -57,7 +57,7 @@ function Grid:corners (q, r)
     }
 end
 
-function Grid:touches (q, r, v)
+function grid:touches (q, r, v)
     if v == 'N' then
         return {
             self:face(q+1, r-1),
@@ -74,7 +74,7 @@ function Grid:touches (q, r, v)
     end
 end
 
-function Grid:protrudingEdges (q, r, v)
+function grid:protrudingEdges (q, r, v)
     if v == 'N' then
         return {
             self:edge(q, r, 'NE'),
@@ -91,7 +91,7 @@ function Grid:protrudingEdges (q, r, v)
     end
 end
 
-function Grid:adjacentVertices (q, r, v)
+function grid:adjacentVertices (q, r, v)
     if v == 'N' then
         return {
             self:vertex(q+1, r-2, 'S'),
@@ -108,7 +108,7 @@ function Grid:adjacentVertices (q, r, v)
     end
 end
 
-function Grid:joins (q, r, e)
+function grid:joins (q, r, e)
     if e == 'NE' then
         return {
             self:face(q+1, r-1),
@@ -128,7 +128,7 @@ function Grid:joins (q, r, e)
     end
 end
 
-function Grid:endpoints (q, r, e)
+function grid:endpoints (q, r, e)
     if e == 'NE' then
         return {
             self:vertex(q+1, r-1, 'S'),
@@ -148,7 +148,7 @@ function Grid:endpoints (q, r, e)
     end
 end
 
-function Grid:adjacentEdgeVertexPairs (q, r, v)
+function grid:adjacentEdgeVertexPairs (q, r, v)
     if v == 'N' then
         return {
             { edge = self:edge(q, r, 'NE'), vertex = self:vertex(q+1, r-1, 'S') },
@@ -165,9 +165,9 @@ function Grid:adjacentEdgeVertexPairs (q, r, v)
     end
 end
 
-function Grid:edgeInBetween (vertex1, vertex2)
-    local edges1 = self:protrudingEdges(Grid:unpack(vertex1))
-    local edges2 = self:protrudingEdges(Grid:unpack(vertex2))
+function grid:edgeInBetween (vertex1, vertex2)
+    local edges1 = self:protrudingEdges(grid:unpack(vertex1))
+    local edges2 = self:protrudingEdges(grid:unpack(vertex2))
     for i, edge1 in ipairs(edges1) do
         for j, edge2 in ipairs(edges2) do
             if Edge:eq(edge1, edge2) then
@@ -178,7 +178,7 @@ function Grid:edgeInBetween (vertex1, vertex2)
     error"no edge in-between"
 end
 
-function Grid:edgeOrientationInFace (face, edge)
+function grid:edgeOrientationInFace (face, edge)
     local q, r, e = self:unpack(edge)
     if q == face.q and r == face.r then
         assert(e == 'NE' or e == 'NW' or e == 'W')
@@ -201,4 +201,4 @@ function Grid:edgeOrientationInFace (face, edge)
     end
 end
 
-return Grid
+return grid

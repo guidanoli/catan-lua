@@ -2,7 +2,7 @@ local Class = require "util.class"
 local TableUtils = require "util.table"
 
 local CatanSchema = require "catan.logic.schema"
-local Constants = require "catan.logic.constants"
+local CatanConstants = require "catan.logic.constants"
 local Grid = require "catan.logic.grid"
 local FaceMap = require "catan.logic.FaceMap"
 local VertexMap = require "catan.logic.VertexMap"
@@ -17,7 +17,7 @@ local Game = Class "Game"
 --------------------------------
 
 function Game:new (players)
-    players = players or Constants.players
+    players = players or CatanConstants.players
     local game = Game:__new{}
     game:_init(players)
     return game
@@ -48,7 +48,7 @@ function Game:_setPlayers (players)
     do
         -- Register all valid player colors
         local taken = {}
-        for i, player in ipairs(Constants.players) do
+        for i, player in ipairs(CatanConstants.players) do
             taken[player] = false
         end
 
@@ -71,7 +71,7 @@ end
 
 function Game:_createHexMap ()
     local hexes = {}
-    for kind, count in pairs(Constants.terrain) do
+    for kind, count in pairs(CatanConstants.terrain) do
         for i = 1, count do
             table.insert(hexes, kind)
         end
@@ -79,17 +79,17 @@ function Game:_createHexMap ()
     TableUtils:shuffleInPlace(hexes)
     self.hexmap = FaceMap:new()
     for i, hex in ipairs(hexes) do
-        self.hexmap:set(Constants.terrainFaces[i], hex)
+        self.hexmap:set(CatanConstants.terrainFaces[i], hex)
     end
 end
 
 function Game:_createNumberMap ()
     local i = 1
     self.numbermap = FaceMap:new()
-    for _, face in ipairs(Constants.terrainFaces) do
+    for _, face in ipairs(CatanConstants.terrainFaces) do
         local hex = self.hexmap:get(face)
         if hex ~= 'desert' then
-            self.numbermap:set(face, Constants.numbers[i])
+            self.numbermap:set(face, CatanConstants.numbers[i])
             i = i + 1
         end
     end
@@ -97,7 +97,7 @@ end
 
 function Game:_createHarborMap ()
     self.harbormap = VertexMap:new()
-    for _, harbor in ipairs(Constants.harbors) do
+    for _, harbor in ipairs(CatanConstants.harbors) do
         self.harbormap:set(harbor, harbor.kind)
     end
 end
@@ -127,7 +127,7 @@ end
 
 function Game:_createDrawPile ()
     self.drawpile = {}
-    for kind, count in pairs(Constants.devcards) do
+    for kind, count in pairs(CatanConstants.devcards) do
         for i = 1, count do
             table.insert(self.drawpile, kind)
         end
@@ -137,7 +137,7 @@ end
 
 function Game:_createBank ()
     self.bank = {}
-    for rescard, count in pairs(Constants.rescards) do
+    for rescard, count in pairs(CatanConstants.rescards) do
         self.bank[rescard] = count
     end
 end

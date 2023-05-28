@@ -2,18 +2,22 @@
 
 local CatanSchema = require "catan.logic.schema"
 
+local Face = CatanSchema.Face
+local Edge = CatanSchema.Edge
+local Vertex = CatanSchema.Vertex
+
 local Grid = {}
 
 function Grid:face (q, r)
-    return CatanSchema.Face:new{q = q, r = r}
+    return Face:new{q = q, r = r}
 end
 
 function Grid:edge (q, r, e)
-    return CatanSchema.Edge:new{q = q, r = r, e = e}
+    return Edge:new{q = q, r = r, e = e}
 end
 
 function Grid:vertex (q, r, v)
-    return CatanSchema.Vertex:new{q = q, r = r, v = v}
+    return Vertex:new{q = q, r = r, v = v}
 end
 
 function Grid:unpack (x)
@@ -166,7 +170,7 @@ function Grid:edgeInBetween (vertex1, vertex2)
     local edges2 = self:protrudingEdges(Grid:unpack(vertex2))
     for i, edge1 in ipairs(edges1) do
         for j, edge2 in ipairs(edges2) do
-            if CatanSchema.Edge:eq(edge1, edge2) then
+            if Edge:eq(edge1, edge2) then
                 return edge1
             end
         end

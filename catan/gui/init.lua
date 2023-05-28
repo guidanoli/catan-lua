@@ -325,11 +325,11 @@ function gui:getShipImageFromHarbor (harbor)
 end
 
 function gui:getHexCorners ()
-    local corners = {}
+    local corners = VertexMap:new()
 
     self.game.hexmap:iter(function (q, r)
         for i, vertex in ipairs(Grid:corners(q, r)) do
-            VertexMap:set(corners, vertex, true)
+            corners:set(vertex, true)
         end
     end)
 
@@ -455,18 +455,19 @@ function gui.renderers:board ()
     -- Harbors
     do
         local boardImg = self.images.harbor.board
-        local visited = {}
         local oy = boardImg:getHeight() / 2
         local RES_SIZE = 25 -- size of resource
         local RES_OX = 30 -- x-offset of resource
         local RES_OY = 15 -- y-offset of resource
 
-        VertexMap:iter(self.game.harbormap, function (q1, r1, v1, harbor)
+        local visited = VertexMap:new()
+
+        self.game.harbormap:iter(function (q1, r1, v1, harbor)
             local vertex1 = Grid:vertex(q1, r1, v1)
-            VertexMap:set(visited, vertex1, true)
+            visited:set(vertex1, true)
             local adjvertices = Grid:adjacentVertices(q1, r1, v1)
             for _, vertex2 in ipairs(adjvertices) do
-                if VertexMap:get(visited, vertex2) then
+                if visited:get(vertex2) then
                     local x1, y1 = self:getVertexPos(q1, r1, v1)
                     local x2, y2 = self:getVertexPos(Grid:unpack(vertex2))
                     local a1, a2, edge = self:getHarborAngles(vertex1, vertex2)
@@ -529,7 +530,7 @@ function gui.renderers:board ()
     if self.game:canPlaceInitialSettlement() then
         local hexCorners = self:getHexCorners()
         local img = self.images.selection
-        VertexMap:iter(hexCorners, function (q, r, v)
+        hexCorners:iter(function (q, r, v)
             local vertex = Grid:vertex(q, r, v)
             if self.game:canPlaceInitialSettlement(vertex) then
                 local x, y = self:getVertexPos(q, r, v)
@@ -579,7 +580,7 @@ function gui.renderers:board ()
 
     -- Buildings
     do
-        VertexMap:iter(self.game.buildmap, function (q, r, v, building)
+        self.game.buildmap:iter(function (q, r, v, building)
             local x, y = self:getVertexPos(q, r, v)
             local onleftclick
             local player = building.player

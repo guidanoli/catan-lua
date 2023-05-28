@@ -94,11 +94,11 @@ Constants.harbors = {
 
 do
     -- Check for duplicate coordinates
-    local map = {}
+    local map = VertexMap:new()
     for _, h in pairs(Constants.harbors) do
         local vertex = {q = h.q, r = h.r, v = h.v}
-        assert(VertexMap:get(map, vertex) == nil)
-        VertexMap:set(map, vertex, true)
+        assert(map:get(vertex) == nil)
+        map:set(vertex, true)
     end
 end
 

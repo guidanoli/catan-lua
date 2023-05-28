@@ -34,7 +34,7 @@ function Game:_init (players)
     self:_createHexMap()
     self:_createNumberMap()
     self:_createHarborMap()
-    self.buildmap = {}
+    self.buildmap = VertexMap:new()
     self.roadmap = EdgeMap:new()
     self:_placeRobberInDesert()
     self:_createDevelopmentCards()
@@ -96,9 +96,9 @@ function Game:_createNumberMap ()
 end
 
 function Game:_createHarborMap ()
-    self.harbormap = {}
+    self.harbormap = VertexMap:new()
     for _, harbor in ipairs(Constants.harbors) do
-        VertexMap:set(self.harbormap, harbor, harbor.kind)
+        self.harbormap:set(harbor, harbor.kind)
     end
 end
 
@@ -182,7 +182,7 @@ function Game:_validateBuildMap ()
     end
 
     -- for every building...
-    VertexMap:iter(self.buildmap, function (q, r, v, building)
+    self.buildmap:iter(function (q, r, v, building)
 
         -- increment the building counter for that player
         numOfBuildings[building.player] = numOfBuildings[building.player] + 1
@@ -217,7 +217,7 @@ function Game:_validateBuildMap ()
 
         -- every adjacent vertex must have no building
         for _, adjacentVertex in ipairs(Grid:adjacentVertices(q, r, v)) do
-            assert(not VertexMap:get(self.buildmap, adjacentVertex))
+            assert(not self.buildmap:get(adjacentVertex))
         end
     end)
 
@@ -282,10 +282,10 @@ end
 
 function Game:_validatePlayerRoads (player)
     -- List all vertices that contain a building from the player
-    local allVertices = {}
-    VertexMap:iter(self.buildmap, function (q, r, v, building)
+    local allVertices = VertexMap:new()
+    self.buildmap:iter(function (q, r, v, building)
         if building.player == player then
-            VertexMap:set(allVertices, Grid:vertex(q, r, v), true)
+            allVertices:set(Grid:vertex(q, r, v), true)
         end
     end)
 
@@ -308,7 +308,7 @@ function Game:_validatePlayerRoads (player)
             end
         end
     end
-    VertexMap:iter(allVertices, visit)
+    allVertices:iter(visit)
 
     -- Check if every edge from the player was visited by the DFS
     assert(TableUtils:deepEqual(allEdges, visitedEdges))
@@ -330,7 +330,7 @@ function Game:getNumberOfVictoryPoints (player)
 
     -- 1 VP for every settlement built by the player
     -- 2 VPs for every city built by the player
-    VertexMap:iter(self.buildmap, function (q, r, v, building)
+    self.buildmap:iter(function (q, r, v, building)
         if building.player == player then
             if building.kind == "settlement" then
                 n = n + 1
@@ -440,7 +440,7 @@ function Game:canPlaceInitialSettlement (vertex)
         if not self:_isVertexCornerOfSomeHex(vertex) then
             return false, "vertex not corner of some hex"
         end
-        if VertexMap:get(self.buildmap, vertex) ~= nil then
+        if self.buildmap:get(vertex) ~= nil then
             return false, "vertex has building"
         end
         if self:_isVertexAdjacentToSomeBuilding(vertex) then
@@ -586,7 +586,7 @@ end
 function Game:iterProduction (production, f)
     return production:iter(function (q, r, hexProduction)
         local face = Grid:face(q, r)
-        return VertexMap:iter(hexProduction, function (q, r, v, buildingProduction)
+        return hexProduction:iter(function (q, r, v, buildingProduction)
             local vertex = Grid:vertex(q, r, v)
             return f(face, vertex, buildingProduction)
         end)
@@ -600,7 +600,7 @@ end
 function Game:placeInitialSettlement (vertex)
     assert(self:canPlaceInitialSettlement(vertex))
 
-    VertexMap:set(self.buildmap, vertex, {
+    self.buildmap:set(vertex, {
         kind = "settlement",
         player = self.player,
     })
@@ -609,12 +609,12 @@ function Game:placeInitialSettlement (vertex)
 
     if self.round == 2 then
         for _, touchingFace in ipairs(Grid:touches(Grid:unpack(vertex))) do
-            local hexProduction = {}
+            local hexProduction = VertexMap:new()
             local touchingHex = self.hexmap:get(touchingFace)
             if touchingHex ~= nil then
                 local res = self:resFromHex(touchingHex)
                 if res ~= nil then
-                    VertexMap:set(hexProduction, vertex, {
+                    hexProduction:set(vertex, {
                         player = self.player,
                         numCards = 1,
                         res = res,
@@ -679,12 +679,12 @@ function Game:roll (dice)
             local hex = assert(self.hexmap:get(face))
             local res = self:resFromHex(hex)
             if res ~= nil then
-                local hexProduction = {}
+                local hexProduction = VertexMap:new()
                 for _, corner in ipairs(Grid:corners(q, r)) do
-                    local building = VertexMap:get(self.buildmap, corner)
+                    local building = self.buildmap:get(corner)
                     if building ~= nil then
                         local numCards = self:numResCardsForBuilding(building.kind)
-                        VertexMap:set(hexProduction, corner, {
+                        hexProduction:set(corner, {
                             player = building.player,
                             numCards = numCards,
                             res = res,
@@ -803,7 +803,7 @@ end
 function Game:_getVictimsAroundFace (face)
     local victims = {}
     for _, corner in ipairs(Grid:corners(Grid:unpack(face))) do
-        local building = VertexMap:get(self.buildmap, corner)
+        local building = self.buildmap:get(corner)
         if building then
             local player = building.player
             if player ~= self.player then
@@ -869,7 +869,7 @@ end
 -- We say a settlement is lonely when it has no protruding roads
 function Game:_isEdgeEndpointOfPlayerLonelySettlement (edge)
     for _, endpoint in ipairs(Grid:endpoints(Grid:unpack(edge))) do
-        local building = VertexMap:get(self.buildmap, endpoint)
+        local building = self.buildmap:get(endpoint)
         if building and building.player == self.player then
             assert(building.kind == "settlement")
             local isSettlementLonely = true
@@ -912,7 +912,7 @@ end
 function Game:_isVertexAdjacentToSomeBuilding (vertex)
     local adjacentVertices = Grid:adjacentVertices(Grid:unpack(vertex))
     for _, adjacentVertex in ipairs(adjacentVertices) do
-        if VertexMap:get(self.buildmap, adjacentVertex) then
+        if self.buildmap:get(adjacentVertex) then
             return true
         end
     end

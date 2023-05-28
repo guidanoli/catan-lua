@@ -166,8 +166,8 @@ function grid:adjacentEdgeVertexPairs (q, r, v)
 end
 
 function grid:edgeInBetween (vertex1, vertex2)
-    local edges1 = self:protrudingEdges(grid:unpack(vertex1))
-    local edges2 = self:protrudingEdges(grid:unpack(vertex2))
+    local edges1 = self:protrudingEdges(self:unpack(vertex1))
+    local edges2 = self:protrudingEdges(self:unpack(vertex2))
     for i, edge1 in ipairs(edges1) do
         for j, edge2 in ipairs(edges2) do
             if Edge:eq(edge1, edge2) then

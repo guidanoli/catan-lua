@@ -273,10 +273,12 @@ do
 end
 
 do
-    local successes = report.successes
-    local failures = report.failures
+    local successes = report.successes or 0
+    local failures = report.failures or 0
     local total = successes + failures
     print(('Number of runs: %d'):format(total))
-    print(('Success rate: %.2f %% (%d)'):format(100 * successes / total, successes))
-    print(('Failure rate: %.2f %% (%d)'):format(100 * failures / total, failures))
+    if total ~= 0 then
+        print(('Success rate: %.2f %% (%d)'):format(100 * successes / total, successes))
+        print(('Failure rate: %.2f %% (%d)'):format(100 * failures / total, failures))
+    end
 end

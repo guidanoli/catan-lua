@@ -99,8 +99,9 @@ end
 local actions = {}
 
 function actions.placeInitialSettlement (game)
-    if not game:canPlaceInitialSettlement() then
-        failure('cannot place initial settlement')
+    local ok, err = game:canPlaceInitialSettlement()
+    if not ok then
+        failure(err)
         return false
     end
     local vertex = randomValidVertex(game, function (vertex)
@@ -116,8 +117,9 @@ function actions.placeInitialSettlement (game)
 end
 
 function actions.placeInitialRoad (game)
-    if not game:canPlaceInitialRoad() then
-        failure('cannot place initial road')
+    local ok, err = game:canPlaceInitialRoad()
+    if not ok then
+        failure(err)
         return false
     end
     local edge = randomValidEdge(game, function (edge)

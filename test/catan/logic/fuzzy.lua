@@ -88,12 +88,12 @@ local function green (s)
     return color(32, s)
 end
 
-local function success (s, ...)
-    io.stderr:write(green'SUCCESS: ', s:format(...), '\n')
+local function printSuccess (s)
+    io.stderr:write(green'SUCCESS: ' .. s .. '\n')
 end
 
-local function failure (s, ...)
-    io.stderr:write(red'FAILURE: ', s:format(...), '\n')
+local function printFailure (s)
+    io.stderr:write(red'FAILURE: ' .. s .. '\n')
 end
 
 local actions = {}
@@ -101,37 +101,31 @@ local actions = {}
 function actions.placeInitialSettlement (game)
     local ok, err = game:canPlaceInitialSettlement()
     if not ok then
-        failure(err)
-        return false
+        return false, err
     end
     local vertex = randomValidVertex(game, function (vertex)
         return game:canPlaceInitialSettlement(vertex)
     end)
     if vertex == nil then
-        failure'no vertex to place initial settlement'
-        return false
+        return false, 'no vertex to place initial settlement'
     end
     local production = game:placeInitialSettlement(vertex)
-    success('placeInitialSettlement(%s)', display(vertex))
-    return true
+    return true, ('placeInitialSettlement(%s)'):format(display(vertex))
 end
 
 function actions.placeInitialRoad (game)
     local ok, err = game:canPlaceInitialRoad()
     if not ok then
-        failure(err)
-        return false
+        return false, err
     end
     local edge = randomValidEdge(game, function (edge)
         return game:canPlaceInitialRoad(edge)
     end)
     if edge == nil then
-        failure'no edge to place initial road'
-        return false
+        return false, 'no edge to place initial road'
     end
     local production = game:placeInitialRoad(edge)
-    success('placeInitialRoad(%s)', display(edge))
-    return true
+    return true, ('placeInitialRoad(%s)'):format(display(edge))
 end
 
 local NUM_RUNS = 100
@@ -149,11 +143,17 @@ for i = 1, NUM_RUNS do
         actionKey = next(actions) -- loop over
     end
 
-    local success = actions[actionKey](game)
+    local ok, msg = actions[actionKey](game)
 
-    if success then
+    if msg == nil then
+        msg = ('(no message given by %q)'):format(actionKey)
+    end
+
+    if ok then
+        printSuccess(msg)
         statistics.successes = (statistics.successes or 0) + 1
     else
+        printFailure(msg)
         statistics.failures = (statistics.failures or 0) + 1
     end
 

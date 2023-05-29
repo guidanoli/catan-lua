@@ -143,83 +143,83 @@ end
 local actions = {}
 
 function actions.placeInitialSettlement (game)
-    local ok, err = game:canPlaceInitialSettlement()
-    if not ok then
-        return false, err
+    local ok, msg = game:canPlaceInitialSettlement()
+    if ok then
+        local vertex = randomValidVertex(game, function (vertex)
+            return game:canPlaceInitialSettlement(vertex)
+        end)
+        local production = game:placeInitialSettlement(vertex)
+        msg = ('placeInitialSettlement(%s)'):format(display(vertex))
     end
-    local vertex = randomValidVertex(game, function (vertex)
-        return game:canPlaceInitialSettlement(vertex)
-    end)
-    local production = game:placeInitialSettlement(vertex)
-    return true, ('placeInitialSettlement(%s)'):format(display(vertex))
+    return ok, msg
 end
 
 function actions.placeInitialRoad (game)
-    local ok, err = game:canPlaceInitialRoad()
-    if not ok then
-        return false, err
+    local ok, msg = game:canPlaceInitialRoad()
+    if ok then
+        local edge = randomValidEdge(game, function (edge)
+            return game:canPlaceInitialRoad(edge)
+        end)
+        local production = game:placeInitialRoad(edge)
+        msg = ('placeInitialRoad(%s)'):format(display(edge))
     end
-    local edge = randomValidEdge(game, function (edge)
-        return game:canPlaceInitialRoad(edge)
-    end)
-    local production = game:placeInitialRoad(edge)
-    return true, ('placeInitialRoad(%s)'):format(display(edge))
+    return ok, msg
 end
 
 function actions.roll (game)
-    local ok, err = game:canRoll()
-    if not ok then
-        return false, err
+    local ok, msg = game:canRoll()
+    if ok then
+        local dice = randomDice()
+        local production = game:roll(dice)
+        msg = ('roll({%s})'):format(table.concat(dice, ', '))
     end
-    local dice = randomDice()
-    local production = game:roll(dice)
-    return true, ('roll({%s})'):format(table.concat(dice, ', '))
+    return ok, msg
 end
 
 function actions.endTurn (game)
-    local ok, err = game:canEndTurn()
-    if not ok then
-        return false, err
+    local ok, msg = game:canEndTurn()
+    if ok then
+        game:endTurn()
+        msg = 'endTurn()'
     end
-    game:endTurn()
-    return true, 'endTurn()'
+    return ok, msg
 end
 
 function actions.discard (game)
-    local ok, err = game:canDiscard()
-    if not ok then
-        return false, err
+    local ok, msg = game:canDiscard()
+    if ok then
+        local player = randomValidPlayer(game, function (player)
+            return game:canDiscard(player)
+        end)
+        local rescards = randomValidPlayerResCardsToDiscard(game, player)
+        game:discard(player, rescards)
+        msg = ('discard(%s, %s)'):format(player, fmtrescards(rescards))
     end
-    local player = randomValidPlayer(game, function (player)
-        return game:canDiscard(player)
-    end)
-    local rescards = randomValidPlayerResCardsToDiscard(game, player)
-    game:discard(player, rescards)
-    return true, ('discard(%s, %s)'):format(player, fmtrescards(rescards))
+    return ok, msg
 end
 
 function actions.moveRobber (game)
-    local ok, err = game:canMoveRobber()
-    if not ok then
-        return false, err
+    local ok, msg = game:canMoveRobber()
+    if ok then
+        local face = randomValidFace(game, function (face)
+            return game:canMoveRobber(face)
+        end)
+        local victim, res = game:moveRobber(face)
+        msg = ('moveRobber(%s)'):format(display(face))
     end
-    local face = randomValidFace(game, function (face)
-        return game:canMoveRobber(face)
-    end)
-    local victim, res = game:moveRobber(face)
-    return true, ('moveRobber(%s)'):format(display(face))
+    return ok, msg
 end
 
 function actions.chooseVictim (game)
-    local ok, err = game:canChooseVictim()
-    if not ok then
-        return false, err
+    local ok, msg = game:canChooseVictim()
+    if ok then
+        local player = randomValidPlayer(game, function (player)
+            return game:canChooseVictim(player)
+        end)
+        local res = game:chooseVictim(player)
+        msg = ('chooseVictim(%s)'):format(player)
     end
-    local player = randomValidPlayer(game, function (player)
-        return game:canChooseVictim(player)
-    end)
-    local res = game:chooseVictim(player)
-    return true, ('chooseVictim(%s)'):format(player)
+    return ok, msg
 end
 
 local function run (args)

@@ -99,6 +99,7 @@ for i = 1, NUM_RUNS do
     end
 
     local success = actions[actionKey](game)
+
     if success then
         statistics.successes = (statistics.successes or 0) + 1
     else
@@ -112,4 +113,13 @@ do
     local timeAfter = os.clock()
     local timeDiff = timeAfter - timeBefore
     print(('Elapsed time: %f s'):format(timeDiff))
+end
+
+do
+    local successes = statistics.successes
+    local failures = statistics.failures
+    local total = successes + failures
+    print(('Number of runs: %d'):format(total))
+    print(('Success rate: %.2f %% (%d)'):format(100 * successes / total, successes))
+    print(('Failure rate: %.2f %% (%d)'):format(100 * failures / total, failures))
 end

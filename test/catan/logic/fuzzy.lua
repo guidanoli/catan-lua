@@ -1,9 +1,40 @@
 local Grid = require "catan.logic.grid"
 
+local FaceMap = require "catan.logic.FaceMap"
 local VertexMap = require "catan.logic.VertexMap"
 local EdgeMap = require "catan.logic.EdgeMap"
 
 local Game = require "catan.logic.game"
+
+local function validFaces (game, isValid)
+    local facemap = FaceMap:new()
+    local n = 0
+    game.hexmap:iter(function (q, r)
+        local face = Grid:face(q, r)
+        if facemap:get(face) == nil and isValid(face) then
+            facemap:set(face, true)
+            n = n + 1
+        end
+    end)
+    return facemap, n
+end
+
+local function randomValidFace (game, isValid)
+    local faces, n = validFaces(game, isValid)
+    if n == 0 then
+        return
+    end
+    local i = math.random(n)
+    local j = 1
+    local face = faces:iter(function (q, r, v)
+        if i == j then
+            return Grid:face(q, r, v)
+        else
+            j = j + 1
+        end
+    end)
+    return assert(face)
+end
 
 local function validVertices (game, isValid)
     local vertexmap = VertexMap:new()
@@ -142,9 +173,20 @@ function actions.roll (game)
         return false, err
     end
     local dice = randomDice()
-    assert(game:canRoll(dice))
     local production = game:roll(dice)
     return true, ('roll({%s})'):format(table.concat(dice, ', '))
+end
+
+function actions.moveRobber (game)
+    local ok, err = game:canMoveRobber()
+    if not ok then
+        return false, err
+    end
+    local face = randomValidFace(game, function (face)
+        return game:canMoveRobber(face)
+    end)
+    local victim, res = game:moveRobber(face)
+    return true, ('moveRobber(%s)'):format(display(face))
 end
 
 local NUM_RUNS = 100

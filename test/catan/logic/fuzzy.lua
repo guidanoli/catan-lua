@@ -220,7 +220,7 @@ function actions.chooseVictim (game)
     return true, ('chooseVictim(%s)'):format(player)
 end
 
-local NUM_RUNS = 100
+local NUM_RUNS = 1000
 
 local lastActionKey
 local statistics = {}

@@ -244,7 +244,9 @@ local function run (args)
             printSuccess(msg)
             report.successes = (report.successes or 0) + 1
         else
-            printFailure(msg)
+            if args.v >= 1 then
+                printFailure(msg)
+            end
             report.failures = (report.failures or 0) + 1
         end
 
@@ -256,6 +258,7 @@ end
 
 local parser = argparse("fuzzy", "Catan fuzzy tester")
 parser:option("-n", "Number of call attempts", 1000)
+parser:flag("-v", "Verbosity level"):count"*"
 
 local args = parser:parse()
 

@@ -222,7 +222,7 @@ end
 
 local function run (n)
     local lastActionKey
-    local statistics = {}
+    local report = {}
 
     local game = Game:new()
 
@@ -240,23 +240,23 @@ local function run (n)
 
         if ok then
             printSuccess(msg)
-            statistics.successes = (statistics.successes or 0) + 1
+            report.successes = (report.successes or 0) + 1
         else
             printFailure(msg)
-            statistics.failures = (statistics.failures or 0) + 1
+            report.failures = (report.failures or 0) + 1
         end
 
         lastActionKey = actionKey
     end
 
-    return statistics
+    return report
 end
 
 local NUM_RUNS = os.getenv"NUM_RUNS" or 1000
 
 local timeBefore = os.clock()
 
-local statistics = run(NUM_RUNS)
+local report = run(NUM_RUNS)
 
 do
     local timeAfter = os.clock()
@@ -265,8 +265,8 @@ do
 end
 
 do
-    local successes = statistics.successes
-    local failures = statistics.failures
+    local successes = report.successes
+    local failures = report.failures
     local total = successes + failures
     print(('Number of runs: %d'):format(total))
     print(('Success rate: %.2f %% (%d)'):format(100 * successes / total, successes))

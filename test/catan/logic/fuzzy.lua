@@ -1,3 +1,5 @@
+local argparse = require "argparse"
+
 local TableUtils = require "util.table"
 
 local Grid = require "catan.logic.grid"
@@ -252,11 +254,14 @@ local function run (n)
     return report
 end
 
-local NUM_RUNS = os.getenv"NUM_RUNS" or 1000
+local parser = argparse("fuzzy", "Catan fuzzy tester")
+parser:option("-n", "Number of call attempts", 1000)
+
+local args = parser:parse()
 
 local timeBefore = os.clock()
 
-local report = run(NUM_RUNS)
+local report = run(args.n)
 
 do
     local timeAfter = os.clock()

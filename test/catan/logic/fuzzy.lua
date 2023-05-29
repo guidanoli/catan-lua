@@ -82,13 +82,13 @@ local function validEdges (game, isValid)
 end
 
 local function randomValidEdge (game, isValid)
-    local vertices, n = validEdges(game, isValid)
+    local edges, n = validEdges(game, isValid)
     if n == 0 then
         return
     end
     local i = math.random(n)
     local j = 1
-    local edge = vertices:iter(function (q, r, e)
+    local edge = edges:iter(function (q, r, e)
         if i == j then
             return Grid:edge(q, r, e)
         else

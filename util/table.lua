@@ -1,5 +1,13 @@
 local TableUtils = {}
 
+function TableUtils:sample (t)
+    local n = #t
+    if n ~= 0 then
+        local i = math.random(n)
+        return rawget(t, i)
+    end
+end
+
 function TableUtils:shuffleInPlace (t)
     for i = #t, 2, -1 do
         local j = math.random(i)

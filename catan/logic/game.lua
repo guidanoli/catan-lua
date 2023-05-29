@@ -487,6 +487,18 @@ function Game:canRoll (dice)
     return true
 end
 
+-- Does not check if phase is right to discard
+function Game:mustPlayerDiscard (player)
+    if self:hasDiscardedInThisRound(player) then
+        return false, "player has discarded in this round already"
+    end
+    local expectedTotalDiscardCount = self:getNumberOfResourceCardsToDiscard(player)
+    if expectedTotalDiscardCount == 0 then
+        return false, "player does not need to discard anything"
+    end
+    return true
+end
+
 function Game:canDiscard (player, rescards)
     local ok, err = self:_isPhase"discarding"
     if not ok then
@@ -497,12 +509,9 @@ function Game:canDiscard (player, rescards)
         if not valid then
             return false, err
         end
-        if self:hasDiscardedInThisRound(player) then
-            return false, "player has discarded in this round already"
-        end
-        local expectedTotalDiscardCount = self:getNumberOfResourceCardsToDiscard(player)
-        if expectedTotalDiscardCount == 0 then
-            return false, "player does not need to discard anything"
+        local needsToDiscard, err = self:mustPlayerDiscard(player)
+        if not needsToDiscard then
+            return false, err
         end
         if rescards ~= nil then
             local valid, err = CatanSchema.ResourceCardHistogram:isValid(rescards)
@@ -517,6 +526,7 @@ function Game:canDiscard (player, rescards)
                 end
                 totalDiscardCount = totalDiscardCount + discardCount
             end
+            local expectedTotalDiscardCount = self:getNumberOfResourceCardsToDiscard(player)
             if totalDiscardCount ~= expectedTotalDiscardCount then
                 return false, "player is not discarding half of their cards"
             end
@@ -701,15 +711,13 @@ function Game:roll (dice)
     self.dice = dice
 
     if diceSum == 7 then
-        local mustDiscard = false
+        local mustSomePlayerDiscard = false
         for _, player in ipairs(self.players) do
-            local numResCards = self:getNumberOfResourceCards(player)
-            if self:isNumberOfResourceCardsAboveLimit(numResCards) then
-                mustDiscard = true
-                break
+            if self:mustPlayerDiscard(player) then
+                mustSomePlayerDiscard = true
             end
         end
-        if mustDiscard then
+        if mustSomePlayerDiscard then
             self.phase = "discarding"
         else
             self.phase = "movingRobber"

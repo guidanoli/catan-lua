@@ -208,6 +208,18 @@ function actions.moveRobber (game)
     return true, ('moveRobber(%s)'):format(display(face))
 end
 
+function actions.chooseVictim (game)
+    local ok, err = game:canChooseVictim()
+    if not ok then
+        return false, err
+    end
+    local player = randomValidPlayer(game, function (player)
+        return game:canChooseVictim(player)
+    end)
+    local res = game:chooseVictim(player)
+    return true, ('chooseVictim(%s)'):format(player)
+end
+
 local NUM_RUNS = 100
 
 local lastActionKey

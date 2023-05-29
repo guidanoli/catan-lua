@@ -777,7 +777,7 @@ function Game:discard (player, rescards)
     assert(self:canDiscard(player, rescards))
 
     for res, discardCount in pairs(rescards) do
-        self:_addToResCardCount(player, res, -discardCount)
+        self:_dealResources(player, res, -discardCount)
     end
 
     self.lastdiscard[player] = self.round
@@ -892,18 +892,18 @@ end
 function Game:_stealRandomResCardFrom (victim)
     local res = self:_choosePlayerResCardAtRandom(victim)
     assert(res ~= nil, "victim must have at least one card")
-    self:_addToResCardCount(victim, res, -1)
-    self:_addToResCardCount(self.player, res, 1)
+    self:_dealResources(victim, res, -1)
+    self:_dealResources(self.player, res, 1)
     return res
 end
 
 function Game:_addToResCardCounts (player, rescards)
     for rescard, count in pairs(rescards) do
-        self:_addToResCardCount(player, rescard, count)
+        self:_dealResources(player, rescard, count)
     end
 end
 
-function Game:_addToResCardCount (player, res, numCards)
+function Game:_dealResources (player, res, numCards)
     local numCardsBefore = self.rescards[player][res] or 0
     assert(numCardsBefore + numCards >= 0, "num of rescards cannot be negative")
     self.rescards[player][res] = numCardsBefore + numCards
@@ -914,7 +914,7 @@ function Game:_applyProduction (production)
         local player = assert(buildingProduction.player)
         local res = assert(buildingProduction.res)
         local numCards = assert(buildingProduction.numCards)
-        self:_addToResCardCount(player, res, numCards)
+        self:_dealResources(player, res, numCards)
     end)
 end
 

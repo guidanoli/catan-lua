@@ -67,6 +67,14 @@ local function randomValidEdge (game, isValid)
     return assert(edge)
 end
 
+local function randomDice ()
+    local dice = {}
+    for i = 1, 2 do
+        dice[i] = math.random(6)
+    end
+    return dice
+end
+
 local function display (gridpart)
     local q, r, x = Grid:unpack(gridpart)
     if x == nil then
@@ -126,6 +134,17 @@ function actions.placeInitialRoad (game)
     end
     local production = game:placeInitialRoad(edge)
     return true, ('placeInitialRoad(%s)'):format(display(edge))
+end
+
+function actions.roll (game)
+    local ok, err = game:canRoll()
+    if not ok then
+        return false, err
+    end
+    local dice = randomDice()
+    assert(game:canRoll(dice))
+    local production = game:roll(dice)
+    return true, ('roll({%s})'):format(table.concat(dice, ', '))
 end
 
 local NUM_RUNS = 100

@@ -44,20 +44,42 @@ local function display (gridpart)
     end
 end
 
+local function color (code, s)
+    return '\27[0;' .. code .. 'm' .. s .. '\27[0;00m'
+end
+
+local function red (s)
+    return color(31, s)
+end
+
+local function green (s)
+    return color(32, s)
+end
+
+local function success (s, ...)
+    io.stderr:write(green'SUCCESS: ', s:format(...), '\n')
+end
+
+local function failure (s, ...)
+    io.stderr:write(red'FAILURE: ', s:format(...), '\n')
+end
+
 local actions = {}
 
 function actions.placeInitialSettlement (game)
     if not game:canPlaceInitialSettlement() then
+        failure('cannot place initial settlement')
         return false
     end
     local vertex = randomValidVertex(game, function (vertex)
         return game:canPlaceInitialSettlement(vertex)
     end)
     if vertex == nil then
+        failure('no vertex to place initial settlement')
         return false
     end
     local production = game:placeInitialSettlement(vertex)
-    print(("placeInitialSettlement(%s)"):format(display(vertex)))
+    success('placeInitialSettlement(%s)', display(vertex))
     return true
 end
 

@@ -903,10 +903,11 @@ function Game:_addToResCardCounts (player, rescards)
     end
 end
 
-function Game:_dealResources (player, res, numCards)
-    local numCardsBefore = self.rescards[player][res] or 0
-    assert(numCardsBefore + numCards >= 0, "num of rescards cannot be negative")
-    self.rescards[player][res] = numCardsBefore + numCards
+function Game:_dealResources (player, rescard, count)
+    local countBefore = self.rescards[player][rescard] or 0
+    local countAfter = countBefore + count
+    assert(countAfter >= 0, "num of rescards cannot be negative")
+    self.rescards[player][rescard] = countAfter
 end
 
 function Game:_applyProduction (production)

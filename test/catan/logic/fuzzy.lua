@@ -1,3 +1,5 @@
+local TableUtils = require "util.table"
+
 local Grid = require "catan.logic.grid"
 
 local FaceMap = require "catan.logic.FaceMap"
@@ -8,94 +10,55 @@ local Game = require "catan.logic.game"
 
 local function validFaces (game, isValid)
     local facemap = FaceMap:new()
-    local n = 0
+    local faces = {}
     game.hexmap:iter(function (q, r)
         local face = Grid:face(q, r)
         if facemap:get(face) == nil and isValid(face) then
             facemap:set(face, true)
-            n = n + 1
+            table.insert(faces, face)
         end
     end)
-    return facemap, n
+    return faces
 end
 
 local function randomValidFace (game, isValid)
-    local faces, n = validFaces(game, isValid)
-    if n == 0 then
-        return
-    end
-    local i = math.random(n)
-    local j = 1
-    local face = faces:iter(function (q, r, v)
-        if i == j then
-            return Grid:face(q, r, v)
-        else
-            j = j + 1
-        end
-    end)
-    return assert(face)
+    return TableUtils:sample(validFaces(game, isValid))
 end
 
 local function validVertices (game, isValid)
     local vertexmap = VertexMap:new()
-    local n = 0
+    local vertices = {}
     game.hexmap:iter(function (q, r)
         for _, corner in ipairs(Grid:corners(q, r)) do
             if vertexmap:get(corner) == nil and isValid(corner) then
                 vertexmap:set(corner, true)
-                n = n + 1
+                table.insert(vertices, corner)
             end
         end
     end)
-    return vertexmap, n
+    return vertices
 end
 
 local function randomValidVertex (game, isValid)
-    local vertices, n = validVertices(game, isValid)
-    if n == 0 then
-        return
-    end
-    local i = math.random(n)
-    local j = 1
-    local vertex = vertices:iter(function (q, r, v)
-        if i == j then
-            return Grid:vertex(q, r, v)
-        else
-            j = j + 1
-        end
-    end)
-    return assert(vertex)
+    return TableUtils:sample(validVertices(game, isValid))
 end
 
 local function validEdges (game, isValid)
     local edgemap = EdgeMap:new()
-    local n = 0
+    local edges = {}
     game.hexmap:iter(function (q, r)
         for _, border in ipairs(Grid:borders(q, r)) do
             if edgemap:get(border) == nil and isValid(border) then
                 edgemap:set(border, true)
-                n = n + 1
+                table.insert(edges, border)
             end
         end
     end)
-    return edgemap, n
+    return edges
 end
 
 local function randomValidEdge (game, isValid)
-    local edges, n = validEdges(game, isValid)
-    if n == 0 then
-        return
-    end
-    local i = math.random(n)
-    local j = 1
-    local edge = edges:iter(function (q, r, e)
-        if i == j then
-            return Grid:edge(q, r, e)
-        else
-            j = j + 1
-        end
-    end)
-    return assert(edge)
+    return TableUtils:sample(validEdges(game, isValid))
 end
 
 local function randomDice ()

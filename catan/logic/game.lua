@@ -582,6 +582,52 @@ function Game:canChooseVictim (player)
     return true
 end
 
+function Game:hasResources(rescards)
+    for rescard, mincount in pairs(rescards) do
+        if self:getNumberOfResourceCardsOfType(self.player, rescard) < mincount then
+            return false, "not enough " .. rescard
+        end
+    end
+    return true
+end
+
+function Game:canBuildRoad (edge)
+    local ok, err = self:_isPhase"playingTurns"
+    if not ok then
+        return false, err
+    end
+    local ok, err = self:hasResources{lumber=1, brick=1}
+    if not ok then
+        return false, err
+    end
+    if edge ~= nil then
+        local valid, err = CatanSchema.Edge:isValid(edge)
+        if not valid then
+            return false, err
+        end
+        if self.roadmap:get(edge) ~= nil then
+            return false, "edge already occupied by road"
+        end
+        local isNextToPlayerBuilding = false
+        local isNextToPlayerRoad = false
+        for _, endpoint in ipairs(Grid:endpoints(edge)) do
+            local building = self.buildmap:get(endpoint)
+            if building ~= nil and building.player == self.player then
+                isNextToPlayerBuilding = true
+            end
+            for _, protrudingEdge in ipairs(Grid:protrudingEdges(endpoint)) do
+                if self.roadmap:get(protrudingEdge) == self.player then
+                    isNextToPlayerRoad = true
+                end
+            end
+        end
+        if not (isNextToPlayerBuilding or isNextToPlayerRoad) then
+            return false, "edge not next to player building or road"
+        end
+    end
+    return true
+end
+
 function Game:canEndTurn ()
     local ok, err = self:_isPhase"playingTurns"
     if not ok then
@@ -777,6 +823,17 @@ function Game:chooseVictim (player)
     return res
 end
 
+function Game:buildRoad (edge)
+    assert(self:canBuildRoad(edge))
+
+    self:_addToResCardCounts(self.player, {
+        lumber = -1,
+        road = -1,
+    })
+
+    self.edgemap:set(edge, self.player)
+end
+
 function Game:endTurn ()
     assert(self:canEndTurn())
 
@@ -838,6 +895,12 @@ function Game:_stealRandomResCardFrom (victim)
     self:_addToResCardCount(victim, res, -1)
     self:_addToResCardCount(self.player, res, 1)
     return res
+end
+
+function Game:_addToResCardCounts (player, rescards)
+    for rescard, count in pairs(rescards) do
+        self:_addToResCardCount(player, rescard, count)
+    end
 end
 
 function Game:_addToResCardCount (player, res, numCards)

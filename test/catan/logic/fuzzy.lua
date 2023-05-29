@@ -134,6 +134,15 @@ function actions.roll (game)
     return true, ('roll({%s})'):format(table.concat(dice, ', '))
 end
 
+function actions.endTurn (game)
+    local ok, err = game:canEndTurn()
+    if not ok then
+        return false, err
+    end
+    game:endTurn()
+    return true, 'endTurn()'
+end
+
 function actions.moveRobber (game)
     local ok, err = game:canMoveRobber()
     if not ok then

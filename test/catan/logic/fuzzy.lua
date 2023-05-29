@@ -145,9 +145,6 @@ function actions.placeInitialSettlement (game)
     local vertex = randomValidVertex(game, function (vertex)
         return game:canPlaceInitialSettlement(vertex)
     end)
-    if vertex == nil then
-        return false, 'no vertex to place initial settlement'
-    end
     local production = game:placeInitialSettlement(vertex)
     return true, ('placeInitialSettlement(%s)'):format(display(vertex))
 end
@@ -160,9 +157,6 @@ function actions.placeInitialRoad (game)
     local edge = randomValidEdge(game, function (edge)
         return game:canPlaceInitialRoad(edge)
     end)
-    if edge == nil then
-        return false, 'no edge to place initial road'
-    end
     local production = game:placeInitialRoad(edge)
     return true, ('placeInitialRoad(%s)'):format(display(edge))
 end

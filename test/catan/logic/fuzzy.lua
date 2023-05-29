@@ -108,7 +108,7 @@ function actions.placeInitialSettlement (game)
         return game:canPlaceInitialSettlement(vertex)
     end)
     if vertex == nil then
-        failure('no vertex to place initial settlement')
+        failure'no vertex to place initial settlement'
         return false
     end
     local production = game:placeInitialSettlement(vertex)
@@ -126,7 +126,7 @@ function actions.placeInitialRoad (game)
         return game:canPlaceInitialRoad(edge)
     end)
     if edge == nil then
-        failure('no edge to place initial road')
+        failure'no edge to place initial road'
         return false
     end
     local production = game:placeInitialRoad(edge)

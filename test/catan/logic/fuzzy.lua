@@ -222,13 +222,13 @@ function actions.chooseVictim (game)
     return true, ('chooseVictim(%s)'):format(player)
 end
 
-local function run (n)
+local function run (args)
     local lastActionKey
     local report = {}
 
     local game = Game:new()
 
-    for i = 1, n do
+    for i = 1, args.n do
         local actionKey = next(actions, lastActionKey)
         if actionKey == nil then
             actionKey = next(actions) -- loop over
@@ -261,7 +261,7 @@ local args = parser:parse()
 
 local timeBefore = os.clock()
 
-local report = run(args.n)
+local report = run(args)
 
 do
     local timeAfter = os.clock()

@@ -4,22 +4,25 @@ local VertexMap = require "catan.logic.VertexMap"
 
 local Game = require "catan.logic.game"
 
-local function validVertices (game)
+local function validVertices (game, isValid)
     local vertexmap = VertexMap:new()
     local n = 0
     game.hexmap:iter(function (q, r)
         for _, corner in ipairs(Grid:corners(q, r)) do
-            if vertexmap:get(corner) == nil then
+            if vertexmap:get(corner) == nil and isValid(corner) then
+                vertexmap:set(corner, true)
                 n = n + 1
             end
-            vertexmap:set(corner, true)
         end
     end)
     return vertexmap, n
 end
 
-local function randomVertex (game)
-    local vertices, n = validVertices(game)
+local function randomValidVertex (game, isValid)
+    local vertices, n = validVertices(game, isValid)
+    if n == 0 then
+        return
+    end
     local i = math.random(n)
     local j = 1
     local vertex = vertices:iter(function (q, r, v)
@@ -29,7 +32,7 @@ local function randomVertex (game)
             j = j + 1
         end
     end)
-    return vertex
+    return assert(vertex)
 end
 
 local function display (gridpart)
@@ -47,8 +50,10 @@ function actions.placeInitialSettlement (game)
     if not game:canPlaceInitialSettlement() then
         return false
     end
-    local vertex = randomVertex(game)
-    if not game:canPlaceInitialSettlement(vertex) then
+    local vertex = randomValidVertex(game, function (vertex)
+        return game:canPlaceInitialSettlement(vertex)
+    end)
+    if vertex == nil then
         return false
     end
     local production = game:placeInitialSettlement(vertex)

@@ -69,6 +69,37 @@ local function randomDice ()
     return dice
 end
 
+local function validPlayers (game, isValid)
+    local players = {}
+    for _, player in ipairs(game.players) do
+        if isValid(player) then
+            table.insert(players, player)
+        end
+    end
+    return players
+end
+
+local function randomValidPlayer (game, isValid)
+    return TableUtils:sample(validPlayers(game, isValid))
+end
+
+local function listPlayerResCards (game, player)
+    local list = {}
+    for rescard, count in pairs(game.rescards[player]) do
+        for i = 1, count do
+            table.insert(list, rescard)
+        end
+    end
+    return list
+end
+
+local function randomValidPlayerResCardsToDiscard (game, player)
+    local list = listPlayerResCards(game, player)
+    local n = game:getNumberOfResourceCardsToDiscard(player)
+    local list = TableUtils:uniqueSamples(list, n)
+    return TableUtils:histogram(list)
+end
+
 local function display (gridpart)
     local q, r, x = Grid:unpack(gridpart)
     if x == nil then
@@ -76,6 +107,15 @@ local function display (gridpart)
     else
         return ("<%d,%d,%s>"):format(q, r, x)
     end
+end
+
+local function fmtrescards (rescards)
+    local t = {}
+    for _, rescard in ipairs(TableUtils:sortedKeys(rescards)) do
+        local count = rescards[rescard]
+        table.insert(t, rescard .. ':' .. count)
+    end
+    return '<' .. table.concat(t, ',') .. '>'
 end
 
 local function color (code, s)
@@ -141,6 +181,19 @@ function actions.endTurn (game)
     end
     game:endTurn()
     return true, 'endTurn()'
+end
+
+function actions.discard (game)
+    local ok, err = game:canDiscard()
+    if not ok then
+        return false, err
+    end
+    local player = randomValidPlayer(game, function (player)
+        return game:canDiscard(player)
+    end)
+    local rescards = randomValidPlayerResCardsToDiscard(game, player)
+    game:discard(player, rescards)
+    return true, ('discard(%s, %s)'):format(player, fmtrescards(rescards))
 end
 
 function actions.moveRobber (game)

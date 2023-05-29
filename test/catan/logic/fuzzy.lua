@@ -133,11 +133,11 @@ local function green (s)
 end
 
 local function printSuccess (s)
-    io.stderr:write(green'SUCCESS: ' .. s .. '\n')
+    io.stderr:write(green'SUCCESS: ', s, '\n')
 end
 
 local function printFailure (s)
-    io.stderr:write(red'FAILURE: ' .. s .. '\n')
+    io.stderr:write(red'FAILURE: ', s, '\n')
 end
 
 local actions = {}

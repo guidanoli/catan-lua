@@ -4,8 +4,27 @@ function TableUtils:sample (t)
     local n = #t
     if n ~= 0 then
         local i = math.random(n)
-        return rawget(t, i)
+        return rawget(t, i), i
     end
+end
+
+function TableUtils:uniqueSamples (t, n)
+    local samples = {}
+    for i = 1, n do
+        local x, i = self:sample(t)
+        assert(x ~= nil, "no sample")
+        table.insert(samples, x)
+        table.remove(t, i)
+    end
+    return samples
+end
+
+function TableUtils:histogram (t)
+    local h = {}
+    for _, v in ipairs(t) do
+        h[v] = (h[v] or 0) + 1
+    end
+    return h
 end
 
 function TableUtils:shuffleInPlace (t)

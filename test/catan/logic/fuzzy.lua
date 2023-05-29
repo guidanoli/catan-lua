@@ -220,37 +220,43 @@ function actions.chooseVictim (game)
     return true, ('chooseVictim(%s)'):format(player)
 end
 
+local function run (n)
+    local lastActionKey
+    local statistics = {}
+
+    local game = Game:new()
+
+    for i = 1, n do
+        local actionKey = next(actions, lastActionKey)
+        if actionKey == nil then
+            actionKey = next(actions) -- loop over
+        end
+
+        local ok, msg = actions[actionKey](game)
+
+        if msg == nil then
+            msg = ('(no message given by %q)'):format(actionKey)
+        end
+
+        if ok then
+            printSuccess(msg)
+            statistics.successes = (statistics.successes or 0) + 1
+        else
+            printFailure(msg)
+            statistics.failures = (statistics.failures or 0) + 1
+        end
+
+        lastActionKey = actionKey
+    end
+
+    return statistics
+end
+
 local NUM_RUNS = os.getenv"NUM_RUNS" or 1000
-
-local lastActionKey
-local statistics = {}
-
-local game = Game:new()
 
 local timeBefore = os.clock()
 
-for i = 1, NUM_RUNS do
-    local actionKey = next(actions, lastActionKey)
-    if actionKey == nil then
-        actionKey = next(actions) -- loop over
-    end
-
-    local ok, msg = actions[actionKey](game)
-
-    if msg == nil then
-        msg = ('(no message given by %q)'):format(actionKey)
-    end
-
-    if ok then
-        printSuccess(msg)
-        statistics.successes = (statistics.successes or 0) + 1
-    else
-        printFailure(msg)
-        statistics.failures = (statistics.failures or 0) + 1
-    end
-
-    lastActionKey = actionKey
-end
+local statistics = run(NUM_RUNS)
 
 do
     local timeAfter = os.clock()

@@ -897,10 +897,29 @@ function Game:_stealRandomResCardFrom (victim)
     return res
 end
 
+function Game:_canAddToResourceCounts (player, rescards)
+    for rescard, count in pairs(rescards) do
+        local ok, err = self:_canAddToResourceCounts(player, rescard, count)
+        if not ok then
+            return false, err
+        end
+    end
+    return true
+end
+
 function Game:_addToResourceCounts (player, rescards)
     for rescard, count in pairs(rescards) do
         self:_addToResourceCount(player, rescard, count)
     end
+end
+
+function Game:_canAddToResourceCount (player, rescard, count)
+    local countBefore = self.rescards[player][rescard] or 0
+    local countAfter = countBefore + count
+    if countAfter < 0 then
+        return false, "not enough" .. rescard
+    end
+    return true
 end
 
 function Game:_addToResourceCount (player, rescard, count)

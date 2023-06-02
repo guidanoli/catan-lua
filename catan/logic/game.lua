@@ -602,20 +602,25 @@ function Game:canBuildRoad (edge)
             return false, "edge already occupied by road"
         end
         local isNextToPlayerBuilding = false
-        local isNextToPlayerRoad = false
+        local isNextToUnblockedPlayerRoad = false
         for _, endpoint in ipairs(Grid:endpoints(edge)) do
             local building = self.buildmap:get(endpoint)
-            if building ~= nil and building.player == self.player then
-                isNextToPlayerBuilding = true
-            end
-            for _, protrudingEdge in ipairs(Grid:protrudingEdges(endpoint)) do
-                if self.roadmap:get(protrudingEdge) == self.player then
-                    isNextToPlayerRoad = true
+            if building == nil then
+                -- If vertex is free, check if there is road ahead
+                for _, protrudingEdge in ipairs(Grid:protrudingEdges(endpoint)) do
+                    if self.roadmap:get(protrudingEdge) == self.player then
+                        isNextToUnblockedPlayerRoad = true
+                    end
+                end
+            else
+                -- If vertex is occupied, check the builder
+                if building.player == self.player then
+                    isNextToPlayerBuilding = true
                 end
             end
         end
-        if not (isNextToPlayerBuilding or isNextToPlayerRoad) then
-            return false, "edge not next to player building or road"
+        if not (isNextToPlayerBuilding or isNextToUnblockedPlayerRoad) then
+            return false, "edge not next to player building or unblocked road"
         end
     end
     return true

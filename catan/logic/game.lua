@@ -582,21 +582,14 @@ function Game:canChooseVictim (player)
     return true
 end
 
-function Game:hasResources(rescards)
-    for rescard, mincount in pairs(rescards) do
-        if self:getNumberOfResourceCardsOfType(self.player, rescard) < mincount then
-            return false, "not enough " .. rescard
-        end
-    end
-    return true
-end
+Game.BUILD_ROAD_COST = {lumber=-1, brick=-1}
 
 function Game:canBuildRoad (edge)
     local ok, err = self:_isPhase"playingTurns"
     if not ok then
         return false, err
     end
-    local ok, err = self:hasResources{lumber=1, brick=1}
+    local ok, err = self:_canAddToResourceCounts(self.player, self.BUILD_ROAD_COST)
     if not ok then
         return false, err
     end
@@ -826,10 +819,7 @@ end
 function Game:buildRoad (edge)
     assert(self:canBuildRoad(edge))
 
-    self:_addToResourceCounts(self.player, {
-        lumber = -1,
-        road = -1,
-    })
+    self:_addToResourceCounts(self.player, self.BUILD_ROAD_COST)
 
     self.edgemap:set(edge, self.player)
 end

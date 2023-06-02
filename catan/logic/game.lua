@@ -912,7 +912,7 @@ function Game:_canAddToResourceCount (player, rescard, count)
     local countBefore = self.rescards[player][rescard] or 0
     local countAfter = countBefore + count
     if countAfter < 0 then
-        return false, "not enough" .. rescard
+        return false, "not enough " .. rescard
     end
     return true
 end

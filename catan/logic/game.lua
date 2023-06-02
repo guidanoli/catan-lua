@@ -603,11 +603,11 @@ function Game:canBuildRoad (edge)
         end
         local isNextToPlayerBuilding = false
         local isNextToUnblockedPlayerRoad = false
-        for _, endpoint in ipairs(Grid:endpoints(edge)) do
+        for _, endpoint in ipairs(Grid:endpoints(Grid:unpack(edge))) do
             local building = self.buildmap:get(endpoint)
             if building == nil then
                 -- If vertex is free, check if there is road ahead
-                for _, protrudingEdge in ipairs(Grid:protrudingEdges(endpoint)) do
+                for _, protrudingEdge in ipairs(Grid:protrudingEdges(Grid:unpack(endpoint))) do
                     if self.roadmap:get(protrudingEdge) == self.player then
                         isNextToUnblockedPlayerRoad = true
                     end
@@ -826,7 +826,7 @@ function Game:buildRoad (edge)
 
     self:_addToResourceCounts(self.player, self.BUILD_ROAD_COST)
 
-    self.edgemap:set(edge, self.player)
+    self.roadmap:set(edge, self.player)
 end
 
 function Game:endTurn ()
@@ -894,7 +894,7 @@ end
 
 function Game:_canAddToResourceCounts (player, rescards)
     for rescard, count in pairs(rescards) do
-        local ok, err = self:_canAddToResourceCounts(player, rescard, count)
+        local ok, err = self:_canAddToResourceCount(player, rescard, count)
         if not ok then
             return false, err
         end

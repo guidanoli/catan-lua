@@ -222,6 +222,23 @@ function actions.chooseVictim (game)
     return ok, msg
 end
 
+function actions.buildRoad (game)
+    local ok, msg = game:canBuildRoad()
+    if ok then
+        local edge = randomValidEdge(game, function (edge)
+            return game:canBuildRoad(edge)
+        end)
+        if edge == nil then
+            ok = false
+            msg = "no potential edges found"
+        else
+            game:buildRoad(edge)
+            msg = ('buildRoad(%s)'):format(display(edge))
+        end
+    end
+    return ok, msg
+end
+
 local function run (args)
     local lastActionKey
     local report = {}

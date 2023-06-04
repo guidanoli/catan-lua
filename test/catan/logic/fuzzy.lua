@@ -288,7 +288,9 @@ local function run (args, report)
         end
 
         if isPlayerActionDelayed(player, actionKey) then
-            printSkip(actionKey)
+            if args.v >= 2 then
+                printSkip(actionKey)
+            end
         else
             local ok, msg, delay = actions[actionKey](game)
 
@@ -301,10 +303,12 @@ local function run (args, report)
             end
 
             if ok then
-                printSuccess(msg)
+                if args.v >= 1 then
+                    printSuccess(msg)
+                end
                 report.successes = (report.successes or 0) + 1
             else
-                if args.v >= 1 then
+                if args.v >= 3 then
                     printFailure(msg)
                 end
                 report.failures = (report.failures or 0) + 1

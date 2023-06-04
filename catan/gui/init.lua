@@ -22,6 +22,10 @@ local Box = require "catan.gui.Box"
 
 local gui = {}
 
+-- Enable debug commands
+
+gui.debug = os.getenv"DEBUG"
+
 -- GUI constants
 
 gui.SEA_W = 900
@@ -1288,6 +1292,14 @@ function gui:update (dt)
     -- TODO: update animations using `dt`
 end
 
+gui.DEAL_COMMANDS = {
+    b = 'brick',
+    l = 'lumber',
+    o = 'ore',
+    g = 'grain',
+    w = 'wool',
+}
+
 ---
 -- Callback triggered when a key is pressed.
 -- @tparam string key Character of the pressed key.
@@ -1295,6 +1307,20 @@ end
 function gui:keypressed (key)
     if key == "escape" then
         self:clearActions()
+    end
+
+    if self.debug then
+        local rescard = self.DEAL_COMMANDS[key]
+        if rescard ~= nil then
+            if self.game.phase == "playingTurns" then
+                local rescards = self.game.rescards[self.game.player]
+                rescards[rescard] = (rescards[rescard] or 0) + 1
+                print("Gave 1 " .. rescard .. " to player " .. self.game.player)
+                self:afterMove()
+            else
+                print("Cannot deal cards in this phase")
+            end
+        end
     end
 end
 

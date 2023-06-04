@@ -126,6 +126,8 @@ function gui:load ()
 
     self.clickableSprites = {}
 
+    self.actions = {}
+
     self:afterMove()
 end
 
@@ -385,16 +387,16 @@ function gui:printRobbery (victim, res)
                         self.game.player, res, victim))
 end
 
-function gui:placeInitialSettlement (q, r, v)
-    local production = self.game:placeInitialSettlement(Grid:vertex(q, r, v))
+function gui:placeInitialSettlement (vertex)
+    local production = self.game:placeInitialSettlement(vertex)
 
     self:printProduction(production)
 
     self:afterMove()
 end
 
-function gui:placeInitialRoad (q, r, e)
-    self.game:placeInitialRoad(Grid:edge(q, r, e))
+function gui:placeInitialRoad (edge)
+    self.game:placeInitialRoad(edge)
     self:afterMove()
 end
 
@@ -418,9 +420,7 @@ function gui:endTurn ()
     self:afterMove()
 end
 
-function gui:moveRobber (q, r)
-    local face = Grid:face(q, r)
-
+function gui:moveRobber (face)
     local victim, res = self.game:moveRobber(face)
 
     if victim and res then
@@ -499,23 +499,116 @@ function gui.renderers:board ()
         layer:addSprite(img, {x=x, y=y, sx=s, center=true})
     end)
 
-    -- Face selection
-    if self.game:canMoveRobber() then
-        local img = self.images.selection
-        self.game.hexmap:iter(function (q, r)
-            local face = Grid:face(q, r)
-            if self.game:canMoveRobber(face) then
-                local x, y = self:getFaceCenter(q, r)
-                layer:addSprite(img, {
-                    x = x,
-                    y = y,
-                    center = true,
-                    onleftclick = function ()
-                        self:moveRobber(q, r)
-                    end
-                })
+    -- Face action
+    do
+        local faceAction = self.actions.face
+
+        if faceAction == nil then
+            if self.game:canMoveRobber() then
+                faceAction = {
+                    filter = function (face)
+                        return self.game:canMoveRobber(face)
+                    end,
+                    onleftclick = function (face)
+                        self:moveRobber(face)
+                    end,
+                }
             end
-        end)
+        end
+
+        if faceAction ~= nil then
+            local img = self.images.selection
+            self.game.hexmap:iter(function (q, r)
+                local face = Grid:face(q, r)
+                if faceAction.filter(face) then
+                    local x, y = self:getFaceCenter(q, r)
+                    layer:addSprite(img, {
+                        x = x,
+                        y = y,
+                        center = true,
+                        onleftclick = function ()
+                            faceAction.onleftclick(face)
+                        end,
+                    })
+                end
+            end)
+        end
+    end
+
+    -- Vertex action
+    do
+        local vertexAction = self.actions.vertex
+
+        if vertexAction == nil then
+            if self.game:canPlaceInitialSettlement() then
+                vertexAction = {
+                    filter = function (vertex)
+                        return self.game:canPlaceInitialSettlement(vertex)
+                    end,
+                    onleftclick = function (vertex)
+                        self:placeInitialSettlement(vertex)
+                    end,
+                }
+            end
+        end
+
+        if vertexAction ~= nil then
+            local hexCorners = self:getHexCorners()
+            local img = self.images.selection
+            hexCorners:iter(function (q, r, v)
+                local vertex = Grid:vertex(q, r, v)
+                if vertexAction.filter(vertex) then
+                    local x, y = self:getVertexPos(q, r, v)
+                    layer:addSprite(img, {
+                        x = x,
+                        y = y,
+                        sx = 0.5,
+                        center = true,
+                        onleftclick = function ()
+                            vertexAction.onleftclick(vertex)
+                        end,
+                    })
+                end
+            end)
+        end
+    end
+
+    -- Edge action
+    do
+        local edgeAction = self.actions.edge
+
+        if edgeAction == nil then
+            if self.game:canPlaceInitialRoad() then
+                edgeAction = {
+                    filter = function (edge)
+                        return self.game:canPlaceInitialRoad(edge)
+                    end,
+                    onleftclick = function (edge)
+                        self:placeInitialRoad(edge)
+                    end,
+                }
+            end
+        end
+
+        if edgeAction ~= nil then
+            local hexBorders = self:getHexBorders()
+            local img = self.images.selection
+            hexBorders:iter(function (q, r, e)
+                local edge = Grid:edge(q, r, e)
+                if edgeAction.filter(edge) then
+                    local x, y = self:getEdgeCenter(q, r, e)
+                    layer:addSprite(img, {
+                        x = x,
+                        y = y,
+                        sx = 0.5,
+                        center = true,
+                        onleftclick = function ()
+                            edgeAction.onleftclick(edge)
+                        end
+                    })
+                end
+            end)
+        end
     end
 
     -- Number tokens
@@ -525,48 +618,6 @@ function gui.renderers:board ()
         local s = (0.6 * hexsize) / img:getHeight()
         layer:addSprite(img, {x=x, y=y, sx=s, center=true})
     end)
-
-    -- Vertex selection
-    if self.game:canPlaceInitialSettlement() then
-        local hexCorners = self:getHexCorners()
-        local img = self.images.selection
-        hexCorners:iter(function (q, r, v)
-            local vertex = Grid:vertex(q, r, v)
-            if self.game:canPlaceInitialSettlement(vertex) then
-                local x, y = self:getVertexPos(q, r, v)
-                layer:addSprite(img, {
-                    x = x,
-                    y = y,
-                    sx = 0.5,
-                    center = true,
-                    onleftclick = function ()
-                        self:placeInitialSettlement(q, r, v)
-                    end,
-                })
-            end
-        end)
-    end
-
-    -- Edge selection
-    if self.game:canPlaceInitialRoad() then
-        local hexBorders = self:getHexBorders()
-        local img = self.images.selection
-        hexBorders:iter(function (q, r, e)
-            local edge = Grid:edge(q, r, e)
-            if self.game:canPlaceInitialRoad(edge) then
-                local x, y = self:getEdgeCenter(q, r, e)
-                layer:addSprite(img, {
-                    x = x,
-                    y = y,
-                    sx = 0.5,
-                    center = true,
-                    onleftclick = function ()
-                        self:placeInitialRoad(q, r, e)
-                    end
-                })
-            end
-        end)
-    end
 
     -- Roads
     do

@@ -253,6 +253,7 @@ end
 
 function actions.buildSettlement (game)
     local ok, msg = game:canBuildSettlement()
+    local delay
     if ok then
         local vertex = randomValidVertex(game, function (vertex)
             return game:canBuildSettlement(vertex)
@@ -263,9 +264,10 @@ function actions.buildSettlement (game)
         else
             game:buildSettlement(vertex)
             msg = ('buildSettlement(%s)'):format(display(vertex))
+            delay = 10
         end
     end
-    return ok, msg
+    return ok, msg, delay
 end
 
 local function run (args, report)

@@ -444,6 +444,27 @@ function gui:discard (player, rescards)
     self:afterMove()
 end
 
+function gui:startBuildingRoadAction ()
+    self.actions.edge = {
+        filter = function (edge)
+            return self.game:canBuildRoad(edge)
+        end,
+        onleftclick = function (edge)
+            self:buildRoad(edge)
+        end,
+    }
+
+    self:afterMove()
+end
+
+function gui:buildRoad (edge)
+    self.game:buildRoad(edge)
+
+    self.actions.edge = nil
+
+    self:afterMove()
+end
+
 gui.renderers = {}
 
 function gui.renderers:board ()
@@ -1091,6 +1112,8 @@ function gui.renderers:buttons ()
     local XSEP = 10
     local NBUTTONS = 1
 
+    local noAction = next(self.actions) == nil
+
     -- Choose button image depending on condition
     -- If condition is true, chooses the "active" variant
     -- Otherwise, chooses the "inactive" one
@@ -1099,40 +1122,44 @@ function gui.renderers:buttons ()
         return assert(btnfolder[cond and "active" or "inactive"], "missing button sprite")
     end
 
+    local function newCell (btnfolder, cond, onleftclick)
+        local cond = cond and noAction
+
+        local cell = {
+            chooseButtonImg(btnfolder, cond),
+        }
+
+        if cond then
+            cell.onleftclick = onleftclick
+        end
+
+        return cell
+    end
+
     do
-        local line = {}
-
-        do
-            local canRoll = self.game:canRoll()
-
-            local cell = {
-                chooseButtonImg(self.images.btn.roll, canRoll),
-            }
-
-            if canRoll then
-                function cell.onleftclick ()
+        local line = {
+            newCell(
+                self.images.btn.road,
+                self.game:canBuildRoad(),
+                function ()
+                    self:startBuildingRoadAction()
+                end
+            ),
+            newCell(
+                self.images.btn.roll,
+                self.game:canRoll(),
+                function ()
                     self:roll()
                 end
-            end
-
-            table.insert(line, cell)
-        end
-
-        do
-            local canEndTurn = self.game:canEndTurn()
-
-            local cell = {
-                chooseButtonImg(self.images.btn.endturn, canEndTurn),
-            }
-
-            if canEndTurn then
-                function cell.onleftclick ()
+            ),
+            newCell(
+                self.images.btn.endturn,
+                self.game:canEndTurn(),
+                function ()
                     self:endTurn()
                 end
-            end
-
-            table.insert(line, cell)
-        end
+            ),
+        }
 
         local t = {
             line,

@@ -132,12 +132,20 @@ local function green (s)
     return color(32, s)
 end
 
+local function cyan (s)
+    return color(36, s)
+end
+
 local function printSuccess (s)
     io.stderr:write(green'SUCCESS: ', s, '\n')
 end
 
 local function printFailure (s)
     io.stderr:write(red'FAILURE: ', s, '\n')
+end
+
+local function printSkip (s)
+    io.stderr:write(cyan'SKIP: ', s, '\n')
 end
 
 local actions = {}
@@ -241,29 +249,64 @@ end
 
 local function run (args, report)
     local lastActionKey
+    local allDelays = {}
+
+    local function delayPlayerAction (player, actionKey, delay)
+        local playerDelays = allDelays[player]
+        if playerDelays == nil then
+            playerDelays = {}
+            allDelays[player] = playerDelays
+        end
+        local playerActionDelay = playerDelays[actionKey] or 0
+        playerDelays[actionKey] = playerActionDelay + delay
+    end
+
+    local function isPlayerActionDelayed (player, actionKey)
+        local playerDelays = allDelays[player]
+        if playerDelays then
+            local playerActionDelay = playerDelays[actionKey]
+            if playerActionDelay then
+                if playerActionDelay > 0 then
+                    playerDelays[actionKey] = playerActionDelay - 1
+                    return true
+                end
+            end
+        end
+        return false
+    end
 
     local game = Game:new()
 
     for i = 1, args.ncalls do
+        local player = game.player
+
         local actionKey = next(actions, lastActionKey)
         if actionKey == nil then
             actionKey = next(actions) -- loop over
         end
 
-        local ok, msg = actions[actionKey](game)
-
-        if msg == nil then
-            msg = ('(no message given by %q)'):format(actionKey)
-        end
-
-        if ok then
-            printSuccess(msg)
-            report.successes = (report.successes or 0) + 1
+        if isPlayerActionDelayed(player, actionKey) then
+            printSkip(actionKey)
         else
-            if args.v >= 1 then
-                printFailure(msg)
+            local ok, msg, delay = actions[actionKey](game)
+
+            if delay ~= nil then
+                delayPlayerAction(player, actionKey, delay)
             end
-            report.failures = (report.failures or 0) + 1
+
+            if msg == nil then
+                msg = ('(no message given by %q)'):format(actionKey)
+            end
+
+            if ok then
+                printSuccess(msg)
+                report.successes = (report.successes or 0) + 1
+            else
+                if args.v >= 1 then
+                    printFailure(msg)
+                end
+                report.failures = (report.failures or 0) + 1
+            end
         end
 
         lastActionKey = actionKey

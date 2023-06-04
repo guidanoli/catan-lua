@@ -594,6 +594,10 @@ function Game:canBuildRoad (edge)
     if not ok then
         return false, err
     end
+    local ok, err = self:_hasEnoughRoads()
+    if not ok then
+        return false, err
+    end
     local ok, err = self:_canAddToResourceCounts(self.player, self.BUILD_ROAD_COST)
     if not ok then
         return false, err
@@ -902,6 +906,20 @@ function Game:_wereDiceRolled (expectedRolled)
         end
         return true
     end
+end
+
+function Game:_hasEnoughRoads ()
+    local n = 0
+    self.roadmap:iter(function (q, r, e, player)
+        if player == self.player then
+            n = n + 1
+        end
+    end)
+    assert(n <= CatanConstants.roads)
+    if n == CatanConstants.roads then
+        return false, "player has used all roads"
+    end
+    return true
 end
 
 function Game:_stealRandomResCardFrom (victim)

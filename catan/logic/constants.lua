@@ -134,4 +134,6 @@ constants.rescards = {
     wool = 19,
 }
 
+constants.roads = 15
+
 return constants

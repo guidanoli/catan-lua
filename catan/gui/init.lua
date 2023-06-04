@@ -692,7 +692,8 @@ function gui.renderers:board ()
                 layer:addSprite(img, {x=x, y=y, sx=0.5, center=true, onleftclick=onleftclick})
             else
                 assert(building.kind == "city")
-                -- TODO: render cities
+                local img = assert(self.images.city[building.player], "missing city image")
+                layer:addSprite(img, {x=x, y=y, sx=0.4, center=true, onleftclick=onleftclick})
             end
         end)
     end

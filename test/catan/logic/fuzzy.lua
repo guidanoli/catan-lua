@@ -266,6 +266,23 @@ function actions.buildSettlement (game)
     return ok, msg
 end
 
+function actions.buildCity (game)
+    local ok, msg = game:canBuildCity()
+    if ok then
+        local vertex = randomValidVertex(game, function (vertex)
+            return game:canBuildCity(vertex)
+        end)
+        if vertex == nil then
+            ok = false
+            msg = "no potential vertices found"
+        else
+            game:buildCity(vertex)
+            msg = ('buildCity(%s)'):format(display(vertex))
+        end
+    end
+    return ok, msg
+end
+
 local function run (args, report)
     local game = Game:new()
 

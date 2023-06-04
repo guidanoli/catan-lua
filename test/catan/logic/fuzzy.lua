@@ -249,6 +249,23 @@ function actions.buildRoad (game)
     return ok, msg, delay
 end
 
+function actions.buildSettlement (game)
+    local ok, msg = game:canBuildSettlement()
+    if ok then
+        local vertex = randomValidVertex(game, function (vertex)
+            return game:canBuildSettlement(vertex)
+        end)
+        if vertex == nil then
+            ok = false
+            msg = "no potential vertices found"
+        else
+            game:buildSettlement(vertex)
+            msg = ('buildSettlement(%s)'):format(display(vertex))
+        end
+    end
+    return ok, msg
+end
+
 local function run (args, report)
     local lastActionKey
     local allDelays = {}

@@ -491,6 +491,27 @@ function gui:buildSettlement (vertex)
     self:afterMove()
 end
 
+function gui:startBuildingCityAction ()
+    self.actions.vertex = {
+        filter = function (vertex)
+            return self.game:canBuildCity(vertex)
+        end,
+        onleftclick = function (vertex)
+            self:buildCity(vertex)
+        end,
+    }
+
+    self:afterMove()
+end
+
+function gui:buildCity (vertex)
+    self.game:buildCity(vertex)
+
+    self.actions.vertex = nil
+
+    self:afterMove()
+end
+
 gui.renderers = {}
 
 function gui.renderers:board ()
@@ -1195,6 +1216,15 @@ function gui.renderers:buttons ()
                 end,
                 action = function ()
                     self:startBuildingSettlementAction()
+                end,
+            },
+            newCell{
+                folder = self.images.btn.city,
+                check = function ()
+                    return self.game:canBuildCity()
+                end,
+                action = function ()
+                    self:startBuildingCityAction()
                 end,
             },
             newCell{

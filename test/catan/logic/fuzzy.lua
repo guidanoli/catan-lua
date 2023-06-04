@@ -239,9 +239,8 @@ function actions.buildRoad (game)
     return ok, msg
 end
 
-local function run (args)
+local function run (args, report)
     local lastActionKey
-    local report = {}
 
     local game = Game:new()
 
@@ -269,19 +268,22 @@ local function run (args)
 
         lastActionKey = actionKey
     end
-
-    return report
 end
 
 local parser = argparse("fuzzy", "Catan fuzzy tester")
 parser:option("--ncalls", "Number of call attempts per game.", 1000)
+parser:option("--ngames", "Number of games.", 10)
 parser:flag("-v", "Verbosity level."):count"*"
 
 local args = parser:parse()
 
 local timeBefore = os.clock()
 
-local report = run(args)
+local report = {}
+
+for i = 1, args.ngames do
+    run(args, report)
+end
 
 do
     local timeAfter = os.clock()

@@ -234,7 +234,6 @@ end
 
 function actions.buildRoad (game)
     local ok, msg = game:canBuildRoad()
-    local delay
     if ok then
         local edge = randomValidEdge(game, function (edge)
             return game:canBuildRoad(edge)
@@ -245,15 +244,13 @@ function actions.buildRoad (game)
         else
             game:buildRoad(edge)
             msg = ('buildRoad(%s)'):format(display(edge))
-            delay = 10
         end
     end
-    return ok, msg, delay
+    return ok, msg
 end
 
 function actions.buildSettlement (game)
     local ok, msg = game:canBuildSettlement()
-    local delay
     if ok then
         local vertex = randomValidVertex(game, function (vertex)
             return game:canBuildSettlement(vertex)
@@ -264,79 +261,38 @@ function actions.buildSettlement (game)
         else
             game:buildSettlement(vertex)
             msg = ('buildSettlement(%s)'):format(display(vertex))
-            delay = 10
         end
     end
-    return ok, msg, delay
+    return ok, msg
 end
 
 local function run (args, report)
-    local lastActionKey
-    local allDelays = {}
-
-    local function delayPlayerAction (player, actionKey, delay)
-        local playerDelays = allDelays[player]
-        if playerDelays == nil then
-            playerDelays = {}
-            allDelays[player] = playerDelays
-        end
-        local playerActionDelay = playerDelays[actionKey] or 0
-        playerDelays[actionKey] = playerActionDelay + delay
-    end
-
-    local function isPlayerActionDelayed (player, actionKey)
-        local playerDelays = allDelays[player]
-        if playerDelays then
-            local playerActionDelay = playerDelays[actionKey]
-            if playerActionDelay then
-                if playerActionDelay > 0 then
-                    playerDelays[actionKey] = playerActionDelay - 1
-                    return true
-                end
-            end
-        end
-        return false
-    end
-
     local game = Game:new()
+
+    local actionKeys = TableUtils:sortedKeys(actions)
 
     for i = 1, args.ncalls do
         local player = game.player
 
-        local actionKey = next(actions, lastActionKey)
-        if actionKey == nil then
-            actionKey = next(actions) -- loop over
+        local actionKey = TableUtils:sample(actionKeys)
+
+        local ok, msg = actions[actionKey](game)
+
+        if msg == nil then
+            msg = ('(no message given by %q)'):format(actionKey)
         end
 
-        if isPlayerActionDelayed(player, actionKey) then
-            if args.v >= 2 then
-                printSkip(actionKey)
+        if ok then
+            if args.v >= 1 then
+                printSuccess(msg)
             end
+            report.successes = (report.successes or 0) + 1
         else
-            local ok, msg, delay = actions[actionKey](game)
-
-            if delay ~= nil then
-                delayPlayerAction(player, actionKey, delay)
+            if args.v >= 3 then
+                printFailure(msg)
             end
-
-            if msg == nil then
-                msg = ('(no message given by %q)'):format(actionKey)
-            end
-
-            if ok then
-                if args.v >= 1 then
-                    printSuccess(msg)
-                end
-                report.successes = (report.successes or 0) + 1
-            else
-                if args.v >= 3 then
-                    printFailure(msg)
-                end
-                report.failures = (report.failures or 0) + 1
-            end
+            report.failures = (report.failures or 0) + 1
         end
-
-        lastActionKey = actionKey
     end
 end
 

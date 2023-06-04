@@ -27,7 +27,7 @@ end
 -- local facemap = FaceMap:new()
 -- local face = {q=1, r=0}
 -- print(facemap:get(face)) --> nil
--- print(facemap:set(face, 'hah'))
+-- facemap:set(face, 'hah')
 -- print(facemap:get(face)) --> hah
 function FaceMap:get (face)
     assert(Face:isValid(face))

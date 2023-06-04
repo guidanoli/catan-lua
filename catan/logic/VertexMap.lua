@@ -27,7 +27,7 @@ end
 -- local vertexmap = VertexMap:new()
 -- local vertex = {q=1, r=0, v='N'}
 -- print(vertexmap:get(vertex)) --> nil
--- print(vertexmap:set(vertex, 'hah'))
+-- vertexmap:set(vertex, 'hah')
 -- print(vertexmap:get(vertex)) --> hah
 function VertexMap:get (vertex)
     assert(Vertex:isValid(vertex))

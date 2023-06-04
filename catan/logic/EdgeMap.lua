@@ -27,7 +27,7 @@ end
 -- local edgemap = EdgeMap:new()
 -- local edge = {q=1, r=0, e='W'}
 -- print(edgemap:get(edge)) --> nil
--- print(edgemap:set(edge, 'hah'))
+-- edgemap:set(edge, 'hah')
 -- print(edgemap:get(edge)) --> hah
 function EdgeMap:get (edge)
     assert(Edge:isValid(edge))

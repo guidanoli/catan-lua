@@ -1,3 +1,5 @@
+require "util.safe"
+
 local argparse = require "argparse"
 
 local TableUtils = require "util.table"

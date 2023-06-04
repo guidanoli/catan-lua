@@ -635,6 +635,50 @@ function Game:canBuildRoad (edge)
     return true
 end
 
+Game.BUILD_SETTLEMENT_COST = {lumber=-1, brick=-1, wool=-1, grain=-1}
+
+function Game:canBuildSettlement (vertex)
+    local ok, err = self:_isPhase"playingTurns"
+    if not ok then
+        return false, err
+    end
+    local ok, err = self:_wereDiceRolled(true)
+    if not ok then
+        return false, err
+    end
+    local ok, err = self:_hasEnoughSettlements()
+    if not ok then
+        return false, err
+    end
+    local ok, err = self:_canAddToResourceCounts(self.player, self.BUILD_SETTLEMENT_COST)
+    if not ok then
+        return false, err
+    end
+    if vertex ~= nil then
+        local valid, err = CatanSchema.Vertex:isValid(vertex)
+        if not valid then
+            return false, err
+        end
+        if self.buildmap:get(vertex) ~= nil then
+            return false, "vertex already occupied by building"
+        end
+        local isNextToPlayerRoad = false
+        for _, pair in ipairs(Grid:adjacentEdgeVertexPairs(Grid:unpack(vertex))) do
+            if self.buildmap:get(pair.vertex) ~= nil then
+                return false, "vertex is next to building"
+            end
+            if self.roadmap:get(pair.edge) == self.player then
+                isNextToPlayerRoad = true
+            end
+        end
+        if not isNextToPlayerRoad then
+            return false, "vertex is not next to player road"
+        end
+    end
+    return true
+end
+
+
 function Game:canEndTurn ()
     local ok, err = self:_isPhase"playingTurns"
     if not ok then
@@ -839,6 +883,17 @@ function Game:buildRoad (edge)
     self.roadmap:set(edge, self.player)
 end
 
+function Game:buildSettlement (vertex)
+    assert(self:canBuildSettlement(vertex))
+
+    self:_addToResourceCounts(self.player, self.BUILD_SETTLEMENT_COST)
+
+    self.buildmap:set(vertex, {
+        kind = "settlement",
+        player = self.player,
+    })
+end
+
 function Game:endTurn ()
     assert(self:canEndTurn())
 
@@ -918,6 +973,20 @@ function Game:_hasEnoughRoads ()
     assert(n <= CatanConstants.roads)
     if n == CatanConstants.roads then
         return false, "player has used all roads"
+    end
+    return true
+end
+
+function Game:_hasEnoughSettlements ()
+    local n = 0
+    self.buildmap:iter(function (q, r, v, building)
+        if building.player == self.player then
+            n = n + 1
+        end
+    end)
+    assert(n <= CatanConstants.settlements)
+    if n == CatanConstants.settlements then
+        return false, "player has used all settlements"
     end
     return true
 end

@@ -136,4 +136,6 @@ constants.rescards = {
 
 constants.roads = 15
 
+constants.settlements = 5
+
 return constants

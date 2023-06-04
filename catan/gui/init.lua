@@ -470,6 +470,27 @@ function gui:buildRoad (edge)
     self:afterMove()
 end
 
+function gui:startBuildingSettlementAction ()
+    self.actions.vertex = {
+        filter = function (vertex)
+            return self.game:canBuildSettlement(vertex)
+        end,
+        onleftclick = function (vertex)
+            self:buildSettlement(vertex)
+        end,
+    }
+
+    self:afterMove()
+end
+
+function gui:buildSettlement (vertex)
+    self.game:buildSettlement(vertex)
+
+    self.actions.vertex = nil
+
+    self:afterMove()
+end
+
 gui.renderers = {}
 
 function gui.renderers:board ()
@@ -1127,7 +1148,7 @@ function gui.renderers:buttons ()
         return assert(btnfolder[cond and "active" or "inactive"], "missing button sprite")
     end
 
-    local function newCell (btnfolder, cond, onleftclick)
+    local function newCell (btnfolder, onleftclick, cond, err)
         local cond = cond and noAction
 
         local cell = {
@@ -1136,6 +1157,10 @@ function gui.renderers:buttons ()
 
         if cond then
             cell.onleftclick = onleftclick
+        else
+            cell.onleftclick = function ()
+                print(err)
+            end
         end
 
         return cell
@@ -1145,24 +1170,31 @@ function gui.renderers:buttons ()
         local line = {
             newCell(
                 self.images.btn.road,
-                self.game:canBuildRoad(),
                 function ()
                     self:startBuildingRoadAction()
-                end
+                end,
+                self.game:canBuildRoad()
+            ),
+            newCell(
+                self.images.btn.settlement,
+                function ()
+                    self:startBuildingSettlementAction()
+                end,
+                self.game:canBuildSettlement()
             ),
             newCell(
                 self.images.btn.roll,
-                self.game:canRoll(),
                 function ()
                     self:roll()
-                end
+                end,
+                self.game:canRoll()
             ),
             newCell(
                 self.images.btn.endturn,
-                self.game:canEndTurn(),
                 function ()
                     self:endTurn()
-                end
+                end,
+                self.game:canEndTurn()
             ),
         }
 

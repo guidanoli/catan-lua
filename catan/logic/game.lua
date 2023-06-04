@@ -590,6 +590,10 @@ function Game:canBuildRoad (edge)
     if not ok then
         return false, err
     end
+    local ok, err = self:_wereDiceRolled(true)
+    if not ok then
+        return false, err
+    end
     local ok, err = self:_canAddToResourceCounts(self.player, self.BUILD_ROAD_COST)
     if not ok then
         return false, err

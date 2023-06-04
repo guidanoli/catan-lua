@@ -138,4 +138,6 @@ constants.roads = 15
 
 constants.settlements = 5
 
+constants.cities = 4
+
 return constants

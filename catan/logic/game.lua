@@ -678,6 +678,43 @@ function Game:canBuildSettlement (vertex)
     return true
 end
 
+Game.BUILD_CITY_COST = {grain=-2, ore=-3}
+
+function Game:canBuildCity (vertex)
+    local ok, err = self:_isPhase"playingTurns"
+    if not ok then
+        return false, err
+    end
+    local ok, err = self:_wereDiceRolled(true)
+    if not ok then
+        return false, err
+    end
+    local ok, err = self:_hasEnoughCities()
+    if not ok then
+        return false, err
+    end
+    local ok, err = self:_canAddToResourceCounts(self.player, self.BUILD_CITY_COST)
+    if not ok then
+        return false, err
+    end
+    if vertex ~= nil then
+        local valid, err = CatanSchema.Vertex:isValid(vertex)
+        if not valid then
+            return false, err
+        end
+        local building = self.buildmap:get(vertex)
+        if building == nil then
+            return false, "no building in vertex"
+        end
+        if building.player ~= self.player then
+            return false, "building is not owned by current player"
+        end
+        if building.kind ~= "settlement" then
+            return false, "building is not a settlement"
+        end
+    end
+    return true
+end
 
 function Game:canEndTurn ()
     local ok, err = self:_isPhase"playingTurns"
@@ -894,6 +931,17 @@ function Game:buildSettlement (vertex)
     })
 end
 
+function Game:buildCity (vertex)
+    assert(self:canBuildCity(vertex))
+
+    self:_addToResourceCounts(self.player, self.BUILD_CITY_COST)
+
+    self.buildmap:set(vertex, {
+        kind = "city",
+        player = self.player,
+    })
+end
+
 function Game:endTurn ()
     assert(self:canEndTurn())
 
@@ -987,6 +1035,20 @@ function Game:_hasEnoughSettlements ()
     assert(n <= CatanConstants.settlements)
     if n == CatanConstants.settlements then
         return false, "player has used all settlements"
+    end
+    return true
+end
+
+function Game:_hasEnoughCities ()
+    local n = 0
+    self.buildmap:iter(function (q, r, v, building)
+        if building.player == self.player and building.kind == "city" then
+            n = n + 1
+        end
+    end)
+    assert(n <= CatanConstants.cities)
+    if n == CatanConstants.cities then
+        return false, "player has used all cities"
     end
     return true
 end

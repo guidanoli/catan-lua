@@ -1148,54 +1148,72 @@ function gui.renderers:buttons ()
         return assert(btnfolder[cond and "active" or "inactive"], "missing button sprite")
     end
 
-    local function newCell (btnfolder, onleftclick, cond, err)
-        local cond = cond and noAction
+    -- Create a new cell
+    -- t : {
+    --   folder : table,
+    --   check : function,
+    --   action : function,
+    -- }
+    local function newCell (t)
+        local active = t.check() and noAction
 
         local cell = {
-            chooseButtonImg(btnfolder, cond),
+            chooseButtonImg(t.folder, active),
+            onleftclick = function ()
+                if noAction then
+                    local ok, err = t.check()
+                    if ok then
+                        t.action()
+                    else
+                        print('Error: ' .. err)
+                    end
+                else
+                    print('Error: ongoing action')
+                end
+            end,
         }
-
-        if cond then
-            cell.onleftclick = onleftclick
-        else
-            cell.onleftclick = function ()
-                print(err)
-            end
-        end
 
         return cell
     end
 
     do
         local line = {
-            newCell(
-                self.images.btn.road,
-                function ()
+            newCell{
+                folder = self.images.btn.road,
+                check = function ()
+                    return self.game:canBuildRoad()
+                end,
+                action = function ()
                     self:startBuildingRoadAction()
                 end,
-                self.game:canBuildRoad()
-            ),
-            newCell(
-                self.images.btn.settlement,
-                function ()
+            },
+            newCell{
+                folder = self.images.btn.settlement,
+                check = function ()
+                    return self.game:canBuildSettlement()
+                end,
+                action = function ()
                     self:startBuildingSettlementAction()
                 end,
-                self.game:canBuildSettlement()
-            ),
-            newCell(
-                self.images.btn.roll,
-                function ()
+            },
+            newCell{
+                folder = self.images.btn.roll,
+                check = function ()
+                    return self.game:canRoll()
+                end,
+                action = function ()
                     self:roll()
                 end,
-                self.game:canRoll()
-            ),
-            newCell(
-                self.images.btn.endturn,
-                function ()
+            },
+            newCell{
+                folder = self.images.btn.endturn,
+                check = function ()
+                    return self.game:canEndTurn()
+                end,
+                action = function ()
                     self:endTurn()
                 end,
-                self.game:canEndTurn()
-            ),
+            },
         }
 
         local t = {

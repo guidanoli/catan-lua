@@ -232,6 +232,7 @@ end
 
 function actions.buildRoad (game)
     local ok, msg = game:canBuildRoad()
+    local delay
     if ok then
         local edge = randomValidEdge(game, function (edge)
             return game:canBuildRoad(edge)
@@ -242,9 +243,10 @@ function actions.buildRoad (game)
         else
             game:buildRoad(edge)
             msg = ('buildRoad(%s)'):format(display(edge))
+            delay = 10
         end
     end
-    return ok, msg
+    return ok, msg, delay
 end
 
 local function run (args, report)

@@ -980,7 +980,7 @@ end
 function Game:_hasEnoughSettlements ()
     local n = 0
     self.buildmap:iter(function (q, r, v, building)
-        if building.player == self.player then
+        if building.player == self.player and building.kind == "settlement" then
             n = n + 1
         end
     end)

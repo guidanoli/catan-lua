@@ -475,8 +475,9 @@ function Game:canRoll (dice)
     if not ok then
         return false, err
     end
-    if self.dice ~= nil then
-        return false, "the dice have been rolled in this turn already"
+    local ok, err = self:_wereDiceRolled(false)
+    if not ok then
+        return false, err
     end
     if dice ~= nil then
         local valid, err = CatanSchema.Dice:isValid(dice)
@@ -631,8 +632,9 @@ function Game:canEndTurn ()
     if not ok then
         return false, err
     end
-    if self.dice == nil then
-        return false, "the dice haven't been rolled in this turn yet"
+    local ok, err = self:_wereDiceRolled(true)
+    if not ok then
+        return false, err
     end
     return true
 end
@@ -882,6 +884,20 @@ function Game:_isPhase (phase)
         return false, "phase is not " .. phase
     end
     return true
+end
+
+function Game:_wereDiceRolled (expectedRolled)
+    if expectedRolled then
+        if self.dice == nil then
+            return false, "dice weren't rolled yet"
+        end
+        return true
+    else
+        if self.dice ~= nil then
+            return false, "dice were rolled already"
+        end
+        return true
+    end
 end
 
 function Game:_stealRandomResCardFrom (victim)

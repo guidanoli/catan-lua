@@ -245,7 +245,7 @@ local function run (args)
 
     local game = Game:new()
 
-    for i = 1, args.n do
+    for i = 1, args.ncalls do
         local actionKey = next(actions, lastActionKey)
         if actionKey == nil then
             actionKey = next(actions) -- loop over
@@ -274,7 +274,7 @@ local function run (args)
 end
 
 local parser = argparse("fuzzy", "Catan fuzzy tester")
-parser:option("-n", "Number of call attempts.", 1000)
+parser:option("--ncalls", "Number of call attempts per game.", 1000)
 parser:flag("-v", "Verbosity level."):count"*"
 
 local args = parser:parse()

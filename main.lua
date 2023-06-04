@@ -48,3 +48,11 @@ end
 function love.mousemoved (...)
     return CatanGUI:mousemoved(...)
 end
+
+---
+-- Callback triggered when a key is pressed.
+-- @param ... Forwarded to @{catan.gui:keypressed}
+-- @see love2d@love.keypressed
+function love.keypressed (...)
+    return CatanGUI:keypressed(...)
+end

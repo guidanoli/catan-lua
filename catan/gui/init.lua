@@ -81,6 +81,11 @@ function gui:updateDisplayedInventory ()
     self.displayedInventory = displayedInventory
 end
 
+function gui:clearActions ()
+    self.actions = {}
+    self:afterMove()
+end
+
 function gui:clearCardSelection ()
     self.selectedResCards = {}
 end
@@ -1200,6 +1205,16 @@ function gui:update (dt)
     end
 
     -- TODO: update animations using `dt`
+end
+
+---
+-- Callback triggered when a key is pressed.
+-- @tparam string key Character of the pressed key.
+-- @see love2d@love.keypressed
+function gui:keypressed (key)
+    if key == "escape" then
+        self:clearActions()
+    end
 end
 
 return gui

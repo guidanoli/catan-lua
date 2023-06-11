@@ -583,7 +583,7 @@ function Game:canChooseVictim (player)
     return true
 end
 
-Game.BUILD_ROAD_COST = {lumber=-1, brick=-1}
+Game.ROAD_COST = {lumber=-1, brick=-1}
 
 function Game:canBuildRoad (edge)
     local ok, err = self:_isPhase"playingTurns"
@@ -598,7 +598,7 @@ function Game:canBuildRoad (edge)
     if not ok then
         return false, err
     end
-    local ok, err = self:_canAddToResourceCounts(self.player, self.BUILD_ROAD_COST)
+    local ok, err = self:_canAddToResourceCounts(self.player, self.ROAD_COST)
     if not ok then
         return false, err
     end
@@ -635,7 +635,7 @@ function Game:canBuildRoad (edge)
     return true
 end
 
-Game.BUILD_SETTLEMENT_COST = {lumber=-1, brick=-1, wool=-1, grain=-1}
+Game.SETTLEMENT_COST = {lumber=-1, brick=-1, wool=-1, grain=-1}
 
 function Game:canBuildSettlement (vertex)
     local ok, err = self:_isPhase"playingTurns"
@@ -650,7 +650,7 @@ function Game:canBuildSettlement (vertex)
     if not ok then
         return false, err
     end
-    local ok, err = self:_canAddToResourceCounts(self.player, self.BUILD_SETTLEMENT_COST)
+    local ok, err = self:_canAddToResourceCounts(self.player, self.SETTLEMENT_COST)
     if not ok then
         return false, err
     end
@@ -678,7 +678,7 @@ function Game:canBuildSettlement (vertex)
     return true
 end
 
-Game.BUILD_CITY_COST = {grain=-2, ore=-3}
+Game.CITY_COST = {grain=-2, ore=-3}
 
 function Game:canBuildCity (vertex)
     local ok, err = self:_isPhase"playingTurns"
@@ -693,7 +693,7 @@ function Game:canBuildCity (vertex)
     if not ok then
         return false, err
     end
-    local ok, err = self:_canAddToResourceCounts(self.player, self.BUILD_CITY_COST)
+    local ok, err = self:_canAddToResourceCounts(self.player, self.CITY_COST)
     if not ok then
         return false, err
     end
@@ -915,7 +915,7 @@ end
 function Game:buildRoad (edge)
     assert(self:canBuildRoad(edge))
 
-    self:_addToResourceCounts(self.player, self.BUILD_ROAD_COST)
+    self:_addToResourceCounts(self.player, self.ROAD_COST)
 
     self.roadmap:set(edge, self.player)
 end
@@ -923,7 +923,7 @@ end
 function Game:buildSettlement (vertex)
     assert(self:canBuildSettlement(vertex))
 
-    self:_addToResourceCounts(self.player, self.BUILD_SETTLEMENT_COST)
+    self:_addToResourceCounts(self.player, self.SETTLEMENT_COST)
 
     self.buildmap:set(vertex, {
         kind = "settlement",
@@ -934,7 +934,7 @@ end
 function Game:buildCity (vertex)
     assert(self:canBuildCity(vertex))
 
-    self:_addToResourceCounts(self.player, self.BUILD_CITY_COST)
+    self:_addToResourceCounts(self.player, self.CITY_COST)
 
     self.buildmap:set(vertex, {
         kind = "city",

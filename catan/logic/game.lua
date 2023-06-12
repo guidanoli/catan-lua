@@ -966,6 +966,8 @@ end
 function Game:buyDevelopmentCard ()
     assert(self:canBuyDevelopmentCard())
 
+    self:_addToResourceCounts(self.player, self.DEVCARD_COST)
+
     local kind = table.remove(self.drawpile)
 
     table.insert(self.devcards[self.player], {

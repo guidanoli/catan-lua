@@ -385,15 +385,13 @@ function gui:printProduction (production)
         local player = buildingProduction.player
         local numCards = buildingProduction.numCards
         local res = buildingProduction.res
-        print(string.format('Player %s won %d %s %s.',
-                            player, numCards, res,
-                            numCards == 1 and "card" or "cards"))
+        print(('Player %s won %d %s %s.'):format(player, numCards, res,
+                                                 numCards == 1 and "card" or "cards"))
     end)
 end
 
 function gui:printRobbery (victim, res)
-    print(string.format('Player %s robbed a %s card from Player %s',
-                        self.game.player, res, victim))
+    print(('Player %s robbed a %s card from Player %s'):format(self.game.player, res, victim))
 end
 
 function gui:placeInitialSettlement (vertex)
@@ -1100,7 +1098,7 @@ function gui.renderers:inventory ()
             local playerCanDiscard = self.game:canDiscard(player, rescards)
 
             local expectedNumOfCards = self.game:getNumberOfResourceCardsToDiscard(player)
-            local text = string.format("To be discarded (%d/%d)", numSelectedCards, expectedNumOfCards)
+            local text = ('To be discarded (%d/%d)'):format(numSelectedCards, expectedNumOfCards)
             local color = playerCanDiscard and GREEN or RED
 
             local textSprite = layer:addSprite(
@@ -1274,7 +1272,7 @@ end
 function gui:update (dt)
     for layername in pairs(self.layersPendingUpdate) do
         local layer = self.renderers[layername](self)
-        assert(layer, string.format('could not render layer "%s"', layername))
+        assert(layer, ('could not render layer "%s"'):format(layername))
         self.layers[layername] = layer
         self.layersPendingUpdate[layername] = nil
     end

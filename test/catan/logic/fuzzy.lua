@@ -119,7 +119,21 @@ local function fmtrescards (rescards)
         local count = rescards[rescard]
         table.insert(t, rescard .. ':' .. count)
     end
-    return '<' .. table.concat(t, ',') .. '>'
+    return '[' .. table.concat(t, ', ') .. ']'
+end
+
+local function fmtproduction (production)
+    local t = {}
+    production:iter(function (q, r, hexproduction)
+        hexproduction:iter(function (q, r, v, vertexproduction)
+            local numCards = vertexproduction.numCards
+            local res = vertexproduction.res
+            local player = vertexproduction.player
+            local vertexstr = display(Grid:vertex(q, r, v))
+            table.insert(t, ('%s: <%s,%d,%s>'):format(vertexstr, player, numCards, res))
+        end)
+    end)
+    return '{' .. table.concat(t, ', ') .. '}'
 end
 
 local function color (code, s)
@@ -159,7 +173,7 @@ function actions.placeInitialSettlement (game)
             return game:canPlaceInitialSettlement(vertex)
         end)
         local production = game:placeInitialSettlement(vertex)
-        msg = ('placeInitialSettlement(%s)'):format(display(vertex))
+        msg = ('placeInitialSettlement(%s) -> %s'):format(display(vertex), fmtproduction(production))
     end
     return ok, msg
 end
@@ -170,7 +184,7 @@ function actions.placeInitialRoad (game)
         local edge = randomValidEdge(game, function (edge)
             return game:canPlaceInitialRoad(edge)
         end)
-        local production = game:placeInitialRoad(edge)
+        game:placeInitialRoad(edge)
         msg = ('placeInitialRoad(%s)'):format(display(edge))
     end
     return ok, msg
@@ -181,7 +195,7 @@ function actions.roll (game)
     if ok then
         local dice = randomDice()
         local production = game:roll(dice)
-        msg = ('roll({%s})'):format(table.concat(dice, ', '))
+        msg = ('roll({%s}) -> %s'):format(table.concat(dice, ', '), fmtproduction(production))
     end
     return ok, msg
 end
@@ -215,7 +229,7 @@ function actions.moveRobber (game)
             return game:canMoveRobber(face)
         end)
         local victim, res = game:moveRobber(face)
-        msg = ('moveRobber(%s)'):format(display(face))
+        msg = ('moveRobber(%s) -> (%s, %s)'):format(display(face), victim, res)
     end
     return ok, msg
 end
@@ -227,7 +241,7 @@ function actions.chooseVictim (game)
             return game:canChooseVictim(player)
         end)
         local res = game:chooseVictim(player)
-        msg = ('chooseVictim(%s)'):format(player)
+        msg = ('chooseVictim(%s) -> %s'):format(player, res)
     end
     return ok, msg
 end

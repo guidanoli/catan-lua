@@ -584,7 +584,7 @@ function Game:canChooseVictim (player)
     return true
 end
 
-Game.ROAD_COST = {lumber=-1, brick=-1}
+Game.ROAD_COST = {lumber=1, brick=1}
 
 function Game:canBuildRoad (edge)
     local ok, err = self:_isPhase"playingTurns"
@@ -599,7 +599,7 @@ function Game:canBuildRoad (edge)
     if not ok then
         return false, err
     end
-    local ok, err = self:_canAddToResourceCounts(self.player, self.ROAD_COST)
+    local ok, err = self:_canGiveResources(self.player, self.ROAD_COST)
     if not ok then
         return false, err
     end
@@ -636,7 +636,7 @@ function Game:canBuildRoad (edge)
     return true
 end
 
-Game.SETTLEMENT_COST = {lumber=-1, brick=-1, wool=-1, grain=-1}
+Game.SETTLEMENT_COST = {lumber=1, brick=1, wool=1, grain=1}
 
 function Game:canBuildSettlement (vertex)
     local ok, err = self:_isPhase"playingTurns"
@@ -651,7 +651,7 @@ function Game:canBuildSettlement (vertex)
     if not ok then
         return false, err
     end
-    local ok, err = self:_canAddToResourceCounts(self.player, self.SETTLEMENT_COST)
+    local ok, err = self:_canGiveResources(self.player, self.SETTLEMENT_COST)
     if not ok then
         return false, err
     end
@@ -679,7 +679,7 @@ function Game:canBuildSettlement (vertex)
     return true
 end
 
-Game.CITY_COST = {grain=-2, ore=-3}
+Game.CITY_COST = {grain=2, ore=3}
 
 function Game:canBuildCity (vertex)
     local ok, err = self:_isPhase"playingTurns"
@@ -694,7 +694,7 @@ function Game:canBuildCity (vertex)
     if not ok then
         return false, err
     end
-    local ok, err = self:_canAddToResourceCounts(self.player, self.CITY_COST)
+    local ok, err = self:_canGiveResources(self.player, self.CITY_COST)
     if not ok then
         return false, err
     end
@@ -717,7 +717,7 @@ function Game:canBuildCity (vertex)
     return true
 end
 
-Game.DEVCARD_COST = {wool=-1, ore=-1, grain=-1}
+Game.DEVCARD_COST = {wool=1, ore=1, grain=1}
 
 function Game:canBuyDevelopmentCard ()
     local ok, err = self:_isPhase"playingTurns"
@@ -731,7 +731,7 @@ function Game:canBuyDevelopmentCard ()
     if #self.drawpile == 0 then
         return false, "drawpile is empty"
     end
-    local ok, err = self:_canAddToResourceCounts(self.player, self.DEVCARD_COST)
+    local ok, err = self:_canGiveResources(self.player, self.DEVCARD_COST)
     if not ok then
         return false, err
     end
@@ -876,7 +876,7 @@ function Game:discard (player, rescards)
     assert(self:canDiscard(player, rescards))
 
     for res, discardCount in pairs(rescards) do
-        self:_addToResourceCount(player, res, -discardCount)
+        self:_giveResourceToBank(player, res, discardCount)
     end
 
     self.lastdiscard[player] = self.round
@@ -925,7 +925,7 @@ end
 function Game:buildRoad (edge)
     assert(self:canBuildRoad(edge))
 
-    self:_addToResourceCounts(self.player, self.ROAD_COST)
+    self:_giveResourcesToBank(self.player, self.ROAD_COST)
 
     self.roadmap:set(edge, self.player)
 end
@@ -933,7 +933,7 @@ end
 function Game:buildSettlement (vertex)
     assert(self:canBuildSettlement(vertex))
 
-    self:_addToResourceCounts(self.player, self.SETTLEMENT_COST)
+    self:_giveResourcesToBank(self.player, self.SETTLEMENT_COST)
 
     self.buildmap:set(vertex, {
         kind = "settlement",
@@ -944,7 +944,7 @@ end
 function Game:buildCity (vertex)
     assert(self:canBuildCity(vertex))
 
-    self:_addToResourceCounts(self.player, self.CITY_COST)
+    self:_giveResourcesToBank(self.player, self.CITY_COST)
 
     self.buildmap:set(vertex, {
         kind = "city",
@@ -955,7 +955,7 @@ end
 function Game:buyDevelopmentCard ()
     assert(self:canBuyDevelopmentCard())
 
-    self:_addToResourceCounts(self.player, self.DEVCARD_COST)
+    self:_giveResourcesToBank(self.player, self.DEVCARD_COST)
 
     local kind = table.remove(self.drawpile)
 
@@ -1081,14 +1081,13 @@ end
 function Game:_stealRandomResCardFrom (victim)
     local res = self:_choosePlayerResCardAtRandom(victim)
     assert(res ~= nil, "victim must have at least one card")
-    self:_addToResourceCount(victim, res, -1)
-    self:_addToResourceCount(self.player, res, 1)
+    self:_giveResourceToPlayer(victim, self.player, res, 1)
     return res
 end
 
-function Game:_canAddToResourceCounts (player, rescards)
-    for rescard, count in pairs(rescards) do
-        local ok, err = self:_canAddToResourceCount(player, rescard, count)
+function Game:_canGiveResources (player, rescards)
+    for res, n in pairs(rescards) do
+        local ok, err = self:_canGiveResource(player, res, n)
         if not ok then
             return false, err
         end
@@ -1096,17 +1095,16 @@ function Game:_canAddToResourceCounts (player, rescards)
     return true
 end
 
-function Game:_addToResourceCounts (player, rescards)
-    for rescard, count in pairs(rescards) do
-        self:_addToResourceCount(player, rescard, count)
+function Game:_giveResourcesToBank (player, rescards)
+    for res, n in pairs(rescards) do
+        self:_giveResourceToBank(player, res, n)
     end
 end
 
-function Game:_canAddToResourceCount (player, rescard, count)
-    local countBefore = self.rescards[player][rescard] or 0
-    local countAfter = countBefore + count
-    if countAfter < 0 then
-        return false, "not enough " .. rescard
+function Game:_canGiveResource (player, res, n)
+    local count = self.rescards[player][res] or 0
+    if n > count then
+        return false, "not enough " .. res
     end
     return true
 end
@@ -1151,6 +1149,31 @@ function Game:_applyHexProduction (hexprod)
     hexprod:iter(function (player, res, n)
         self:_giveResourceFromBank(player, res, n)
     end)
+end
+
+function Game:_giveResourceFromBank (player, res, n)
+    local supply = self.bank[res]
+    assert(supply >= n)
+    self:_addToResourceCount(player, res, n)
+    self.bank[res] = supply - n
+end
+
+function Game:_giveResourceToBank (player, res, n)
+    assert(n >= 0)
+    self:_addToResourceCount(player, res, -n)
+    self.bank[res] = self.bank[res] + n
+end
+
+function Game:_giveResourcesToBank (player, rescards)
+    for res, n in pairs(rescards) do
+        self:_giveResourceToBank(player, res, n)
+    end
+end
+
+function Game:_giveResourceToPlayer (from, to, res, n)
+    assert(n >= 0)
+    self:_addToResourceCount(from, res, -n)
+    self:_addToResourceCount(to, res, n)
 end
 
 function Game:_getCurrentPlayerIndex ()

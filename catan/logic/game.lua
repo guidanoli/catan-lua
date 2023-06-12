@@ -7,6 +7,7 @@ local Grid = require "catan.logic.grid"
 local FaceMap = require "catan.logic.FaceMap"
 local VertexMap = require "catan.logic.VertexMap"
 local EdgeMap = require "catan.logic.EdgeMap"
+local HexProduction = require "catan.logic.HexProduction"
 
 --------------------------------
 
@@ -771,31 +772,25 @@ function Game:placeInitialSettlement (vertex)
         player = self.player,
     })
 
-    local production = FaceMap:new()
+    local hexprod = HexProduction:new()
 
     if self.round == 2 then
         for _, touchingFace in ipairs(Grid:touches(Grid:unpack(vertex))) do
-            local hexProduction = VertexMap:new()
             local touchingHex = self.hexmap:get(touchingFace)
             if touchingHex ~= nil then
                 local res = self:resFromHex(touchingHex)
                 if res ~= nil then
-                    hexProduction:set(vertex, {
-                        player = self.player,
-                        numCards = 1,
-                        res = res,
-                    })
+                    hexprod:add(self.player, res, 1)
                 end
             end
-            production:set(touchingFace, hexProduction)
         end
     end
 
-    self:_applyProduction(production)
+    self:_applyHexProduction(hexprod)
 
     self.phase = "placingInitialRoad"
 
-    return production
+    return hexprod
 end
 
 function Game:placeInitialRoad (edge)
@@ -834,7 +829,7 @@ function Game:roll (dice)
         diceSum = diceSum + die
     end
 
-    local production = FaceMap:new()
+    local hexprod = HexProduction:new()
 
     self.numbermap:iter(function (q, r, number)
         if number == diceSum then
@@ -845,24 +840,18 @@ function Game:roll (dice)
             local hex = assert(self.hexmap:get(face))
             local res = self:resFromHex(hex)
             if res ~= nil then
-                local hexProduction = VertexMap:new()
                 for _, corner in ipairs(Grid:corners(q, r)) do
                     local building = self.buildmap:get(corner)
                     if building ~= nil then
                         local numCards = self:numResCardsForBuilding(building.kind)
-                        hexProduction:set(corner, {
-                            player = building.player,
-                            numCards = numCards,
-                            res = res,
-                        })
+                        hexprod:add(building.player, res, numCards)
                     end
                 end
-                production:set(face, hexProduction)
             end
         end
     end)
 
-    self:_applyProduction(production)
+    self:_applyHexProduction(hexprod)
 
     self.dice = dice
 
@@ -880,7 +869,7 @@ function Game:roll (dice)
         end
     end
 
-    return production
+    return hexprod
 end
 
 function Game:discard (player, rescards)
@@ -1129,12 +1118,38 @@ function Game:_addToResourceCount (player, rescard, count)
     self.rescards[player][rescard] = countAfter
 end
 
-function Game:_applyProduction (production)
-    self:iterProduction(production, function (face, vertex, buildingProduction)
-        local player = assert(buildingProduction.player)
-        local res = assert(buildingProduction.res)
-        local numCards = assert(buildingProduction.numCards)
-        self:_addToResourceCount(player, res, numCards)
+function Game:_applyHexProduction (hexprod)
+    local rescount = {}
+    local resplayers = {}
+
+    hexprod:iter(function (player, res, n)
+        rescount[res] = (rescount[res] or 0) + n
+        local players = resplayers[res]
+        if players == nil then
+            players = {}
+            resplayers[res] = players
+        end
+        players[player] = true
+    end)
+
+    for res, count in pairs(rescount) do
+        local supply = self.bank[res]
+        if count > supply then
+            local players = resplayers[res]
+            local nplayers = TableUtils:numOfPairs(players)
+            if nplayers == 1 then
+                hexprod:set(next(players), res, supply)
+            else
+                assert(nplayers > 1)
+                for player in pairs(players) do
+                    hexprod:set(player, res, 0)
+                end
+            end
+        end
+    end
+
+    hexprod:iter(function (player, res, n)
+        self:_giveResourceFromBank(player, res, n)
     end)
 end
 

@@ -776,7 +776,7 @@ function Game:placeInitialSettlement (vertex)
         end
     end
 
-    self:_applyHexProduction(hexprod)
+    self:_produce(hexprod)
 
     self.phase = "placingInitialRoad"
 
@@ -841,7 +841,7 @@ function Game:roll (dice)
         end
     end)
 
-    self:_applyHexProduction(hexprod)
+    self:_produce(hexprod)
 
     self.dice = dice
 
@@ -1106,36 +1106,61 @@ function Game:_addToResourceCount (player, rescard, count)
     self.rescards[player][rescard] = countAfter
 end
 
-function Game:_applyHexProduction (hexprod)
-    local rescount = {}
-    local resplayers = {}
+function Game:_produce (hexprod)
+   local hexprod = self:_limitHexProductionByResCardSupply(hexprod)
+   self:_applyHexProduction(hexprod)
+end
 
+function Game:_limitHexProductionByResCardSupply (hexprod)
+    local totalResProduction = {}
+    local resProducers = {}
+
+    -- Initialize totalResProduction resProducers
     hexprod:iter(function (player, res, n)
-        rescount[res] = (rescount[res] or 0) + n
-        local players = resplayers[res]
-        if players == nil then
-            players = {}
-            resplayers[res] = players
+        if totalResProduction[res] == nil then
+            totalResProduction[res] = 0
         end
-        players[player] = true
+        if resProducers[res] == nil then
+            resProducers[res] = {}
+        end
     end)
 
-    for res, count in pairs(rescount) do
+    -- Count total number of resource produced per type
+    -- and populate the resProducers with the producers of each type
+    hexprod:iter(function (player, res, n)
+        totalResProduction[res] = totalResProduction[res] + n
+        resProducers[res][player] = true
+    end)
+
+    local limitedHexProd = HexProduction:new()
+
+    -- For each resource, check if the total amount produced surpasses
+    -- the total supply in the bank. If so, check if only one player
+    -- produced it. If only one player produced it, cap the produced
+    -- amount by the supply. Otherwise, don't produce such resource.
+    for res, totalAmount in pairs(totalResProduction) do
         local supply = self.bank[res]
-        if count > supply then
-            local players = resplayers[res]
+        local players = resProducers[res]
+        if totalAmount > supply then
             local nplayers = TableUtils:numOfPairs(players)
             if nplayers == 1 then
-                hexprod:set(next(players), res, supply)
+                local player = assert(next(players))
+                limitedHexProd:add(player, res, supply)
             else
                 assert(nplayers > 1)
-                for player in pairs(players) do
-                    hexprod:set(player, res, 0)
-                end
+            end
+        else
+            for player in pairs(players) do
+                local amount = hexprod:get(player, res)
+                limitedHexProd:add(player, res, amount)
             end
         end
     end
 
+    return limitedHexProd
+end
+
+function Game:_applyHexProduction (hexprod)
     hexprod:iter(function (player, res, n)
         self:_giveResourceFromBank(player, res, n)
     end)

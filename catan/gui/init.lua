@@ -407,6 +407,24 @@ function gui:placeInitialRoad (edge)
     self:afterMove()
 end
 
+gui.DEVCARD_NAMES = {
+    knight = "Knight",
+    roadbuilding = "Road Building",
+    yearofplenty = "Year Of Plenty",
+    monopoly = "Monopoly",
+    victorypoint = "Victory Point",
+}
+
+function gui:buyDevelopmentCard ()
+    local kind = self.game:buyDevelopmentCard()
+
+    local name = assert(self.DEVCARD_NAMES[kind], "unknown development card")
+
+    print(('Player %s bought a %s card'):format(self.game.player, name))
+
+    self:afterMove()
+end
+
 function gui:roll ()
     local dice = {}
     local N = 2 -- number of dice
@@ -1227,6 +1245,15 @@ function gui.renderers:buttons ()
                 end,
                 action = function ()
                     self:startBuildingCityAction()
+                end,
+            },
+            newCell{
+                folder = self.images.btn.devcard,
+                check = function ()
+                    return self.game:canBuyDevelopmentCard()
+                end,
+                action = function ()
+                    self:buyDevelopmentCard()
                 end,
             },
             newCell{

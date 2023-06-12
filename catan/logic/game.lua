@@ -1151,11 +1151,10 @@ function Game:_limitHexProductionByResCardSupply (hexprod)
         local players = resProducers[res]
         if totalAmount > supply then
             local nplayers = TableUtils:numOfPairs(players)
+            assert(nplayers >= 1)
             if nplayers == 1 then
                 local player = assert(next(players))
                 limitedHexProd:add(player, res, supply)
-            else
-                assert(nplayers > 1)
             end
         else
             for player in pairs(players) do

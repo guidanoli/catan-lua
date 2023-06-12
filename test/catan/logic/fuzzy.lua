@@ -297,6 +297,15 @@ function actions.buildCity (game)
     return ok, msg
 end
 
+function actions.buyDevelopmentCard (game)
+    local ok, msg = game:canBuyDevelopmentCard()
+    if ok then
+        local kind = game:buyDevelopmentCard()
+        msg = ('buyDevelopmentCard() -> %s'):format(kind)
+    end
+    return ok, msg
+end
+
 local function run (args, report)
     local game = Game:new()
 

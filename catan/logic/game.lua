@@ -716,6 +716,27 @@ function Game:canBuildCity (vertex)
     return true
 end
 
+Game.DEVCARD_COST = {wool=-1, ore=-1, grain=-1}
+
+function Game:canBuyDevelopmentCard ()
+    local ok, err = self:_isPhase"playingTurns"
+    if not ok then
+        return false, err
+    end
+    local ok, err = self:_wereDiceRolled(true)
+    if not ok then
+        return false, err
+    end
+    if #self.drawpile == 0 then
+        return false, "drawpile is empty"
+    end
+    local ok, err = self:_canAddToResourceCounts(self.player, self.DEVCARD_COST)
+    if not ok then
+        return false, err
+    end
+    return true
+end
+
 function Game:canEndTurn ()
     local ok, err = self:_isPhase"playingTurns"
     if not ok then
@@ -940,6 +961,19 @@ function Game:buildCity (vertex)
         kind = "city",
         player = self.player,
     })
+end
+
+function Game:buyDevelopmentCard ()
+    assert(self:canBuyDevelopmentCard())
+
+    local kind = table.remove(self.drawpile)
+
+    table.insert(self.devcards[self.player], {
+        kind = kind,
+        roundBought = self.round,
+    })
+
+    return kind
 end
 
 function Game:endTurn ()

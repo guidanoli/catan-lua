@@ -381,12 +381,9 @@ function gui:afterMove ()
 end
 
 function gui:printProduction (production)
-    self.game:iterProduction(production, function (face, vertex, buildingProduction)
-        local player = buildingProduction.player
-        local numCards = buildingProduction.numCards
-        local res = buildingProduction.res
-        print(('Player %s won %d %s %s.'):format(player, numCards, res,
-                                                 numCards == 1 and "card" or "cards"))
+    production:iter(function (player, res, n)
+        print(('Player %s won %d %s %s.'):format(player, n, res,
+                                                 n == 1 and "card" or "cards"))
     end)
 end
 

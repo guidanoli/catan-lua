@@ -124,16 +124,10 @@ end
 
 local function fmtproduction (production)
     local t = {}
-    production:iter(function (q, r, hexproduction)
-        hexproduction:iter(function (q, r, v, vertexproduction)
-            local numCards = vertexproduction.numCards
-            local res = vertexproduction.res
-            local player = vertexproduction.player
-            local vertexstr = display(Grid:vertex(q, r, v))
-            table.insert(t, ('%s: <%s,%d,%s>'):format(vertexstr, player, numCards, res))
-        end)
+    production:iter(function (player, res, n)
+        table.insert(t, ('<%s,%s,%d>'):format(player, res, n))
     end)
-    return '{' .. table.concat(t, ', ') .. '}'
+    return '[' .. table.concat(t, ', ') .. ']'
 end
 
 local function color (code, s)

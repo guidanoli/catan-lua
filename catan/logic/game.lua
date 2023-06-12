@@ -728,8 +728,9 @@ function Game:canBuyDevelopmentCard ()
     if not ok then
         return false, err
     end
-    if #self.drawpile == 0 then
-        return false, "drawpile is empty"
+    local ok, err = self:_hasEnoughDevelopmentCards()
+    if not ok then
+        return false, err
     end
     local ok, err = self:_canGiveResources(self.player, self.DEVCARD_COST)
     if not ok then
@@ -1064,6 +1065,13 @@ function Game:_hasEnoughCities ()
     assert(n <= CatanConstants.cities)
     if n == CatanConstants.cities then
         return false, "player has used all cities"
+    end
+    return true
+end
+
+function Game:_hasEnoughDevelopmentCards ()
+    if #self.drawpile == 0 then
+        return false, "drawpile is empty"
     end
     return true
 end

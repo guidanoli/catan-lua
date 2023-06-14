@@ -97,11 +97,15 @@ local function listPlayerResCards (game, player)
     return list
 end
 
-local function randomValidPlayerResCardsToDiscard (game, player)
-    local list = listPlayerResCards(game, player)
+local function randomPlayerResCards (game, player, n)
+    local allCards = listPlayerResCards(game, player)
+    local sampledCards = TableUtils:uniqueSamples(allCards, n)
+    return TableUtils:histogram(sampledCards)
+end
+
+local function randomPlayerResCardsToDiscard (game, player)
     local n = game:getNumberOfResourceCardsToDiscard(player)
-    local list = TableUtils:uniqueSamples(list, n)
-    return TableUtils:histogram(list)
+    return randomPlayerResCards(game, player, n)
 end
 
 local function display (gridpart)
@@ -205,7 +209,7 @@ function actions.discard (game)
         local player = randomValidPlayer(game, function (player)
             return game:canDiscard(player)
         end)
-        local rescards = randomValidPlayerResCardsToDiscard(game, player)
+        local rescards = randomPlayerResCardsToDiscard(game, player)
         game:discard(player, rescards)
         msg = ('discard(%s, %s)'):format(player, fmtrescards(rescards))
     end

@@ -160,6 +160,7 @@ function Game:validate ()
     self:_validateHasBuilt()
     self:_validateBuildMap()
     self:_validateRoadMap()
+    self:_validateRobber()
 end
 
 function Game:_validateRound ()
@@ -331,6 +332,11 @@ function Game:_validatePlayerRoads (player)
 
     -- Check if every edge from the player was visited by the DFS
     assert(TableUtils:deepEqual(allEdges, visitedEdges))
+end
+
+function Game:_validateRobber ()
+    -- Check if robber is on top of a face with hex
+    assert(self.hexmap:get(self.robber))
 end
 
 --------------------------------

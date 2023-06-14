@@ -1369,7 +1369,7 @@ end
 
 function Game:_canGiveResource (player, res, n)
     local count = self.rescards[player][res] or 0
-    if n > count then
+    if not (n >= 0 and n <= count) then
         return false, "not enough " .. res
     end
     return true

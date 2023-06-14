@@ -146,12 +146,12 @@ local function cyan (s)
     return color(36, s)
 end
 
-local function printSuccess (s)
-    io.stderr:write(green'SUCCESS: ', s, '\n')
+local function printSuccess (i, j, s)
+    io.stderr:write(green(('SUCCESS (%d/%d): '):format(i, j)),  s, '\n')
 end
 
-local function printFailure (s)
-    io.stderr:write(red'FAILURE: ', s, '\n')
+local function printFailure (i, j, s)
+    io.stderr:write(red(('FAILURE (%d/%d): '):format(i, j)), s, '\n')
 end
 
 local actions = {}
@@ -296,12 +296,12 @@ function actions.buyDevelopmentCard (game)
     return ok, msg
 end
 
-local function run (args, report)
+local function run (i, args, report)
     local game = Game:new()
 
     local actionKeys = TableUtils:sortedKeys(actions)
 
-    for i = 1, args.ncalls do
+    for j = 1, args.ncalls do
         local player = game.player
 
         local actionKey = TableUtils:sample(actionKeys)
@@ -315,12 +315,12 @@ local function run (args, report)
         if ok then
             game:validate()
             if args.v >= 1 then
-                printSuccess(msg)
+                printSuccess(i, j, msg)
             end
             report.successes = (report.successes or 0) + 1
         else
             if args.v >= 3 then
-                printFailure(msg)
+                printFailure(i, j, msg)
             end
             report.failures = (report.failures or 0) + 1
         end
@@ -339,7 +339,7 @@ local timeBefore = os.clock()
 local report = {}
 
 for i = 1, args.ngames do
-    run(args, report)
+    run(i, args, report)
 end
 
 do

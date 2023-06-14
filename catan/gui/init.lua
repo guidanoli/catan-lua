@@ -1173,7 +1173,7 @@ function gui.renderers:buttons ()
 
     local W, H = love.window.getMode()
     local XMARGIN = 20
-    local YMARGIN = XMARGIN
+    local YMARGIN = 200
     local XSEP = 10
     local NBUTTONS = 1
 

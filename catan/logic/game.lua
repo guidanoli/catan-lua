@@ -746,21 +746,26 @@ function Game:canTradeWithPlayer (otherplayer, mycards, theircards)
         if not ok then
             return false, err
         end
-        local ok, err = CatanSchema.ResourceCardHistogram:isValid(mycards)
-        if not ok then
-            return false, err
+        if otherplayer == self.player then
+            return false, "cannot trade with itself"
         end
-        local ok, err = CatanSchema.ResourceCardHistogram:isValid(theircards)
-        if not ok then
-            return false, err
-        end
-        local ok, err = self:_canGiveResources(self.player, mycards)
-        if not ok then
-            return false, err
-        end
-        local ok, err = self:_canGiveResources(otherplayer, theircards)
-        if not ok then
-            return false, err
+        if mycards ~= nil then
+            local ok, err = CatanSchema.ResourceCardHistogram:isValid(mycards)
+            if not ok then
+                return false, err
+            end
+            local ok, err = CatanSchema.ResourceCardHistogram:isValid(theircards)
+            if not ok then
+                return false, err
+            end
+            local ok, err = self:_canGiveResources(self.player, mycards)
+            if not ok then
+                return false, err
+            end
+            local ok, err = self:_canGiveResources(otherplayer, theircards)
+            if not ok then
+                return false, err
+            end
         end
     end
     return true

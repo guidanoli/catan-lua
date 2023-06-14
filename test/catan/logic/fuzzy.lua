@@ -99,6 +99,7 @@ end
 
 local function randomPlayerResCards (game, player, n)
     local allCards = listPlayerResCards(game, player)
+    n = n or math.random(#allCards)
     local sampledCards = TableUtils:uniqueSamples(allCards, n)
     return TableUtils:histogram(sampledCards)
 end
@@ -236,6 +237,22 @@ function actions.chooseVictim (game)
         end)
         local res = game:chooseVictim(player)
         msg = ('chooseVictim(%s) -> %s'):format(player, res)
+    end
+    return ok, msg
+end
+
+function actions.tradeWithPlayer (game)
+    local ok, msg = game:canTradeWithPlayer()
+    if ok then
+        local otherplayer = randomValidPlayer(game, function (player)
+            return game:canTradeWithPlayer(player)
+        end)
+        local mycards = randomPlayerResCards(game, game.player)
+        local theircards = randomPlayerResCards(game, otherplayer)
+        game:tradeWithPlayer(otherplayer, mycards, theircards)
+        msg = ('tradeWithPlayer(%s, %s, %s)'):format(otherplayer,
+                                                     fmtrescards(mycards),
+                                                     fmtrescards(theircards))
     end
     return ok, msg
 end

@@ -728,6 +728,44 @@ function Game:canChooseVictim (player)
     return true
 end
 
+function Game:canTradeWithPlayer (otherplayer, mycards, theircards)
+    local ok, err = self:_isPhase"playingTurns"
+    if not ok then
+        return false, err
+    end
+    local ok, err = self:_wereDiceRolled(true)
+    if not ok then
+        return false, err
+    end
+    local ok, err = self:_canTrade()
+    if not ok then
+        return false, err
+    end
+    if otherplayer ~= nil then
+        local ok, err = CatanSchema.Player:isValid(otherplayer)
+        if not ok then
+            return false, err
+        end
+        local ok, err = CatanSchema.ResourceCardHistogram:isValid(mycards)
+        if not ok then
+            return false, err
+        end
+        local ok, err = CatanSchema.ResourceCardHistogram:isValid(theircards)
+        if not ok then
+            return false, err
+        end
+        local ok, err = self:_canGiveResources(self.player, mycards)
+        if not ok then
+            return false, err
+        end
+        local ok, err = self:_canGiveResources(otherplayer, theircards)
+        if not ok then
+            return false, err
+        end
+    end
+    return true
+end
+
 Game.ROAD_COST = {lumber=1, brick=1}
 
 function Game:canBuildRoad (edge)
@@ -1057,6 +1095,13 @@ function Game:chooseVictim (player)
     return res
 end
 
+function Game:tradeWithPlayer (otherplayer, mycards, theircards)
+    assert(self:canTradeWithPlayer(otherplayer, mycards, theircards))
+
+    self:_giveResourcesToPlayer(self.player, otherplayer, mycards)
+    self:_giveResourcesToPlayer(otherplayer, self.player, theircards)
+end
+
 function Game:buildRoad (edge)
     assert(self:canBuildRoad(edge))
 
@@ -1293,6 +1338,13 @@ function Game:_wereDiceRolled (expectedRolled)
         end
         return true
     end
+end
+
+function Game:_canTrade ()
+    if self.hasbuilt then
+        return false, "cannot trade after building"
+    end
+    return true
 end
 
 function Game:_hasEnoughRoads ()

@@ -317,6 +317,7 @@ local function run (args, report)
         end
 
         if ok then
+            game:validate()
             if args.v >= 1 then
                 printSuccess(msg)
             end

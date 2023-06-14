@@ -1,5 +1,6 @@
 local Class = require "util.class"
 local TableUtils = require "util.table"
+local LogicUtils = require "util.logic"
 
 local CatanSchema = require "catan.logic.schema"
 local CatanConstants = require "catan.logic.constants"
@@ -167,21 +168,12 @@ function Game:_validateRound ()
     local initialRounds = {[1] = true, [2] = true}
     local initialPhases = {placingInitialSettlement = true, placingInitialRoad = true}
 
-    -- Lua 5.1 doesn't have exclusive or...
-    local function iff (a, b)
-        return (a and b) or (not a and not b)
-    end
-
     -- round in [1,2] iff phase is placing initial settlement or road
-    assert(iff(initialRounds[self.round], initialPhases[self.phase]))
+    assert(LogicUtils:iff(initialRounds[self.round], initialPhases[self.phase]))
 end
 
 function Game:_validateHasBuilt ()
-    local function implies (a, b)
-        return not a or b
-    end
-
-    assert(implies(self.hasbuilt, self.dice ~= nil))
+    assert(LogicUtils:implies(self.hasbuilt, self.dice ~= nil))
 end
 
 function Game:_validateBuildMap ()

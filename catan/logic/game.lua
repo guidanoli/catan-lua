@@ -163,6 +163,7 @@ function Game:validate ()
     self:_validateRobber()
     self:_validateDevCards()
     self:_validateResCards()
+    self:_validateLastDiscard()
 end
 
 function Game:_validateRound ()
@@ -398,6 +399,13 @@ function Game:_validateResCards ()
     -- Check if quantities match
     for kind, count in pairs(CatanConstants.rescards) do
         assert(allrescards[kind] == count)
+    end
+end
+
+function Game:_validateLastDiscard ()
+    for player, lastdiscard in pairs(self.lastdiscard) do
+        assert(lastdiscard >= 2)
+        assert(lastdiscard <= self.round)
     end
 end
 

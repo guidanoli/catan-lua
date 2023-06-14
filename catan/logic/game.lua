@@ -161,6 +161,7 @@ function Game:validate ()
     self:_validateBuildMap()
     self:_validateRoadMap()
     self:_validateRobber()
+    self:_validateDevCards()
 end
 
 function Game:_validateRound ()
@@ -337,6 +338,32 @@ end
 function Game:_validateRobber ()
     -- Check if robber is on top of a face with hex
     assert(self.hexmap:get(self.robber))
+end
+
+function Game:_validateDevCards ()
+    -- Keep a histogram of dev card kinds
+    local alldevcards = {}
+
+    local function incrementCount (kind)
+        alldevcards[kind] = (alldevcards[kind] or 0) + 1
+    end
+
+    -- Iterate through all dev cards in players' hands
+    for player, devcards in pairs(self.devcards) do
+        for _, devcard in ipairs(devcards) do
+            incrementCount(devcard.kind)
+        end
+    end
+
+    -- Iterate through all dev cards in the draw pile
+    for _, kind in ipairs(self.drawpile) do
+        incrementCount(kind)
+    end
+
+    -- Check if quantities match
+    for kind, count in pairs(CatanConstants.devcards) do
+        assert(alldevcards[kind] == count)
+    end
 end
 
 --------------------------------

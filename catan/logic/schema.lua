@@ -134,6 +134,7 @@ m.GameState = s.Struct{
     phase = m.Phase,
     round = Int,
     dice = s.Option(m.Dice),
+    hasbuilt = s.Type"boolean",
     -- players (static)
     players = s.Array(m.Player),
     -- map (static)

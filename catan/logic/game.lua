@@ -31,6 +31,7 @@ end
 function Game:_init (players)
     self.phase = 'placingInitialSettlement'
     self.round = 1
+    self.hasbuilt = false
     self:_setPlayers(players)
     self:_createHexMap()
     self:_createNumberMap()
@@ -431,9 +432,9 @@ end
 function Game:getLongestRoadLength (player)
     local maxlength = 0
     self.roadmap:iter(function (q, r, e, p)
-        if player == p then
+        if p == player then
             local edge = Grid:edge(q, r, e)
-            local length = self:_getLongestRoadWithEdge(player, edge)
+            local length = self:_getLongestRoadWithEdge(p, edge)
             if length > maxlength then
                 maxlength = length
             end
@@ -935,6 +936,7 @@ function Game:buildRoad (edge)
 
     self.roadmap:set(edge, self.player)
 
+    self.hasbuilt = true
     self:_updateLongestRoadHolder()
 end
 
@@ -948,6 +950,7 @@ function Game:buildSettlement (vertex)
         player = self.player,
     })
 
+    self.hasbuilt = true
     self:_updateLongestRoadHolder()
 end
 
@@ -961,6 +964,7 @@ function Game:buildCity (vertex)
         player = self.player,
     })
 
+    self.hasbuilt = true
     self:_updateLongestRoadHolder()
 end
 
@@ -976,6 +980,8 @@ function Game:buyDevelopmentCard ()
         roundBought = self.round,
     })
 
+    self.hasbuilt = true
+
     return kind
 end
 
@@ -990,6 +996,7 @@ function Game:endTurn ()
 
     self.player = self:_getPlayerAfterIndex(i)
     self.dice = nil
+    self.hasbuilt = false
 end
 
 --------------------------------

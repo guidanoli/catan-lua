@@ -728,7 +728,7 @@ function Game:canChooseVictim (player)
     return true
 end
 
-function Game:canTradeWithPlayer (otherplayer, mycards, theircards)
+function Game:canTrade ()
     local ok, err = self:_isPhase"playingTurns"
     if not ok then
         return false, err
@@ -737,7 +737,14 @@ function Game:canTradeWithPlayer (otherplayer, mycards, theircards)
     if not ok then
         return false, err
     end
-    local ok, err = self:_canTrade()
+    if self.hasbuilt then
+        return false, "cannot trade after building"
+    end
+    return true
+end
+
+function Game:canTradeWithPlayer (otherplayer, mycards, theircards)
+    local ok, err = self:canTrade()
     if not ok then
         return false, err
     end
@@ -1343,13 +1350,6 @@ function Game:_wereDiceRolled (expectedRolled)
         end
         return true
     end
-end
-
-function Game:_canTrade ()
-    if self.hasbuilt then
-        return false, "cannot trade after building"
-    end
-    return true
 end
 
 function Game:_hasEnoughRoads ()

@@ -1466,6 +1466,12 @@ function Game:_giveResourceToPlayer (from, to, res, n)
     self:_addToResourceCount(to, res, n)
 end
 
+function Game:_giveResourcesToPlayer (from, to, rescards)
+    for res, n in pairs(rescards) do
+        self:_giveResourceToPlayer(from, to, res, n)
+    end
+end
+
 function Game:_getCurrentPlayerIndex ()
     for i, player in ipairs(self.players) do
         if player == self.player then

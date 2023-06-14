@@ -428,6 +428,21 @@ function Game:getNumberOfResourceCardsToDiscard (player)
     end
 end
 
+function Game:getLongestRoadLength (player)
+    local maxlength = 0
+    self.roadmap:iter(function (q, r, e, p)
+        if player == p then
+            local edge = Grid:edge(q, r, e)
+            local length = self:_getLongestRoadWithEdge(player, edge)
+            if length > maxlength then
+                maxlength = length
+            end
+        end
+    end)
+    return maxlength
+end
+
+
 function Game:canPlaceInitialSettlement (vertex)
     local ok, err = self:_isPhase"placingInitialSettlement"
     if not ok then
@@ -919,6 +934,8 @@ function Game:buildRoad (edge)
     self:_giveResourcesToBank(self.player, self.ROAD_COST)
 
     self.roadmap:set(edge, self.player)
+
+    self:_updateLongestRoadHolder()
 end
 
 function Game:buildSettlement (vertex)
@@ -930,6 +947,8 @@ function Game:buildSettlement (vertex)
         kind = "settlement",
         player = self.player,
     })
+
+    self:_updateLongestRoadHolder()
 end
 
 function Game:buildCity (vertex)
@@ -941,6 +960,8 @@ function Game:buildCity (vertex)
         kind = "city",
         player = self.player,
     })
+
+    self:_updateLongestRoadHolder()
 end
 
 function Game:buyDevelopmentCard ()
@@ -974,6 +995,118 @@ end
 --------------------------------
 -- Auxiliary functions
 --------------------------------
+
+function Game:_getLongestRoadWithEdge (player, edge)
+    local visitedEdges = EdgeMap:new()
+
+    local function canVisit (pair)
+        if visitedEdges:get(pair.edge) then
+            return false
+        end
+        if self.roadmap:get(pair.edge) ~= player then
+            return false
+        end
+        local building = self.buildmap:get(pair.vertex)
+        if building and building.player ~= player then
+            return false
+        end
+        return true
+    end
+
+    local function visit (vertex)
+        local maxlength = 0
+        for _, pair in ipairs(Grid:adjacentEdgeVertexPairs(Grid:unpack(vertex))) do
+            if canVisit(pair) then
+                visitedEdges:set(pair.edge, true)
+                local length = 1 + visit(pair.vertex)
+                if length > maxlength then
+                    maxlength = length
+                end
+                visitedEdges:set(pair.edge, false)
+            end
+        end
+        return maxlength
+    end
+
+    local maxlength = 0
+    for _, endpoint in ipairs(Grid:endpoints(Grid:unpack(edge))) do
+        local building = self.buildmap:get(endpoint)
+        if building == nil or building.player == player then
+            local length = visit(endpoint)
+            if length > maxlength then
+                maxlength = length
+            end
+        end
+    end
+    return maxlength
+end
+
+function Game:_isNewLongestRoadHolder (player)
+    if self.longestroad ~= player then
+        local length = self:getLongestRoadLength(player)
+        if self.longestroad == nil then
+            if length >= 5 then
+                return true
+            end
+        else
+            local currentMaxLength = self:getLongestRoadLength(self.longestroad)
+            if length > currentMaxLength then
+                return true
+            end
+        end
+    end
+    return false
+end
+
+function Game:_updateLongestRoadHolder ()
+    local lengths = {}
+
+    for _, player in ipairs(self.players) do
+        lengths[player] = self:getLongestRoadLength(player)
+    end
+
+    local maxlength = 0
+    for player, length in pairs(lengths) do
+        if length > maxlength then
+            maxlength = length
+        end
+    end
+
+    local tiedplayers = {}
+    for player, length in pairs(lengths) do
+        if length == maxlength then
+            tiedplayers[player] = true
+        end
+    end
+
+    local tiedcount = TableUtils:numOfPairs(tiedplayers)
+    assert(tiedcount >= 1)
+
+    local currholder = self.longestroad
+    local newholder = currholder
+
+    if currholder == nil then
+        if tiedcount == 1 and maxlength >= 5 then
+            newholder = assert(next(tiedplayers))
+        end
+    else
+        if maxlength >= 5 then
+            if tiedplayers[currholder] == nil then
+                if tiedcount == 1 then
+                    newholder = assert(next(tiedplayers))
+                else
+                    newholder = nil
+                end
+            end
+        else
+            newholder = nil
+        end
+    end
+
+    self.longestroad = newholder
+
+    return currholder ~= newholder
+end
 
 function Game:_choosePlayerResCardAtRandom (player)
     local n = self:getNumberOfResourceCards(player)

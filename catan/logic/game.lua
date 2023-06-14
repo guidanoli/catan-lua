@@ -162,6 +162,7 @@ function Game:validate ()
     self:_validateRoadMap()
     self:_validateRobber()
     self:_validateDevCards()
+    self:_validateResCards()
 end
 
 function Game:_validateRound ()
@@ -363,6 +364,32 @@ function Game:_validateDevCards ()
     -- Check if quantities match
     for kind, count in pairs(CatanConstants.devcards) do
         assert(alldevcards[kind] == count)
+    end
+end
+
+function Game:_validateResCards ()
+    -- Keep a histogram of res card kinds
+    local allrescards = {}
+
+    local function addToCount (kind, n)
+        allrescards[kind] = (allrescards[kind] or 0) + n
+    end
+
+    -- Iterate through all res cards in players' hands
+    for player, rescards in pairs(self.rescards) do
+        for kind, n in pairs(rescards) do
+            addToCount(kind, n)
+        end
+    end
+
+    -- Iterate through all res cards in the bank
+    for kind, n in pairs(self.bank) do
+        addToCount(kind, n)
+    end
+
+    -- Check if quantities match
+    for kind, count in pairs(CatanConstants.rescards) do
+        assert(allrescards[kind] == count)
     end
 end
 

@@ -453,7 +453,7 @@ function Game:getNumberOfVictoryPoints (player)
 
     -- 1 VP for every VP card bought by the player
     for i, devcard in ipairs(self.devcards[player]) do
-        if devcard.kind == "victorypoint" and devcard.roundBought < self.round then
+        if devcard.kind == "victorypoint" then
             n = n + 1
        end
     end

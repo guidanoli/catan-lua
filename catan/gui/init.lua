@@ -1332,13 +1332,20 @@ function gui:keypressed (key)
     end
 
     if self.debug then
-        local rescard = self.DEAL_COMMANDS[key]
-        if rescard ~= nil then
+        local res = self.DEAL_COMMANDS[key]
+        if res ~= nil then
             if self.game.phase == "playingTurns" then
                 local rescards = self.game.rescards[self.game.player]
-                rescards[rescard] = (rescards[rescard] or 0) + 1
-                print("Gave 1 " .. rescard .. " to player " .. self.game.player)
-                self:afterMove()
+                local supply = self.game.bank[res] or 0
+                if supply == 0 then
+                    print("No supply of " .. res)
+                else
+                    assert(supply >= 1)
+                    self.game.bank[res] = supply - 1
+                    rescards[res] = (rescards[res] or 0) + 1
+                    print("Gave 1 " .. res .. " to player " .. self.game.player)
+                    self:afterMove()
+                end
             else
                 print("Cannot deal cards in this phase")
             end

@@ -319,7 +319,7 @@ local function run (i, args, report)
             end
             report.successes = (report.successes or 0) + 1
         else
-            if args.v >= 3 then
+            if args.v >= 2 then
                 printFailure(i, j, msg)
             end
             report.failures = (report.failures or 0) + 1

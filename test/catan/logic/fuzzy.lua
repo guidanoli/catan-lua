@@ -154,10 +154,6 @@ local function printFailure (s)
     io.stderr:write(red'FAILURE: ', s, '\n')
 end
 
-local function printSkip (s)
-    io.stderr:write(cyan'SKIP: ', s, '\n')
-end
-
 local actions = {}
 
 function actions.placeInitialSettlement (game)

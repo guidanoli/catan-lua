@@ -155,6 +155,7 @@ function Game:validate ()
     -- the static fields are checked during construction
 
     self:_validateRound()
+    self:_validateHasBuilt()
     self:_validateBuildMap()
     self:_validateRoadMap()
 end
@@ -173,6 +174,14 @@ function Game:_validateRound ()
 
     -- round in [1,2] iff phase is placing initial settlement or road
     assert(iff(initialRounds[self.round], initialPhases[self.phase]))
+end
+
+function Game:_validateHasBuilt ()
+    local function implies (a, b)
+        return not a or b
+    end
+
+    assert(implies(self.hasbuilt, self.dice ~= nil))
 end
 
 function Game:_validateBuildMap ()

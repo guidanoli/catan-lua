@@ -163,6 +163,7 @@ function Game:validate ()
     self:_validateRobber()
     self:_validateDevCards()
     self:_validateResCards()
+    self:_validateLongestRoad()
     self:_validateLastDiscard()
 end
 
@@ -399,6 +400,40 @@ function Game:_validateResCards ()
     -- Check if quantities match
     for kind, count in pairs(CatanConstants.rescards) do
         assert(allrescards[kind] == count)
+    end
+end
+
+function Game:_validateLongestRoad ()
+    local lengths = {}
+
+    for _, player in ipairs(self.players) do
+        lengths[player] = self:getLongestRoadLength(player)
+    end
+
+    local maxlength = 0
+    for player, length in pairs(lengths) do
+        if length > maxlength then
+            maxlength = length
+        end
+    end
+
+    local tiedplayers = {}
+    for player, length in pairs(lengths) do
+        if length == maxlength then
+            tiedplayers[player] = true
+        end
+    end
+
+    local tiedcount = TableUtils:numOfPairs(tiedplayers)
+    assert(tiedcount >= 1)
+
+    if self.longestroad == nil then
+        if tiedcount == 1 then
+            assert(maxlength < 5)
+        end
+    else
+        assert(maxlength >= 5)
+        assert(tiedplayers[self.longestroad])
     end
 end
 

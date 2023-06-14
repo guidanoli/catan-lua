@@ -352,6 +352,12 @@ function Game:_validateDevCards ()
     -- Iterate through all dev cards in players' hands
     for player, devcards in pairs(self.devcards) do
         for _, devcard in ipairs(devcards) do
+            assert(devcard.roundBought >= 3)
+            assert(devcard.roundBought <= self.round)
+            if devcard.roundPlayed ~= nil then
+                assert(devcard.roundPlayed >= 4)
+                assert(devcard.roundPlayed <= self.round)
+            end
             incrementCount(devcard.kind)
         end
     end
@@ -378,12 +384,14 @@ function Game:_validateResCards ()
     -- Iterate through all res cards in players' hands
     for player, rescards in pairs(self.rescards) do
         for kind, n in pairs(rescards) do
+            assert(n >= 0)
             addToCount(kind, n)
         end
     end
 
     -- Iterate through all res cards in the bank
     for kind, n in pairs(self.bank) do
+        assert(n >= 0)
         addToCount(kind, n)
     end
 

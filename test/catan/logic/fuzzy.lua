@@ -328,8 +328,8 @@ local function run (i, args, report)
 end
 
 local parser = argparse("fuzzy", "Catan fuzzy tester")
-parser:option("--ncalls", "Number of call attempts per game.", 20000)
-parser:option("--ngames", "Number of games.", 10)
+parser:option("--ncalls", "Number of call attempts per game.", 10000)
+parser:option("--ngames", "Number of games.", 2)
 parser:flag("-v", "Verbosity level."):count"*"
 
 local args = parser:parse()

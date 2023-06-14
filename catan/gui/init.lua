@@ -819,7 +819,7 @@ function gui:renderTable (layer, x, y)
             self:newText(redIff(isNumResCardsAboveLimit), numResCards),
             self:newText(BLACK, self.game:getNumberOfDevelopmentCards(player)),
             self:newText(redIff(hasLargestArmy), self.game:getArmySize(player)),
-            self:newText(redIff(hasLongestRoad), "?"),
+            self:newText(redIff(hasLongestRoad), self.game:getLongestRoadLength(player)),
             self:newText(BLACK, self.game:getNumberOfVictoryPoints(player)),
         })
 

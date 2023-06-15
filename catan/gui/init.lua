@@ -1106,12 +1106,11 @@ function gui.renderers:inventory ()
         local y0 = y0 - CARD_H - YMARGIN
 
         -- Selection text
-        local numSelectedCards = self:getNumberOfSelectedResCards()
-
         if reason == "discarding" then
             local rescards = self.selectedResCards
             local playerCanDiscard = self.game:canDiscard(player, rescards)
 
+            local numSelectedCards = self:getNumberOfSelectedResCards()
             local expectedNumOfCards = self.game:getNumberOfResourceCardsToDiscard(player)
             local text = ('To be discarded (%d/%d)'):format(numSelectedCards, expectedNumOfCards)
             local color = playerCanDiscard and GREEN or RED

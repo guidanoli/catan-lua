@@ -39,6 +39,12 @@ gui.LAYER_NAMES = {
     "buttons",
 }
 
+gui.BLACK = {0, 0, 0}
+gui.WHITE = {1, 1, 1}
+gui.RED = {0.8, 0, 0}
+gui.GREEN = {0, 0.5, 0}
+
+
 function gui:ccwdeg2cwrad (a)
     return - math.pi * a / 180.
 end
@@ -763,7 +769,7 @@ function gui:renderTable (layer, x, y)
     local RED = {0.8, 0, 0}
 
     local function redIff (cond)
-        return cond and RED or BLACK
+        return cond and self.RED or self.BLACK
     end
 
     local t = {
@@ -817,10 +823,10 @@ function gui:renderTable (layer, x, y)
                 sx = 0.5,
             },
             self:newText(redIff(isNumResCardsAboveLimit), numResCards),
-            self:newText(BLACK, self.game:getNumberOfDevelopmentCards(player)),
+            self:newText(self.BLACK, self.game:getNumberOfDevelopmentCards(player)),
             self:newText(redIff(hasLargestArmy), self.game:getArmySize(player)),
             self:newText(redIff(hasLongestRoad), self.game:getLongestRoadLength(player)),
-            self:newText(BLACK, self.game:getNumberOfVictoryPoints(player)),
+            self:newText(self.BLACK, self.game:getNumberOfVictoryPoints(player)),
         })
 
         -- increment the number of lines

@@ -69,26 +69,51 @@ function gui:loadImgDir (dir)
     return t
 end
 
-function gui:updateDisplayedInventory ()
-    local displayedInventory
+function gui:getDiscardSelectionText ()
+    local player = self.displayedInventory.player
+    local rescards = self.selectedResCards
+    local playerCanDiscard = self.game:canDiscard(player, rescards)
+
+    local numSelectedCards = self:getNumberOfSelectedResCards()
+    local expectedNumOfCards = self.game:getNumberOfResourceCardsToDiscard(player)
+
+    local text = ('To be discarded (%d/%d)'):format(numSelectedCards, expectedNumOfCards)
+    local color = playerCanDiscard and self.GREEN or self.RED
+
+    return {
+        text = text,
+        color = color,
+        showbtn = playerCanDiscard,
+        onleftclick = function ()
+            self:discard(player, rescards)
+        end,
+    }
+end
+
+function gui:getDisplayedInventory ()
     if self.game:canDiscard() then
         for _, player in ipairs(self.game.players) do
             if self.game:canDiscard(player) then
-                displayedInventory = {
+                return {
                     player = player,
-                    reason = "discarding",
+                    canselect = true,
+                    arrowcolor = "red",
+                    selectiontext_cb = function ()
+                        return self:getDiscardSelectionText()
+                    end,
                 }
-                break -- choose first player that can discard
             end
         end
-        assert(displayedInventory ~= nil)
-    else
-        displayedInventory = {
-            player = self.game.player,
-            reason = "playing",
-        }
     end
-    self.displayedInventory = displayedInventory
+    return {
+        player = self.game.player,
+        canselect = false,
+        arrowcolor = "yellow",
+    }
+end
+
+function gui:updateDisplayedInventory ()
+    self.displayedInventory = assert(self:getDisplayedInventory())
 end
 
 function gui:clearActions ()
@@ -757,16 +782,9 @@ function gui:newText (color, text)
     return love.graphics.newText(self.font, {color, text})
 end
 
-gui.ARROW_COLOR_FOR_REASON = {
-    playing = "yellow",
-    discarding = "red",
-}
-
 function gui:renderTable (layer, x, y)
     local TABLE_XSEP = 20
     local TABLE_YSEP = 10
-    local BLACK = {0, 0, 0}
-    local RED = {0.8, 0, 0}
 
     local function redIff (cond)
         return cond and self.RED or self.BLACK
@@ -811,7 +829,7 @@ function gui:renderTable (layer, x, y)
         local arrow
 
         if player == self.displayedInventory.player then
-            local arrowColor = self.ARROW_COLOR_FOR_REASON[self.displayedInventory.reason]
+            local arrowColor = self.displayedInventory.arrowcolor
             local arrowImg = assert(self.images.arrow[arrowColor], "arrow sprite missing")
             arrow = {arrowImg, sx=0.3}
         end
@@ -923,6 +941,17 @@ function gui:getNumberOfSelectedResCards ()
     return n
 end
 
+function gui:getCardDimensions ()
+    return self.images.card.dev.knight:getDimensions()
+end
+
+function gui:getDevCardHistogram (player)
+    local t = self.game.devcards[player]
+    t = TableUtils:filter(t, function (v) return v.roundPlayed == nil end)
+    t = TableUtils:map(t, function (v) return v.kind end)
+    return TableUtils:histogram(t)
+end
+
 function gui.renderers:inventory ()
     local layer = Layer:new()
 
@@ -936,48 +965,27 @@ function gui.renderers:inventory ()
     local XSEP = 10
 
     -- Separation between card groups
-    local YSEP = 10
+    local YSEP = 50
 
-    -- Card height
-    local CARD_H
-    do
-        local cardImg = self.images.card.dev.knight
-        CARD_H = cardImg:getHeight()
-    end
+    -- Card dimensions
+    local CARD_W, CARD_H = self:getCardDimensions()
 
     do
-        local CARD_COUNT_SX = 0.5
-        local BLACK = {0, 0, 0}
-        local RED = {0.8, 0, 0}
-        local GREEN = {0, 0.5, 0}
+        local CARD_COUNT_SX = 0.6
 
-        -- Bounding box
-        local box
+        local function addCardSequence (opt)
+            local x = opt.x
+            local y = opt.y
+            local img = opt.img
+            local count = opt.count
+            local onleftclick = opt.onleftclick
+            local showcount = opt.showcount == nil and true or opt.showcount
 
-        local function addToBox (anotherBox)
-            if box == nil then
-                box = anotherBox
-            else
-                box = Box:fromUnion(box, anotherBox)
-            end
-        end
+            assert(count >= 0)
 
-        local function addCardSequence (x, y, img, count, onleftclick)
             if count == 0 then
                 return -- don't render anything
-            else
-                assert(count > 0)
             end
-
-            local imgW = img:getWidth()
-
-            local t = {
-                m = count,
-                x = x,
-                y = y,
-                xsep = -imgW * 3 / 4,
-                yalign = 'bottom',
-            }
 
             local line = {}
             for i = 1, count do
@@ -986,39 +994,47 @@ function gui.renderers:inventory ()
                     onleftclick = onleftclick,
                 })
             end
-            table.insert(t, line)
 
-            local tableBox = layer:addSpriteTable(t)
+            local t = {
+                line,
+                m = count,
+                x = x,
+                y = y,
+                xsep = - CARD_W * 3 / 4,
+                yalign = 'bottom',
+            }
 
-            local tableRightX = tableBox:getRightX()
-            local tableTopY = tableBox:getTopY()
+            local sequenceBox = layer:addSpriteTable(t)
 
-            local cardCountCircleSprite = layer:addSprite(
-                self.images.cardcount,
-                {
-                    x = tableRightX,
-                    y = tableTopY,
-                    center = true,
-                    sx = CARD_COUNT_SX,
-                }
-            )
+            local tableRightX = sequenceBox:getRightX()
+            local tableTopY = sequenceBox:getTopY()
 
-            local cardCountTextSprite = layer:addSprite(
-                self:newText(BLACK, count),
-                {
-                    x = tableRightX,
-                    y = tableTopY,
-                    center = true,
-                }
-            )
+            if showcount then
+                local cardCountCircleSprite = layer:addSprite(
+                    self.images.cardcount,
+                    {
+                        x = tableRightX,
+                        y = tableTopY,
+                        center = true,
+                        sx = CARD_COUNT_SX,
+                    }
+                )
 
-            local sequenceBox = Box:fromUnion(
-                tableBox,
-                Box:fromSprite(cardCountCircleSprite),
-                Box:fromSprite(cardCountTextSprite)
-            )
+                local cardCountTextSprite = layer:addSprite(
+                    self:newText(self.BLACK, count),
+                    {
+                        x = tableRightX,
+                        y = tableTopY,
+                        center = true,
+                    }
+                )
 
-            addToBox(sequenceBox)
+                sequenceBox = Box:fromUnion(
+                    sequenceBox,
+                    Box:fromSprite(cardCountCircleSprite),
+                    Box:fromSprite(cardCountTextSprite)
+                )
+            end
 
             return sequenceBox
         end
@@ -1030,147 +1046,113 @@ function gui.renderers:inventory ()
         local y = y0
 
         local player = self.displayedInventory.player
-        local reason = self.displayedInventory.reason
+        local canselect = self.displayedInventory.canselect
+        local selectiontext_cb = self.displayedInventory.selectiontext_cb
 
-        local rescards = self.game.rescards[player]
-        local hasCardInInventory = false
-
-        for _, res in ipairs(TableUtils:sortedKeys(rescards)) do
+        -- Unselected resource cards from the player's hand
+        TableUtils:sortedIter(self.game.rescards[player], function (res, totalCount)
             local img = assert(self.images.card.res[res], "missing rescard sprite")
-            local totalCount = assert(rescards[res])
-            local sequenceBox
+            local selectedCount = self.selectedResCards[res] or 0
+            local unselectedCount = totalCount - selectedCount
 
-            if reason == "playing" then
-                sequenceBox = addCardSequence(x, y, img, totalCount)
-            else
-                assert(reason == "discarding")
-                local selectedCount = self.selectedResCards[res] or 0
-                local count = totalCount - selectedCount
-                assert(count >= 0)
-                sequenceBox = addCardSequence(x, y, img, count, function ()
+            local onleftclick
+            if canselect then
+                onleftclick = function ()
                     self:selectResCard(res)
-                end)
+                end
             end
+
+            local sequenceBox = addCardSequence{
+                x = x,
+                y = y,
+                img = img,
+                count = unselectedCount,
+                onleftclick = onleftclick,
+            }
 
             if sequenceBox then
                 x = sequenceBox:getRightX() + XSEP
-                hasCardInInventory = true
             end
-        end
+        end)
 
-        local devcards = self.game.devcards[player]
-
-        local devcardhist = {}
-        for _, devcard in ipairs(devcards) do
-            if devcard.roundPlayed == nil then
-                local kind = devcard.kind
-                devcardhist[kind] = (devcardhist[kind] or 0) + 1
-            end
-        end
-
-        for devcard, count in pairs(devcardhist) do
+        -- Development cards
+        for devcard, count in pairs(self:getDevCardHistogram(player)) do
             local img = assert(self.images.card.dev[devcard], "missing devcard sprite")
-            local sequenceBox = addCardSequence(x, y, img, count)
+
+            local sequenceBox = addCardSequence{
+                x = x,
+                y = y,
+                img = img,
+                count = count,
+            }
 
             if sequenceBox then
                 x = sequenceBox:getRightX() + XSEP
-                hasCardInInventory = true
             end
-        end
-
-        local y0 = y0 - CARD_H - YMARGIN
-
-        -- Inventory text
-        if hasCardInInventory then
-            local textSprite = layer:addSprite(
-                self:newText(BLACK, "Inventory"),
-                {
-                    x = x0,
-                    y = y0,
-                    yalign = "bottom",
-                }
-            )
-
-            local textBox = Box:fromSprite(textSprite)
-
-            addToBox(textBox)
-
-            y0 = textBox:getTopY() - YMARGIN
         end
 
         local x = x0
-        local y = y0
+        local y = y0 - CARD_H - YSEP
 
-        for _, res in ipairs(TableUtils:sortedKeys(self.selectedResCards)) do
+        -- Selected resource cards
+        TableUtils:sortedIter(self.selectedResCards, function (res, selectedCount)
             local img = assert(self.images.card.res[res], "missing rescard sprite")
-            local count = assert(self.selectedResCards[res])
-            local sequenceBox = addCardSequence(x, y, img, count, function ()
-                self:unselectResCard(res)
-            end)
+
+            local onleftclick
+            if canselect then
+                onleftclick = function ()
+                    self:unselectResCard(res)
+                end
+            end
+
+            local sequenceBox = addCardSequence{
+                x = x,
+                y = y,
+                img = img,
+                count = selectedCount,
+                onleftclick = onleftclick,
+            }
 
             if sequenceBox then
                 x = sequenceBox:getRightX() + XSEP
             end
-        end
+        end)
 
-        local y0 = y0 - CARD_H - YMARGIN
+        local x = x0
+        local y = y0 - 2 * CARD_H - 2 * YSEP
 
         -- Selection text
-        if reason == "discarding" then
-            local rescards = self.selectedResCards
-            local playerCanDiscard = self.game:canDiscard(player, rescards)
+        if selectiontext_cb then
+            local t = selectiontext_cb()
 
-            local numSelectedCards = self:getNumberOfSelectedResCards()
-            local expectedNumOfCards = self.game:getNumberOfResourceCardsToDiscard(player)
-            local text = ('To be discarded (%d/%d)'):format(numSelectedCards, expectedNumOfCards)
-            local color = playerCanDiscard and GREEN or RED
+            local color = t.color or self.WHITE
+            local text = assert(t.text)
+            local showbtn = (t.showbtn == nil) and true or t.showbtn
+            local onleftclick = t.onleftclick
 
-            local textSprite = layer:addSprite(
-                self:newText(color, text),
-                {
-                    x = x0,
-                    y = y0,
-                    yalign = "bottom",
-                }
-            )
+            local textSprite = self:newText(color, text)
+            local line = {textSprite}
 
-            local textBox = Box:fromSprite(textSprite)
-
-            addToBox(textBox)
-
-            if playerCanDiscard then
+            if showbtn and onleftclick then
                 local okImg = self.images.btn.ok
 
-                local okSprite = layer:addSprite(
+                table.insert(line, {
                     okImg,
-                    {
-                        x = textBox:getRightX() + XSEP,
-                        y = y0,
-                        yalign = "bottom",
-                        sx = textBox:getHeight() / okImg:getHeight(),
-                        onleftclick = function ()
-                            self:discard(player, rescards)
-                        end,
-                    }
-                )
-
-                local okBox = Box:fromSprite(okSprite)
-
-                addToBox(okBox)
+                    sx = textSprite:getHeight() / okImg:getHeight(),
+                    onleftclick = onleftclick
+                })
             end
 
-            y0 = box:getTopY() - YMARGIN
-        end
-
-        if box then
-            local grownBox = box:grow(2 * self.BG_MARGIN)
-            local sprite = Sprite:new(self.images.smoke, {
-                x = grownBox.x,
-                y = grownBox.y,
-                sx = grownBox.w,
-                sy = grownBox.h,
-            })
-            table.insert(layer, 1, sprite)
+            layer:addSpriteTable{
+                line,
+                m = #line,
+                x = x,
+                y = y,
+                yalign = "bottom",
+                xsep = XSEP,
+                bgimg = self.images.smoke,
+                bgmargin = self.BG_MARGIN,
+            }
         end
     end
 
@@ -1182,7 +1164,7 @@ function gui.renderers:buttons ()
 
     local W, H = love.window.getMode()
     local XMARGIN = 20
-    local YMARGIN = 200
+    local YMARGIN = 300
     local XSEP = 10
     local NBUTTONS = 1
 
@@ -1225,66 +1207,68 @@ function gui.renderers:buttons ()
     end
 
     do
-        local line = {
-            newCell{
-                folder = self.images.btn.road,
-                check = function ()
-                    return self.game:canBuildRoad()
-                end,
-                action = function ()
-                    self:startBuildingRoadAction()
-                end,
-            },
-            newCell{
-                folder = self.images.btn.settlement,
-                check = function ()
-                    return self.game:canBuildSettlement()
-                end,
-                action = function ()
-                    self:startBuildingSettlementAction()
-                end,
-            },
-            newCell{
-                folder = self.images.btn.city,
-                check = function ()
-                    return self.game:canBuildCity()
-                end,
-                action = function ()
-                    self:startBuildingCityAction()
-                end,
-            },
-            newCell{
-                folder = self.images.btn.devcard,
-                check = function ()
-                    return self.game:canBuyDevelopmentCard()
-                end,
-                action = function ()
-                    self:buyDevelopmentCard()
-                end,
-            },
-            newCell{
-                folder = self.images.btn.roll,
-                check = function ()
-                    return self.game:canRoll()
-                end,
-                action = function ()
-                    self:roll()
-                end,
-            },
-            newCell{
-                folder = self.images.btn.endturn,
-                check = function ()
-                    return self.game:canEndTurn()
-                end,
-                action = function ()
-                    self:endTurn()
-                end,
-            },
-        }
-
         local t = {
-            line,
-            m = #line,
+            {
+                newCell{
+
+                    folder = self.images.btn.road,
+                    check = function ()
+                        return self.game:canBuildRoad()
+                    end,
+                    action = function ()
+                        self:startBuildingRoadAction()
+                    end,
+                },
+                newCell{
+                    folder = self.images.btn.settlement,
+                    check = function ()
+                        return self.game:canBuildSettlement()
+                    end,
+                    action = function ()
+                        self:startBuildingSettlementAction()
+                    end,
+                },
+                newCell{
+                    folder = self.images.btn.city,
+                    check = function ()
+                        return self.game:canBuildCity()
+                    end,
+                    action = function ()
+                        self:startBuildingCityAction()
+                    end,
+                },
+            },
+            {
+                newCell{
+                    folder = self.images.btn.devcard,
+                    check = function ()
+                        return self.game:canBuyDevelopmentCard()
+                    end,
+                    action = function ()
+                        self:buyDevelopmentCard()
+                    end,
+                },
+                newCell{
+                    folder = self.images.btn.roll,
+                    check = function ()
+                        return self.game:canRoll()
+                    end,
+                    action = function ()
+                        self:roll()
+                    end,
+                },
+                newCell{
+                    folder = self.images.btn.endturn,
+                    check = function ()
+                        return self.game:canEndTurn()
+                    end,
+                    action = function ()
+                        self:endTurn()
+                    end,
+                },
+            },
+            n = 2,
+            m = 3,
             x = W - XMARGIN,
             y = H - YMARGIN,
             xalign = "right",

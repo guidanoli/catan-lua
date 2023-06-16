@@ -1,5 +1,23 @@
 local TableUtils = {}
 
+function TableUtils:filter (t, f)
+    local out = {}
+    for i, v in ipairs(t) do
+        if f(v) then
+            rawset(out, i, v)
+        end
+    end
+    return out
+end
+
+function TableUtils:map (t, m)
+    local out = {}
+    for i, v in ipairs(t) do
+        rawset(out, i, m(v))
+    end
+    return out
+end
+
 function TableUtils:sample (t)
     local n = #t
     if n ~= 0 then
@@ -54,6 +72,18 @@ function TableUtils:sortedKeys (t)
     end
     table.sort(st)
     return st
+end
+
+-- Iterate through table in order of keys
+-- Function f is called with each key and value pair
+-- If f returns anything different from nil or false,
+-- then iteration is interupted and this value is returned
+function TableUtils:sortedIter (t, f)
+    for _, k in ipairs(self:sortedKeys(t)) do
+        local v = rawget(t, k)
+        local ret = f(k, v)
+        if ret then return ret end
+    end
 end
 
 -- |K| where K = { k | (k, v) ∊  t }

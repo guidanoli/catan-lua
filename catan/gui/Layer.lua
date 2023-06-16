@@ -182,7 +182,7 @@ function Layer:addSpriteTable (t)
     if bgimg ~= nil then
         self:addSprite(
             bgimg,
-                {
+            {
                 x = x0 - bgmargin,
                 y = y0 - bgmargin,
                 sx = w + 2 * bgmargin,

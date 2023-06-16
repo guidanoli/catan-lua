@@ -891,6 +891,11 @@ function gui.renderers:table ()
     return layer
 end
 
+function gui:refreshInventory ()
+    self:requestLayerUpdate"inventory"
+    self:requestClickableSpriteCacheUpdate()
+end
+
 function gui:addToSelectedCardCount (res, n)
     local player = self.displayedInventory.player
     local count = self.game:getNumberOfResourceCardsOfType(player, res)
@@ -898,8 +903,7 @@ function gui:addToSelectedCardCount (res, n)
     local newSelectedCount = selectedCount + n
     if newSelectedCount >= 0 and newSelectedCount <= count then
         self.selectedResCards[res] = newSelectedCount
-        self:requestLayerUpdate"inventory"
-        self:requestClickableSpriteCacheUpdate()
+        self:refreshInventory()
     end
 end
 

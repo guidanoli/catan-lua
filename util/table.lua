@@ -1,5 +1,13 @@
 local TableUtils = {}
 
+function TableUtils:sum (t)
+    local n = 0
+    for k, v in pairs(t) do
+        n = n + v
+    end
+    return n
+end
+
 function TableUtils:filter (t, f)
     local out = {}
     for i, v in ipairs(t) do

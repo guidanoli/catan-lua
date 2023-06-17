@@ -10,6 +10,7 @@ local platform = require "util.platform"
 local TableUtils = require "util.table"
 
 local CatanSchema = require "catan.logic.schema"
+local CatanConstants = require "catan.logic.constants"
 local Game = require "catan.logic.game"
 local FaceMap = require "catan.logic.FaceMap"
 local VertexMap = require "catan.logic.VertexMap"
@@ -71,10 +72,10 @@ end
 
 function gui:getDiscardSelectionText ()
     local player = self.displayedInventory.player
-    local rescards = self.selectedResCards
+    local rescards = self.myCards
     local playerCanDiscard = self.game:canDiscard(player, rescards)
 
-    local numSelectedCards = self:getNumberOfSelectedResCards()
+    local numSelectedCards = TableUtils:sum(self.myCards)
     local expectedNumOfCards = self.game:getNumberOfResourceCardsToDiscard(player)
 
     local text = ('To be discarded (%d/%d)'):format(numSelectedCards, expectedNumOfCards)
@@ -90,24 +91,53 @@ function gui:getDiscardSelectionText ()
     }
 end
 
+function gui:getNextPlayerToReply ()
+    for _, player in ipairs(self.game.players) do
+        if player ~= self.game.player and self.tradeReplies[player] == nil then
+            if self:canTradeWithPlayer(player) then
+                return player
+            end
+        end
+    end
+end
+
 function gui:getDisplayedInventory ()
     if self.game:canDiscard() then
         for _, player in ipairs(self.game.players) do
             if self.game:canDiscard(player) then
                 return {
                     player = player,
-                    canselect = true,
+                    canSelectCards = true,
                     arrowcolor = "red",
-                    selectiontext_cb = function ()
+                    createSelectionText = function ()
                         return self:getDiscardSelectionText()
                     end,
                 }
             end
         end
     end
+    if self.tradeStatus == "replying" then
+        local player = self:getNextPlayerToReply()
+        if player == nil then
+            return {
+                player = self.game.player,
+                canSelectCards = false,
+                tradeAction = "choosingPartner",
+                arrowcolor = "yellow",
+            }
+        else
+            return {
+                player = player,
+                canSelectCards = false,
+                tradeAction = "replying",
+                arrowcolor = "green",
+            }
+        end
+    end
     return {
         player = self.game.player,
-        canselect = false,
+        canSelectCards = self.game:canTrade(),
+        tradeAction = "settingUp",
         arrowcolor = "yellow",
     }
 end
@@ -116,13 +146,28 @@ function gui:updateDisplayedInventory ()
     self.displayedInventory = assert(self:getDisplayedInventory())
 end
 
-function gui:clearActions ()
+function gui:escape ()
     self.actions = {}
-    self:afterMove()
+
+    if self.tradeStatus == nil or self.tradeStatus == "settingUp" then
+        self:refresh()
+    else
+        self:clearTradeReplies()
+        self:startTrading()
+    end
+end
+
+function gui:stopTrading ()
+    self.tradeStatus = nil
+end
+
+function gui:clearTradeReplies ()
+    self.tradeReplies = {}
 end
 
 function gui:clearCardSelection ()
-    self.selectedResCards = {}
+    self.myCards = {}
+    self.theirCards = {}
 end
 
 function gui:requestLayerUpdate (layername)
@@ -168,7 +213,7 @@ function gui:load ()
 
     self.actions = {}
 
-    self:afterMove()
+    self:refresh()
 end
 
 function gui:iterSprites (f)
@@ -403,7 +448,9 @@ function gui:getRoadAngleForEdge (e)
     return self:ccwdeg2cwrad(r)
 end
 
-function gui:afterMove ()
+function gui:refresh ()
+    self:stopTrading()
+    self:clearTradeReplies()
     self:clearCardSelection()
     self:updateDisplayedInventory()
     self:requestAllLayersUpdate()
@@ -427,12 +474,12 @@ function gui:placeInitialSettlement (vertex)
 
     self:printProduction(production)
 
-    self:afterMove()
+    self:refresh()
 end
 
 function gui:placeInitialRoad (edge)
     self.game:placeInitialRoad(edge)
-    self:afterMove()
+    self:refresh()
 end
 
 gui.DEVCARD_NAMES = {
@@ -450,7 +497,7 @@ function gui:buyDevelopmentCard ()
 
     print(('Player %s bought a %s card'):format(self.game.player, name))
 
-    self:afterMove()
+    self:refresh()
 end
 
 function gui:roll ()
@@ -464,13 +511,13 @@ function gui:roll ()
 
     self:printProduction(production)
 
-    self:afterMove()
+    self:refresh()
 end
 
 function gui:endTurn ()
     self.game:endTurn()
 
-    self:afterMove()
+    self:refresh()
 end
 
 function gui:moveRobber (face)
@@ -480,7 +527,7 @@ function gui:moveRobber (face)
         self:printRobbery(victim, res)
     end
 
-    self:afterMove()
+    self:refresh()
 end
 
 function gui:chooseVictim (victim)
@@ -488,13 +535,13 @@ function gui:chooseVictim (victim)
 
     self:printRobbery(victim, res)
 
-    self:afterMove()
+    self:refresh()
 end
 
 function gui:discard (player, rescards)
     self.game:discard(player, rescards)
 
-    self:afterMove()
+    self:refresh()
 end
 
 function gui:startBuildingRoadAction ()
@@ -507,7 +554,7 @@ function gui:startBuildingRoadAction ()
         end,
     }
 
-    self:afterMove()
+    self:refresh()
 end
 
 function gui:buildRoad (edge)
@@ -515,7 +562,7 @@ function gui:buildRoad (edge)
 
     self.actions.edge = nil
 
-    self:afterMove()
+    self:refresh()
 end
 
 function gui:startBuildingSettlementAction ()
@@ -528,7 +575,7 @@ function gui:startBuildingSettlementAction ()
         end,
     }
 
-    self:afterMove()
+    self:refresh()
 end
 
 function gui:buildSettlement (vertex)
@@ -536,7 +583,7 @@ function gui:buildSettlement (vertex)
 
     self.actions.vertex = nil
 
-    self:afterMove()
+    self:refresh()
 end
 
 function gui:startBuildingCityAction ()
@@ -549,7 +596,7 @@ function gui:startBuildingCityAction ()
         end,
     }
 
-    self:afterMove()
+    self:refresh()
 end
 
 function gui:buildCity (vertex)
@@ -557,7 +604,17 @@ function gui:buildCity (vertex)
 
     self.actions.vertex = nil
 
-    self:afterMove()
+    self:refresh()
+end
+
+function gui:canTradeWithPlayer (player)
+    return self.game:canTradeWithPlayer(player, self.myCards, self.theirCards)
+end
+
+function gui:tradeWithPlayer (player)
+    self.game:tradeWithPlayer(player, self.myCards, self.theirCards)
+
+    self:refresh()
 end
 
 gui.renderers = {}
@@ -821,21 +878,44 @@ function gui:renderTable (layer, x, y)
         scaleToWidth(self.images.vp),
     })
 
+    local function getIconForPlayer (player)
+        if player == self.displayedInventory.player then
+            local arrowColor = self.displayedInventory.arrowcolor
+            local arrowImg = assert(self.images.arrow[arrowColor], "arrow sprite missing")
+            return {arrowImg, sx=0.3}
+        end
+
+        if self.tradeStatus == "replying" then
+            local reply = self.tradeReplies[player]
+            if reply ~= nil then
+                if reply == 'accepted' then
+                    return {
+                        self.images.accept,
+                        sx = 0.3,
+                        onleftclick = function ()
+                            self:tradeWithPlayer(player)
+                        end,
+                    }
+                else
+                    assert(reply == 'rejected')
+                    return {
+                        self.images.reject,
+                        sx = 0.3,
+                    }
+                end
+            end
+        end
+    end
+
     for _, player in ipairs(self.game.players) do
         local numResCards = self.game:getNumberOfResourceCards(player)
         local isNumResCardsAboveLimit = self.game:isNumberOfResourceCardsAboveLimit(numResCards)
         local hasLargestArmy = self.game.largestarmy == player
         local hasLongestRoad = self.game.longestroad == player
-        local arrow
-
-        if player == self.displayedInventory.player then
-            local arrowColor = self.displayedInventory.arrowcolor
-            local arrowImg = assert(self.images.arrow[arrowColor], "arrow sprite missing")
-            arrow = {arrowImg, sx=0.3}
-        end
+        local playerIcon = getIconForPlayer(player)
 
         table.insert(t, {
-            arrow,
+            playerIcon,
             {
                 self.images.settlement[player],
                 sx = 0.5,
@@ -909,36 +989,20 @@ function gui.renderers:table ()
     return layer
 end
 
-function gui:refreshInventory ()
-    self:requestLayerUpdate"inventory"
+function gui:softRefresh ()
+    self:updateDisplayedInventory()
+    self:requestAllLayersUpdate()
     self:requestClickableSpriteCacheUpdate()
 end
 
-function gui:addToSelectedCardCount (res, n)
+function gui:addToCards (cards, res, n, limit)
     local player = self.displayedInventory.player
-    local count = self.game:getNumberOfResourceCardsOfType(player, res)
-    local selectedCount = (self.selectedResCards[res] or 0)
+    local selectedCount = (cards[res] or 0)
     local newSelectedCount = selectedCount + n
-    if newSelectedCount >= 0 and newSelectedCount <= count then
-        self.selectedResCards[res] = newSelectedCount
-        self:refreshInventory()
+    if newSelectedCount >= 0 and (limit == nil or newSelectedCount <= limit) then
+        cards[res] = newSelectedCount
+        self:softRefresh()
     end
-end
-
-function gui:selectResCard (res)
-    self:addToSelectedCardCount(res, 1)
-end
-
-function gui:unselectResCard (res)
-    self:addToSelectedCardCount(res, -1)
-end
-
-function gui:getNumberOfSelectedResCards ()
-    local n = 0
-    for res, count in pairs(self.selectedResCards) do
-        n = n + count
-    end
-    return n
 end
 
 function gui:getCardDimensions ()
@@ -950,6 +1014,26 @@ function gui:getDevCardHistogram (player)
     t = TableUtils:filter(t, function (v) return v.roundPlayed == nil end)
     t = TableUtils:map(t, function (v) return v.kind end)
     return TableUtils:histogram(t)
+end
+
+function gui:getResCardImage (res)
+    return assert(self.images.card.res[res], "missing resource card sprite")
+end
+
+function gui:canProposeTrade ()
+    local n = TableUtils:sum(self.myCards)
+    local m = TableUtils:sum(self.theirCards)
+    return n >= 1 and m >= 1
+end
+
+function gui:proposeTrade ()
+    self.tradeStatus = "replying"
+    self:softRefresh()
+end
+
+function gui:replyToTradeProposal (reply)
+    self.tradeReplies[self.displayedInventory.player] = reply
+    self:softRefresh()
 end
 
 function gui.renderers:inventory ()
@@ -970,95 +1054,107 @@ function gui.renderers:inventory ()
     -- Card dimensions
     local CARD_W, CARD_H = self:getCardDimensions()
 
-    do
-        local CARD_COUNT_SX = 0.6
+    -- Card count img scale
+    local CARD_COUNT_SX = 0.6
 
-        local function addCardSequence (opt)
-            local x = opt.x
-            local y = opt.y
-            local img = opt.img
-            local count = opt.count
-            local onleftclick = opt.onleftclick
-            local showcount = opt.showcount == nil and true or opt.showcount
+    -- Base x and y
+    local x0 = XMARGIN
+    local y0 = H - YMARGIN
 
-            assert(count >= 0)
+    local function addCardSequence (opt)
+        local x = opt.x
+        local y = opt.y
+        local img = opt.img
+        local count = opt.count
+        local onleftclick = opt.onleftclick
+        local showcount = opt.showcount == nil and true or opt.showcount
 
-            if count == 0 then
-                return -- don't render anything
-            end
+        assert(count >= 0)
 
-            local line = {}
-            for i = 1, count do
-                table.insert(line, {
-                    img,
-                    onleftclick = onleftclick,
-                })
-            end
-
-            local t = {
-                line,
-                m = count,
-                x = x,
-                y = y,
-                xsep = - CARD_W * 3 / 4,
-                yalign = 'bottom',
-            }
-
-            local sequenceBox = layer:addSpriteTable(t)
-
-            local tableRightX = sequenceBox:getRightX()
-            local tableTopY = sequenceBox:getTopY()
-
-            if showcount then
-                local cardCountCircleSprite = layer:addSprite(
-                    self.images.cardcount,
-                    {
-                        x = tableRightX,
-                        y = tableTopY,
-                        center = true,
-                        sx = CARD_COUNT_SX,
-                    }
-                )
-
-                local cardCountTextSprite = layer:addSprite(
-                    self:newText(self.BLACK, count),
-                    {
-                        x = tableRightX,
-                        y = tableTopY,
-                        center = true,
-                    }
-                )
-
-                sequenceBox = Box:fromUnion(
-                    sequenceBox,
-                    Box:fromSprite(cardCountCircleSprite),
-                    Box:fromSprite(cardCountTextSprite)
-                )
-            end
-
-            return sequenceBox
+        if count == 0 then
+            return -- don't render anything
         end
 
-        local x0 = XMARGIN
-        local y0 = H - YMARGIN
+        local line = {}
+        for i = 1, count do
+            table.insert(line, {
+                img,
+                onleftclick = onleftclick,
+            })
+        end
 
+        local t = {
+            line,
+            m = count,
+            x = x,
+            y = y,
+            xsep = - CARD_W * 3 / 4,
+            yalign = 'bottom',
+        }
+
+        local sequenceBox = layer:addSpriteTable(t)
+
+        local tableRightX = sequenceBox:getRightX()
+        local tableTopY = sequenceBox:getTopY()
+
+        if showcount then
+            local cardCountCircleSprite = layer:addSprite(
+                self.images.cardcount,
+                {
+                    x = tableRightX,
+                    y = tableTopY,
+                    center = true,
+                    sx = CARD_COUNT_SX,
+                }
+            )
+
+            local cardCountTextSprite = layer:addSprite(
+                self:newText(self.BLACK, count),
+                {
+                    x = tableRightX,
+                    y = tableTopY,
+                    center = true,
+                }
+            )
+
+            sequenceBox = Box:fromUnion(
+                sequenceBox,
+                Box:fromSprite(cardCountCircleSprite),
+                Box:fromSprite(cardCountTextSprite)
+            )
+        end
+
+        return sequenceBox
+    end
+
+    local inv = self.displayedInventory
+
+    local player = inv.player
+    local canSelectCards = inv.canSelectCards
+    local createSelectionText = inv.createSelectionText
+    local tradeAction = inv.tradeAction
+
+    -- Inventory
+    do
         local x = x0
         local y = y0
 
-        local player = self.displayedInventory.player
-        local canselect = self.displayedInventory.canselect
-        local selectiontext_cb = self.displayedInventory.selectiontext_cb
-
-        -- Unselected resource cards from the player's hand
+        -- Resource cards
         TableUtils:sortedIter(self.game.rescards[player], function (res, totalCount)
-            local img = assert(self.images.card.res[res], "missing rescard sprite")
-            local selectedCount = self.selectedResCards[res] or 0
-            local unselectedCount = totalCount - selectedCount
+            local img = self:getResCardImage(res)
+            local selectedCount = self.myCards[res] or 0
+
+            local count
+            if player == self.game.player then
+                count = totalCount - selectedCount
+            else
+                count = totalCount
+            end
 
             local onleftclick
-            if canselect then
+            if canSelectCards then
                 onleftclick = function ()
-                    self:selectResCard(res)
+                    self:addToCards(self.myCards, res, 1, totalCount)
                 end
             end
 
@@ -1066,7 +1162,7 @@ function gui.renderers:inventory ()
                 x = x,
                 y = y,
                 img = img,
-                count = unselectedCount,
+                count = count,
                 onleftclick = onleftclick,
             }
 
@@ -1090,18 +1186,20 @@ function gui.renderers:inventory ()
                 x = sequenceBox:getRightX() + XSEP
             end
         end
+    end
 
+    -- Selected resource cards
+    do
         local x = x0
         local y = y0 - CARD_H - YSEP
 
-        -- Selected resource cards
-        TableUtils:sortedIter(self.selectedResCards, function (res, selectedCount)
-            local img = assert(self.images.card.res[res], "missing rescard sprite")
+        TableUtils:sortedIter(self.myCards, function (res, selectedCount)
+            local img = self:getResCardImage(res)
 
             local onleftclick
-            if canselect then
+            if canSelectCards then
                 onleftclick = function ()
-                    self:unselectResCard(res)
+                    self:addToCards(self.myCards, res, -1)
                 end
             end
 
@@ -1117,13 +1215,15 @@ function gui.renderers:inventory ()
                 x = sequenceBox:getRightX() + XSEP
             end
         end)
+    end
 
+    -- Selection text
+    do
         local x = x0
         local y = y0 - 2 * CARD_H - 2 * YSEP
 
-        -- Selection text
-        if selectiontext_cb then
-            local t = selectiontext_cb()
+        if createSelectionText then
+            local t = createSelectionText()
 
             local color = t.color or self.WHITE
             local text = assert(t.text)
@@ -1156,7 +1256,160 @@ function gui.renderers:inventory ()
         end
     end
 
+    -- Trading-related sprites
+    if self.tradeStatus ~= nil then
+
+        local x0
+
+        -- Left-to-right arrow
+        do
+            local x = W / 2
+            local y = y0 - (3 / 2) * CARD_H - YSEP
+
+            local img = self.images.rightarrow
+
+            local sprite = layer:addSprite(img, {
+                x = x,
+                y = y,
+                sx = 0.3,
+                center = true,
+            })
+
+            local box = Box:fromSprite(sprite)
+
+            x0 = box:getRightX() + 2 * XSEP
+        end
+
+        -- Trade action
+        do
+            local x = W / 2
+            local y = y0 - 2 * CARD_H - YSEP
+
+            if tradeAction == "settingUp" then
+                if self:canProposeTrade() then
+                    layer:addSprite(self.images.btn.ok, {
+                        x = x,
+                        y = y,
+                        sx = 0.5,
+                        xalign = 'center',
+                        yalign = 'bottom',
+                        onleftclick = function ()
+                            self:proposeTrade()
+                        end,
+                    })
+                end
+            elseif tradeAction == "replying" then
+                layer:addSpriteTable{
+                    {
+                        {
+                            self.images.accept,
+                            sx = 0.5,
+                            onleftclick = function ()
+                                self:replyToTradeProposal'accepted'
+                            end,
+                        },
+                        {
+                            self.images.reject,
+                            sx = 0.5,
+                            onleftclick = function ()
+                                self:replyToTradeProposal'rejected'
+                            end,
+                        },
+                    },
+                    m = 2,
+                    x = x,
+                    y = y,
+                    xsep = XSEP,
+                    xalign = 'center',
+                    yalign = 'bottom'
+                }
+            else
+                assert(tradeAction == "choosingPartner")
+            end
+        end
+
+        -- Buttons to add cards on the right side
+        do
+            local x = x0
+            local y = y0
+
+            local RESOURCES = {
+                'brick',
+                'grain',
+                'lumber',
+                'ore',
+                'wool',
+            }
+
+            for _, res in ipairs(RESOURCES) do
+                local img = self:getResCardImage(res)
+
+                local onleftclick
+                if canSelectCards then
+                    onleftclick = function ()
+                        self:addToCards(self.theirCards, res, 1)
+                    end
+                end
+
+                local sprite = layer:addSprite(img, {
+                    x = x,
+                    y = y,
+                    yalign = "bottom",
+                    onleftclick = onleftclick,
+                })
+
+                local box = Box:fromSprite(sprite)
+
+                x = box:getRightX() + XSEP
+            end
+        end
+
+        -- Selected resource cards from the right side
+        do
+            local x = x0
+            local y = y0 - CARD_H - YSEP
+
+            TableUtils:sortedIter(self.theirCards, function (res, selectedCount)
+                local img = self:getResCardImage(res)
+
+                local onleftclick
+                if canSelectCards then
+                    onleftclick = function ()
+                        self:addToCards(self.theirCards, res, -1)
+                    end
+                end
+
+                local sequenceBox = addCardSequence{
+                    x = x,
+                    y = y,
+                    img = img,
+                    count = selectedCount,
+                    onleftclick = onleftclick,
+                }
+
+                if sequenceBox then
+                    x = sequenceBox:getRightX() + XSEP
+                end
+            end)
+        end
+    end
+
     return layer
+end
+
+function gui:startTrading ()
+    self.tradeStatus = "settingUp"
+    self:softRefresh()
+end
+
+function gui:canClickButtons ()
+    if next(self.actions) ~= nil then
+        return false, "there is an ongoing action on the grid"
+    end
+    if self.tradeStatus ~= nil then
+        return false, "there is an ongoing trade"
+    end
+    return true
 end
 
 function gui.renderers:buttons ()
@@ -1168,7 +1421,7 @@ function gui.renderers:buttons ()
     local XSEP = 10
     local NBUTTONS = 1
 
-    local noAction = next(self.actions) == nil
+    local canClick, canClickErr = self:canClickButtons()
 
     -- Choose button image depending on condition
     -- If condition is true, chooses the "active" variant
@@ -1185,20 +1438,20 @@ function gui.renderers:buttons ()
     --   action : function,
     -- }
     local function newCell (t)
-        local active = t.check() and noAction
+        local active = canClick and t.check()
 
         local cell = {
             chooseButtonImg(t.folder, active),
             onleftclick = function ()
-                if noAction then
-                    local ok, err = t.check()
+                if canClick then
+                    local ok, checkErr = t.check()
                     if ok then
                         t.action()
                     else
-                        print('Error: ' .. err)
+                        print('Error: ' .. checkErr)
                     end
                 else
-                    print('Error: ongoing action')
+                    print('Error: ' .. canClickErr)
                 end
             end,
         }
@@ -1209,6 +1462,7 @@ function gui.renderers:buttons ()
     do
         local t = {
             {
+                nil,
                 newCell{
 
                     folder = self.images.btn.road,
@@ -1240,6 +1494,15 @@ function gui.renderers:buttons ()
             },
             {
                 newCell{
+                    folder = self.images.btn.trade,
+                    check = function ()
+                        return self.game:canTrade()
+                    end,
+                    action = function ()
+                        self:startTrading()
+                    end,
+                },
+                newCell{
                     folder = self.images.btn.devcard,
                     check = function ()
                         return self.game:canBuyDevelopmentCard()
@@ -1268,7 +1531,7 @@ function gui.renderers:buttons ()
                 },
             },
             n = 2,
-            m = 3,
+            m = 4,
             x = W - XMARGIN,
             y = H - YMARGIN,
             xalign = "right",
@@ -1321,7 +1584,7 @@ gui.DEAL_COMMANDS = {
 -- @see love2d@love.keypressed
 function gui:keypressed (key)
     if key == "escape" then
-        self:clearActions()
+        self:escape()
     end
 
     if self.debug then
@@ -1337,7 +1600,7 @@ function gui:keypressed (key)
                     self.game.bank[res] = supply - 1
                     rescards[res] = (rescards[res] or 0) + 1
                     print("Gave 1 " .. res .. " to player " .. self.game.player)
-                    self:afterMove()
+                    self:refresh()
                 end
             else
                 print("Cannot deal cards in this phase")

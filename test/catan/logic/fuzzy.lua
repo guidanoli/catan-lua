@@ -112,6 +112,31 @@ local function randomPlayerResCardsToDiscard (game, player)
     return randomPlayerResCards(game, player, n)
 end
 
+local function randomResCardsFromBank (game, n)
+    local rescards = {}
+    local resources = TableUtils:sortedKeys(game.bank)
+    for i = 1, n do
+        while true do
+            local added = false
+            TableUtils:shuffleInPlace(resources)
+            for _, res in ipairs(resources) do
+                local supply = game.bank[res] or 0
+                local count = rescards[res] or 0
+                local newCount = count + 1
+                if supply >= newCount then
+                    rescards[res] = newCount
+                    added = true
+                    break
+                end
+            end
+            if not added then
+                return -- Bank would be empty
+            end
+        end
+    end
+    return rescards
+end
+
 local function display (gridpart)
     local q, r, x = Grid:unpack(gridpart)
     if x == nil then
@@ -256,6 +281,28 @@ function actions.tradeWithPlayer (game)
         msg = ('tradeWithPlayer(%s, %s, %s)'):format(otherplayer,
                                                      fmtrescards(mycards),
                                                      fmtrescards(theircards))
+    end
+    return ok, msg
+end
+
+function actions.tradeWithHarbor (game)
+    local ok, msg = game:canTradeWithHarbor()
+    if ok then
+        local mycards = randomPlayerResCards(game, game.player)
+        local n, err = game:getMaritimeTradeReturn(mycards)
+        if not n then
+            return false, err
+        end
+        local theircards = randomResCardsFromBank(game, n)
+        if theircards == nil then
+            return false, "could not create theircards"
+        end
+        ok, msg = game:canTradeWithHarbor(mycards, theircards)
+        if ok then
+            game:tradeWithHarbor(mycards, theircards)
+            msg = ('tradeWithHarbor(%s, %s)'):format(fmtrescards(mycards),
+                                                     fmtrescards(theircards))
+        end
     end
     return ok, msg
 end

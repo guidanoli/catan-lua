@@ -99,6 +99,9 @@ end
 
 local function randomPlayerResCards (game, player, n)
     local allCards = listPlayerResCards(game, player)
+    if #allCards == 0 then
+        return {}
+    end
     n = n or math.random(#allCards)
     local sampledCards = TableUtils:uniqueSamples(allCards, n)
     return TableUtils:histogram(sampledCards)

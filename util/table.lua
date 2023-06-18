@@ -172,4 +172,8 @@ function TableUtils:deepEqual (ta, tb)
     return equalrec(ta, tb)
 end
 
+function TableUtils:sameKeySet (ta, tb)
+    return equalkeyset(ta, tb)
+end
+
 return TableUtils

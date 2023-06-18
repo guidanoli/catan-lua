@@ -607,6 +607,16 @@ function gui:buildCity (vertex)
     self:refresh()
 end
 
+function gui:canTradeWithHarbor ()
+    return self.game:canTradeWithHarbor(self.myCards, self.theirCards)
+end
+
+function gui:tradeWithHarbor ()
+    self.game:tradeWithHarbor(self.myCards, self.theirCards)
+
+    self:refresh()
+end
+
 function gui:canTradeWithPlayer (player)
     return self.game:canTradeWithPlayer(player, self.myCards, self.theirCards)
 end
@@ -1026,9 +1036,17 @@ function gui:canProposeTrade ()
     return n >= 1 and m >= 1
 end
 
-function gui:proposeTrade ()
+function gui:startTradingWithPlayer ()
     self.tradeStatus = "replying"
     self:softRefresh()
+end
+
+function gui:proposeTrade ()
+    if self:canTradeWithHarbor() then
+        self:tradeWithHarbor()
+    else
+        self:startTradingWithPlayer()
+    end
 end
 
 function gui:replyToTradeProposal (reply)

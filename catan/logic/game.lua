@@ -778,6 +778,53 @@ function Game:canTradeWithPlayer (otherplayer, mycards, theircards)
     return true
 end
 
+function Game:getMaritimeTradeReturn (mycards)
+    local m = 0
+    local ratios, defaultRatio = self:_getTradeRatios(self.player)
+    for res, n in pairs(mycards) do
+        local ratio = ratios[res] or defaultRatio
+        if n % ratio == 0 then
+            m = m + n / ratio
+        else
+            return false, "bad ratio for " .. res
+        end
+    end
+    return m
+end
+
+function Game:canTradeWithHarbor (mycards, theircards)
+    local ok, err = self:canTrade()
+    if not ok then
+        return false, err
+    end
+    if mycards ~= nil then
+        local ok, err = CatanSchema.ResourceCardHistogram:isValid(mycards)
+        if not ok then
+            return false, err
+        end
+        local ok, err = CatanSchema.ResourceCardHistogram:isValid(theircards)
+        if not ok then
+            return false, err
+        end
+        local ok, err = self:_canGiveResources(self.player, mycards)
+        if not ok then
+            return false, err
+        end
+        local m, err = self:getMaritimeTradeReturn(mycards)
+        if not m then
+            return false, err
+        end
+        if TableUtils:sum(theircards) ~= m then
+            return false, "bad sum of theircards"
+        end
+        local ok, err = self:_doesBankHaveResources(theircards)
+        if not ok then
+            return false, err
+        end
+    end
+    return true
+end
+
 Game.ROAD_COST = {lumber=1, brick=1}
 
 function Game:canBuildRoad (edge)
@@ -1114,6 +1161,13 @@ function Game:tradeWithPlayer (otherplayer, mycards, theircards)
     self:_giveResourcesToPlayer(otherplayer, self.player, theircards)
 end
 
+function Game:tradeWithHarbor (mycards, theircards)
+    assert(self:canTradeWithHarbor(mycards, theircards))
+
+    self:_giveResourcesToBank(self.player, mycards)
+    self:_giveResourcesFromBank(self.player, theircards)
+end
+
 function Game:buildRoad (edge)
     assert(self:canBuildRoad(edge))
 
@@ -1408,6 +1462,41 @@ function Game:_stealRandomResCardFrom (victim)
     return res
 end
 
+function Game:_getTradeRatios (player)
+    local ratios = {}
+    local default = 4
+    self.harbormap:iter(function (q, r, v, kind)
+        local vertex = Grid:vertex(q, r, v)
+        local building = self.buildmap:get(vertex)
+        if building and building.player == player then
+            if kind == "generic" then
+                default = 3
+            else
+                ratios[kind] = 2
+            end
+        end
+    end)
+    return ratios, default
+end
+
+function Game:_doesBankHaveResources (rescards)
+    for res, n in pairs(rescards) do
+        local ok, err = self:_doesBankHaveResource(res, n)
+        if not ok then
+            return false, err
+        end
+    end
+    return true
+end
+
+function Game:_doesBankHaveResource (res, n)
+    local supply = self.bank[res] or 0
+    if supply < n then
+        return false, "not enough supply of " .. res
+    end
+    return true
+end
+
 function Game:_canGiveResources (player, rescards)
     for res, n in pairs(rescards) do
         local ok, err = self:_canGiveResource(player, res, n)
@@ -1503,6 +1592,12 @@ function Game:_giveResourceFromBank (player, res, n)
     assert(supply >= n)
     self:_addToResourceCount(player, res, n)
     self.bank[res] = supply - n
+end
+
+function Game:_giveResourcesFromBank (player, rescards)
+    for res, n in pairs(rescards) do
+        self:_giveResourceFromBank(player, res, n)
+    end
 end
 
 function Game:_giveResourceToBank (player, res, n)

@@ -980,6 +980,38 @@ function Game:canBuyDevelopmentCard ()
     return true
 end
 
+function Game:isCardPlayable (devcard)
+    if devcard.roundBought == self.round then
+        return false, "cannot buy and play a development card in the same round"
+    end
+    if devcard.roundPlayed ~= nil then
+        return false, "cannot play a development card twice"
+    end
+    return true
+end
+
+function Game:getPlayableCardOfKind (kind)
+    local ok, err = self:_isPhase"playingTurns"
+    if not ok then
+        return nil, err
+    end
+    for _, devcard in ipairs(self.devcards[self.player]) do
+        if devcard.roundPlayed == self.round then
+            return nil, "a development card was already played in this turn"
+        end
+    end
+    for _, devcard in ipairs(self.devcards[self.player]) do
+        if devcard.kind == kind and self:isCardPlayable(devcard) then
+            return devcard
+        end
+    end
+    return nil, "player doesn't have such development card"
+end
+
+function Game:getPlayableKnightCard ()
+    return self:getPlayableCardOfKind "knight"
+end
+
 function Game:canEndTurn ()
     local ok, err = self:_isPhase"playingTurns"
     if not ok then
@@ -1224,6 +1256,15 @@ function Game:buyDevelopmentCard ()
     return kind
 end
 
+function Game:playKnightCard ()
+    local devcard = assert(self:getPlayableCardOfKind"knight")
+
+    devcard.roundPlayed = self.round
+
+    self.phase = "movingRobber"
+    self:_updateLargestArmyHolder()
+end
+
 function Game:endTurn ()
     assert(self:canEndTurn())
 
@@ -1354,6 +1395,16 @@ function Game:_updateLongestRoadHolder ()
     end
 
     self.longestroad = self:_getNewTitleHolder(lengths, self.longestroad, 5)
+end
+
+function Game:_updateLargestArmyHolder ()
+    local armies = {}
+
+    for _, player in ipairs(self.players) do
+        armies[player] = self:getArmySize(player)
+    end
+
+    self.largestarmy = self:_getNewTitleHolder(armies, self.largestarmy, 3)
 end
 
 function Game:_choosePlayerResCardAtRandom (player)

@@ -10,9 +10,11 @@ end
 
 function TableUtils:filter (t, f)
     local out = {}
+    local j = 1
     for i, v in ipairs(t) do
         if f(v) then
-            rawset(out, i, v)
+            rawset(out, j, v)
+            j = j + 1
         end
     end
     return out

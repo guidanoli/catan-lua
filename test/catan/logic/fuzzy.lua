@@ -367,6 +367,15 @@ function actions.buyDevelopmentCard (game)
     return ok, msg
 end
 
+function actions.playKnightCard (game)
+    local ok, msg = game:getPlayableKnightCard()
+    if ok then
+        game:playKnightCard()
+        msg = 'playKnightCard()'
+    end
+    return ok, msg
+end
+
 local function run (i, args, report)
     local game = Game:new()
 

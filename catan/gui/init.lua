@@ -108,6 +108,7 @@ function gui:getDisplayedInventory ()
                 return {
                     player = player,
                     canSelectCards = true,
+                    canPlayCards = false,
                     arrowcolor = "red",
                     createSelectionText = function ()
                         return self:getDiscardSelectionText()
@@ -122,6 +123,7 @@ function gui:getDisplayedInventory ()
             return {
                 player = self.game.player,
                 canSelectCards = false,
+                canPlayCards = false,
                 tradeAction = "choosingPartner",
                 arrowcolor = "yellow",
             }
@@ -129,6 +131,7 @@ function gui:getDisplayedInventory ()
             return {
                 player = player,
                 canSelectCards = false,
+                canPlayCards = false,
                 tradeAction = "replying",
                 arrowcolor = "green",
             }
@@ -137,6 +140,7 @@ function gui:getDisplayedInventory ()
     return {
         player = self.game.player,
         canSelectCards = self.game:canTrade(),
+        canPlayCards = true,
         tradeAction = "settingUp",
         arrowcolor = "yellow",
     }
@@ -1015,6 +1019,13 @@ function gui:addToCards (cards, res, n, limit)
     end
 end
 
+function gui:playCardOfKind (kind)
+    if kind == "knight" then
+        self.game:playKnightCard()
+    end
+    self:refresh()
+end
+
 function gui:getCardDimensions ()
     return self.images.card.dev.knight:getDimensions()
 end
@@ -1149,6 +1160,7 @@ function gui.renderers:inventory ()
 
     local player = inv.player
     local canSelectCards = inv.canSelectCards
+    local canPlayCards = inv.canPlayCards
     local createSelectionText = inv.createSelectionText
     local tradeAction = inv.tradeAction
 
@@ -1190,14 +1202,22 @@ function gui.renderers:inventory ()
         end)
 
         -- Development cards
-        for devcard, count in pairs(self:getDevCardHistogram(player)) do
-            local img = assert(self.images.card.dev[devcard], "missing devcard sprite")
+        for kind, count in pairs(self:getDevCardHistogram(player)) do
+            local img = assert(self.images.card.dev[kind], "missing kind sprite")
+
+            local onleftclick
+            if canPlayCards and self.game:getPlayableCardOfKind(kind) then
+                onleftclick = function ()
+                    self:playCardOfKind(kind)
+                end
+            end
 
             local sequenceBox = addCardSequence{
                 x = x,
                 y = y,
                 img = img,
                 count = count,
+                onleftclick = onleftclick,
             }
 
             if sequenceBox then

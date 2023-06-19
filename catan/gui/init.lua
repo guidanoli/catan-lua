@@ -1160,10 +1160,10 @@ function gui.renderers:inventory ()
         -- Resource cards
         TableUtils:sortedIter(self.game.rescards[player], function (res, totalCount)
             local img = self:getResCardImage(res)
-            local selectedCount = self.myCards[res] or 0
 
             local count
-            if player == self.game.player then
+            if canSelectCards then
+                local selectedCount = self.myCards[res] or 0
                 count = totalCount - selectedCount
             else
                 count = totalCount

@@ -1304,6 +1304,48 @@ function Game:_isNewLongestRoadHolder (player)
     return false
 end
 
+function Game:_getNewTitleHolder (values, currentHolder, minValueForTitle)
+    local maxValue
+    for player, value in pairs(values) do
+        if maxValue == nil or value > maxValue then
+            maxValue = value
+        end
+    end
+    if maxValue == nil then
+        return nil
+    end
+
+    local tiedPlayers = {}
+    for player, value in pairs(values) do
+        if value == maxValue then
+            tiedPlayers[player] = true
+        end
+    end
+
+    local tiedCount = TableUtils:numOfPairs(tiedPlayers)
+    assert(tiedCount >= 1)
+
+    if currentHolder == nil then
+        if tiedCount == 1 and maxValue >= minValueForTitle then
+            return assert(next(tiedPlayers))
+        end
+    else
+        if maxValue >= minValueForTitle then
+            if tiedPlayers[currentHolder] == nil then
+                if tiedCount == 1 then
+                    return assert(next(tiedPlayers))
+                else
+                    return nil
+                end
+            end
+        else
+            return nil
+        end
+    end
+
+    return currentHolder
+end
+
 function Game:_updateLongestRoadHolder ()
     local lengths = {}
 
@@ -1311,47 +1353,7 @@ function Game:_updateLongestRoadHolder ()
         lengths[player] = self:getLongestRoadLength(player)
     end
 
-    local maxlength = 0
-    for player, length in pairs(lengths) do
-        if length > maxlength then
-            maxlength = length
-        end
-    end
-
-    local tiedplayers = {}
-    for player, length in pairs(lengths) do
-        if length == maxlength then
-            tiedplayers[player] = true
-        end
-    end
-
-    local tiedcount = TableUtils:numOfPairs(tiedplayers)
-    assert(tiedcount >= 1)
-
-    local currholder = self.longestroad
-    local newholder = currholder
-
-    if currholder == nil then
-        if tiedcount == 1 and maxlength >= 5 then
-            newholder = assert(next(tiedplayers))
-        end
-    else
-        if maxlength >= 5 then
-            if tiedplayers[currholder] == nil then
-                if tiedcount == 1 then
-                    newholder = assert(next(tiedplayers))
-                else
-                    newholder = nil
-                end
-            end
-        else
-            newholder = nil
-        end
-    end
-
-    self.longestroad = newholder
-
-    return currholder ~= newholder
+    self.longestroad = self:_getNewTitleHolder(lengths, self.longestroad, 5)
 end
 
 function Game:_choosePlayerResCardAtRandom (player)

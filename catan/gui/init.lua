@@ -23,6 +23,10 @@ local Box = require "catan.gui.Box"
 
 local gui = {}
 
+-- I/O constants
+
+gui.STATE_FILE = "state.lua"
+
 -- Enable debug commands
 
 gui.debug = os.getenv"DEBUG"
@@ -158,6 +162,17 @@ function gui:escape ()
     else
         self:clearTradeReplies()
         self:startTrading()
+    end
+end
+
+function gui:save ()
+    local fp, err = io.open(self.STATE_FILE, "w")
+
+    if fp then
+        fp:write(self.game:serialize())
+        fp:close()
+    else
+        print('Error: ' .. err)
     end
 end
 
@@ -1623,6 +1638,8 @@ gui.DEAL_COMMANDS = {
 function gui:keypressed (key)
     if key == "escape" then
         self:escape()
+    elseif key == "s" then
+        self:save()
     end
 
     if self.debug then

@@ -1,3 +1,5 @@
+local serpent = require "serpent"
+
 local Class = require "util.class"
 local TableUtils = require "util.table"
 local LogicUtils = require "util.logic"
@@ -442,6 +444,16 @@ function Game:_validateLastDiscard ()
         assert(lastdiscard >= 2)
         assert(lastdiscard <= self.round)
     end
+end
+
+--------------------------------
+-- Serialization
+--------------------------------
+
+function Game:serialize ()
+    return serpent.block(self, {
+        comment = false,
+    })
 end
 
 --------------------------------

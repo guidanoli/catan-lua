@@ -5,11 +5,11 @@
 For users:
 
 * [LÖVE] 11.4
+* [Serpent] 0.30-2
 
 For developers:
 
 * [Lua] 5.4
-* [Serpent] 0.30-2
 * [LDoc] 1.5.0-1
 * [argparse] 0.7.1-1
 

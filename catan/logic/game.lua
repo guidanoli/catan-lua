@@ -451,7 +451,7 @@ end
 --------------------------------
 
 function Game:serialize ()
-    return serpent.block(self, {
+    return 'return ' .. serpent.block(self, {
         comment = false,
     })
 end

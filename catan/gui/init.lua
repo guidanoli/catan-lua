@@ -184,6 +184,24 @@ function gui:save ()
     end
 end
 
+function gui:open ()
+    local fp = self:openStateFile()
+
+    if fp then
+        local str = fp:read"*a"
+        fp:close()
+
+        local g, err = Game:deserialize(str)
+
+        if g then
+            self.game = g
+            self:refresh()
+        else
+            print('Error: ' .. err)
+        end
+    end
+end
+
 function gui:stopTrading ()
     self.tradeStatus = nil
 end
@@ -1648,6 +1666,8 @@ function gui:keypressed (key)
         self:escape()
     elseif key == "s" then
         self:save()
+    elseif key == "o" then
+        self:open()
     end
 
     if self.debug then

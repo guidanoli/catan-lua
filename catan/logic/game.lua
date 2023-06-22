@@ -17,6 +17,12 @@ local HexProduction = require "catan.logic.HexProduction"
 local Game = Class "Game"
 
 --------------------------------
+-- Compatibility with Lua 5.1
+--------------------------------
+
+local load = loadstring or load
+
+--------------------------------
 -- Constructor
 --------------------------------
 
@@ -454,6 +460,38 @@ function Game:serialize ()
     return 'return ' .. serpent.block(self, {
         comment = false,
     })
+end
+
+--------------------------------
+-- Deserialization
+--------------------------------
+
+function Game:deserialize (str)
+    -- Load table from string
+    local f, err = load(str)
+    if f == nil then
+        return false, err or 'chunk parsing failed'
+    end
+    local ok, ret = pcall(f)
+    if not ok then
+        return false, ret or 'chunk execution failed'
+    end
+
+    -- Set metatables
+    FaceMap:__new(ret.hexmap)
+    FaceMap:__new(ret.numbermap)
+    VertexMap:__new(ret.harbormap)
+    VertexMap:__new(ret.buildmap)
+    EdgeMap:__new(ret.roadmap)
+    local game = self:__new(ret)
+
+    -- Validate table against game schema and logic
+    local ok, err = pcall(self.validate, game)
+    if not ok then
+        return false, err or 'input validation failed'
+    end
+
+    return game
 end
 
 --------------------------------

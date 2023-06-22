@@ -165,14 +165,22 @@ function gui:escape ()
     end
 end
 
+function gui:openStateFile (...)
+    local fp, err = io.open(self.STATE_FILE, ...)
+
+    if fp == nil then
+        print('Error: ' .. err)
+    end
+
+    return fp
+end
+
 function gui:save ()
-    local fp, err = io.open(self.STATE_FILE, "w")
+    local fp = self:openStateFile("w")
 
     if fp then
         fp:write(self.game:serialize())
         fp:close()
-    else
-        print('Error: ' .. err)
     end
 end
 

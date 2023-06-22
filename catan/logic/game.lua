@@ -22,7 +22,7 @@ local Game = Class "Game"
 
 function Game:new (players)
     players = players or CatanConstants.players
-    local game = Game:__new{}
+    local game = self:__new{}
     game:_init(players)
     return game
 end

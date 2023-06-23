@@ -1,3 +1,6 @@
+# LuaCov HTML output
+/luacov-html
+
 # Save files
 /state.lua
 

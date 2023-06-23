@@ -2,6 +2,10 @@ require "util.safe"
 
 local TableUtils = require "util.table"
 
+local function assertEq (ta, tb)
+    assert(TableUtils:deepEqual(ta, tb))
+end
+
 local MAX = 10000
 
 -- sum
@@ -25,7 +29,7 @@ for N = 0, 10 do
         tcopy[i] = x
     end
     assert(TableUtils:sum(t) == sum)
-    assert(TableUtils:deepEqual(t, tcopy))
+    assertEq(t, tcopy)
 
     TableUtils:shuffleInPlace(t)
     assert(TableUtils:sum(t) == sum)
@@ -40,9 +44,9 @@ end
 
 local function iseven (v) return v % 2 == 0 end
 
-assert(TableUtils:deepEqual(TableUtils:filter({}, iseven), {}))
-assert(TableUtils:deepEqual(TableUtils:filter({a=123}, iseven), {}))
-assert(TableUtils:deepEqual(TableUtils:filter({5, 2, 7, 77, 66}, iseven), {2, 66}))
+assertEq(TableUtils:filter({}, iseven), {})
+assertEq(TableUtils:filter({a=123}, iseven), {})
+assertEq(TableUtils:filter({5, 2, 7, 77, 66}, iseven), {2, 66})
 
 for N = 0, 10 do
     local t = {}
@@ -59,18 +63,18 @@ for N = 0, 10 do
     end
 
     local obtained = TableUtils:filter(t, iseven)
-    assert(TableUtils:deepEqual(t, tcopy))
+    assertEq(t, tcopy)
 
-    assert(TableUtils:deepEqual(expected, obtained))
+    assertEq(expected, obtained)
 end
 
 -- map
 
 local function double (v) return 2 * v end
 
-assert(TableUtils:deepEqual(TableUtils:map({}, double), {}))
-assert(TableUtils:deepEqual(TableUtils:map({123}, double), {246}))
-assert(TableUtils:deepEqual(TableUtils:map({123, a=7777}, double), {246}))
+assertEq(TableUtils:map({}, double), {})
+assertEq(TableUtils:map({123}, double), {246})
+assertEq(TableUtils:map({123, a=7777}, double), {246})
 
 for N = 0, 10 do
     local t = {}
@@ -85,9 +89,9 @@ for N = 0, 10 do
     end
 
     local obtained = TableUtils:map(t, double)
-    assert(TableUtils:deepEqual(t, tcopy))
+    assertEq(t, tcopy)
 
-    assert(TableUtils:deepEqual(expected, obtained))
+    assertEq(expected, obtained)
 end
 
 -- sample
@@ -108,16 +112,16 @@ for N = 1, 10 do
 
     for M = 1, N do
         local x, i = TableUtils:sample(t)
-        assert(TableUtils:deepEqual(t, tcopy))
+        assertEq(t, tcopy)
         assert(x ~= nil and t[i] == x)
     end
 end
 
 -- uniqueSamples
 
-assert(TableUtils:deepEqual(TableUtils:uniqueSamples({}, 0), {}))
-assert(TableUtils:deepEqual(TableUtils:uniqueSamples({a=123}, 0), {}))
-assert(TableUtils:deepEqual(TableUtils:uniqueSamples({123, a=123}, 1), {123}))
+assertEq(TableUtils:uniqueSamples({}, 0), {})
+assertEq(TableUtils:uniqueSamples({a=123}, 0), {})
+assertEq(TableUtils:uniqueSamples({123, a=123}, 1), {123})
 
 for N = 0, 10 do
     local t = {}
@@ -131,7 +135,7 @@ for N = 0, 10 do
 
     for M = 0, N do
         local samples = TableUtils:uniqueSamples(t, M)
-        assert(TableUtils:deepEqual(t, tcopy))
+        assertEq(t, tcopy)
         assert(#samples == M)
         local used = {}
         for i = 1, M do
@@ -150,11 +154,11 @@ end
 
 -- histogram
 
-assert(TableUtils:deepEqual(TableUtils:histogram{}, {}))
-assert(TableUtils:deepEqual(TableUtils:histogram{a=123}, {}))
-assert(TableUtils:deepEqual(TableUtils:histogram{123}, {[123]=1}))
-assert(TableUtils:deepEqual(TableUtils:histogram{123, 123}, {[123]=2}))
-assert(TableUtils:deepEqual(TableUtils:histogram{123, 123, 456}, {[123]=2, [456]=1}))
+assertEq(TableUtils:histogram{}, {})
+assertEq(TableUtils:histogram{a=123}, {})
+assertEq(TableUtils:histogram{123}, {[123]=1})
+assertEq(TableUtils:histogram{123, 123}, {[123]=2})
+assertEq(TableUtils:histogram{123, 123, 456}, {[123]=2, [456]=1})
 
 for N = 1, 20 do
     local t = {}
@@ -178,10 +182,10 @@ end
 
 -- sortedKeys
 
-assert(TableUtils:deepEqual(TableUtils:sortedKeys{}, {}))
-assert(TableUtils:deepEqual(TableUtils:sortedKeys{44, 1, -24}, {1, 2, 3}))
-assert(TableUtils:deepEqual(TableUtils:sortedKeys{b=34, c=10, a=42}, {'a', 'b', 'c'}))
-assert(TableUtils:deepEqual(TableUtils:sortedKeys{77, 44, b=34, a=42}, {1, 2, 'a', 'b'}))
+assertEq(TableUtils:sortedKeys{}, {})
+assertEq(TableUtils:sortedKeys{44, 1, -24}, {1, 2, 3})
+assertEq(TableUtils:sortedKeys{b=34, c=10, a=42}, {'a', 'b', 'c'})
+assertEq(TableUtils:sortedKeys{77, 44, b=34, a=42}, {1, 2, 'a', 'b'})
 
 for N = 1, 10 do
     local t = {}
@@ -234,9 +238,9 @@ local function shuffle (t)
     return t
 end
 
-assert(TableUtils:deepEqual(shuffle{}, {}))
-assert(TableUtils:deepEqual(shuffle{a=123}, {a=123}))
-assert(TableUtils:deepEqual(shuffle{123}, {123}))
+assertEq(shuffle{}, {})
+assertEq(shuffle{a=123}, {a=123})
+assertEq(shuffle{123}, {123})
 
 for N = 0, 10 do
     local t1 = {}
@@ -261,7 +265,7 @@ do
     local function ok(f)
         local ta = f()
         local tb = f()
-        assert(TableUtils:deepEqual(ta, tb))
+        assertEq(ta, tb)
     end
 
     ok(function () return {} end)

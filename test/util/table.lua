@@ -86,7 +86,9 @@ end
 
 -- map
 
-local function double (v) return 2 * v end
+local function double (v)
+    return 2 * v
+end
 
 assertEq(TableUtils:map({}, double), {})
 assertEq(TableUtils:map({123}, double), {246})

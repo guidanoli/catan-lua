@@ -321,6 +321,56 @@ for N = 1, 10 do
     assert(TableUtils:numOfPairs(t) == N)
 end
 
+-- ipairsReversed
+
+for _ in TableUtils:ipairsReversed{} do
+    error()
+end
+
+for _ in TableUtils:ipairsReversed{a=123} do
+    error()
+end
+
+do
+    local iterationCount = 0
+
+    for i, v in TableUtils:ipairsReversed{777, a=123} do
+        assert(i == 1)
+        assert(v == 777)
+
+        iterationCount = iterationCount + 1
+    end
+
+    assert(iterationCount == 1)
+end
+
+for N = 1, 10 do
+    local t = {}
+
+    for i = 1, N do
+        t[i] = math.random(MAX)
+    end
+
+    local iterationCount = 0
+    local lastIndex
+
+    for i, v in TableUtils:ipairsReversed(t) do
+        assert(i ~= nil)
+        assert(v ~= nil)
+        assert(t[i] == v)
+
+        if lastIndex ~= nil then
+            assert(lastIndex == i + 1)
+        end
+
+        iterationCount = iterationCount + 1
+
+        lastIndex = i
+    end
+
+    assert(iterationCount == N)
+end
+
 -- shuffleInPlace
 
 local function shuffle (t)

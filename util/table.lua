@@ -67,18 +67,6 @@ function TableUtils:shuffleInPlace (t)
     end
 end
 
--- ∃ N s.t. ∀ (k, v) ∊ t, k ∊ [1, N]
-function TableUtils:isArray (t)
-    local i = 1
-    for _ in pairs(t) do
-        if t[i] == nil then
-            return false
-        end
-        i = i + 1
-    end
-    return true
-end
-
 -- Returns a sorted array of keys in t
 function TableUtils:sortedKeys (t)
     local st = {}

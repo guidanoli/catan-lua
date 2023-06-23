@@ -4,6 +4,10 @@ local TableUtils = require "util.table"
 
 -- sum
 
+assert(TableUtils:sum{} == 0)
+assert(TableUtils:sum{123} == 123)
+assert(TableUtils:sum{a=123} == 123)
+
 for N = 0, 10 do
     local t = {}
 
@@ -29,6 +33,15 @@ end
 
 -- shuffleInPlace
 
+local function shuffle (t)
+    TableUtils:shuffleInPlace(t)
+    return t
+end
+
+assert(TableUtils:deepEqual(shuffle{}, {}))
+assert(TableUtils:deepEqual(shuffle{a=123}, {a=123}))
+assert(TableUtils:deepEqual(shuffle{123}, {123}))
+
 for N = 0, 10 do
     local t1 = {}
     local t2 = {}
@@ -49,15 +62,15 @@ end
 -- deepEqual
 
 do
-    local function ok(t)
-        assert(TableUtils:deepEqual(t, t))
+    local function ok(f)
+        assert(TableUtils:deepEqual(f(), f()))
     end
 
-    ok({})
-    ok({a=123})
-    ok({1, 2, 3})
-    ok({1, 2, 3, foo=345, bar=567})
-    ok({{}, {}, {{}, {}}})
+    ok(function () return {} end)
+    ok(function () return {a=123} end)
+    ok(function () return {1, 2, 3} end)
+    ok(function () return {1, 2, 3, foo=345, bar=567} end)
+    ok(function () return {{}, {}, {{}, {}}} end)
 
     local function fail(ta, tb)
         assert(not TableUtils:deepEqual(ta, tb))

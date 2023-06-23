@@ -1395,23 +1395,6 @@ function Game:_getLongestRoadWithEdge (player, edge)
     return maxlength
 end
 
-function Game:_isNewLongestRoadHolder (player)
-    if self.longestroad ~= player then
-        local length = self:getLongestRoadLength(player)
-        if self.longestroad == nil then
-            if length >= 5 then
-                return true
-            end
-        else
-            local currentMaxLength = self:getLongestRoadLength(self.longestroad)
-            if length > currentMaxLength then
-                return true
-            end
-        end
-    end
-    return false
-end
-
 function Game:_getNewTitleHolder (values, currentHolder, minValueForTitle)
     local maxValue
     for player, value in pairs(values) do
@@ -1608,12 +1591,6 @@ function Game:_canGiveResources (player, rescards)
         end
     end
     return true
-end
-
-function Game:_giveResourcesToBank (player, rescards)
-    for res, n in pairs(rescards) do
-        self:_giveResourceToBank(player, res, n)
-    end
 end
 
 function Game:_canGiveResource (player, res, n)

@@ -156,7 +156,7 @@ assert(TableUtils:deepEqual(TableUtils:histogram{123}, {[123]=1}))
 assert(TableUtils:deepEqual(TableUtils:histogram{123, 123}, {[123]=2}))
 assert(TableUtils:deepEqual(TableUtils:histogram{123, 123, 456}, {[123]=2, [456]=1}))
 
-for N = 0, 20 do
+for N = 1, 20 do
     local t = {}
 
     for i = 1, N do

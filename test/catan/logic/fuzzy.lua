@@ -148,10 +148,10 @@ end
 
 local function fmtrescards (rescards)
     local t = {}
-    for _, rescard in ipairs(TableUtils:sortedKeys(rescards)) do
+    TableUtils:sortedIter(rescards, function (rescard, count)
         local count = rescards[rescard]
         table.insert(t, rescard .. ':' .. count)
-    end
+    end)
     return '[' .. table.concat(t, ', ') .. ']'
 end
 

@@ -39,10 +39,56 @@ end
 -- @tfield Drawable 1 the drawable object
 -- @tfield[opt=1] number sx the horizontal scaling factor
 -- @tfield[opt=sx] number sy the vertical scaling factor
+-- @tfield[opt='center'] string xalign the horizontal alignment for the sprite within the cell
+-- @tfield[opt='center'] string yalign the vertical alignment for the sprite within the cell
 -- @tfield[opt=nil] function onleftclick left-click callback
 -- @tfield[opt=nil] function onrightclick right-click callback
 -- @see love2d@Drawable
 Layer.TableCell = {}
+
+local function cellimg (cell)
+    if type(cell) == 'table' then
+        return cell[1]
+    else
+        return cell
+    end
+end
+
+local function cellsx (cell)
+    if type(cell) == 'table' then
+        return cell.sx
+    end
+end
+
+local function cellsy (cell)
+    if type(cell) == 'table' then
+        return cell.sy
+    end
+end
+
+local function cellonleftclick (cell)
+    if type(cell) == 'table' then
+        return cell.onleftclick
+    end
+end
+
+local function cellonrightclick (cell)
+    if type(cell) == 'table' then
+        return cell.onrightclick
+    end
+end
+
+local function cellxalign (cell)
+    if type(cell) == 'table' then
+        return cell.xalign
+    end
+end
+
+local function cellyalign (cell)
+    if type(cell) == 'table' then
+        return cell.yalign
+    end
+end
 
 ---
 -- Add a table of sprites
@@ -50,12 +96,12 @@ Layer.TableCell = {}
 -- either @{catan.gui.Layer.TableCell}, `Drawable` or `nil`.
 -- @tparam[opt=1] number t.n number of table lines
 -- @tparam[opt=1] number t.m number of table columns
--- @tparam[opt=0] number t.x the sprite line horizontal coordinate
--- @tparam[opt=0] number t.y the sprite line vertical coordinate
+-- @tparam[opt=0] number t.x the sprite table horizontal coordinate
+-- @tparam[opt=0] number t.y the sprite table vertical coordinate
 -- @tparam[opt=0] number t.xsep the horizontal space between sprites
 -- @tparam[opt=0] number t.ysep the vertical space between sprites
--- @tparam[opt='left'] string t.xalign the horizontal alignment for the whole sprite line
--- @tparam[opt='top'] string t.yalign the vertical alignment for the whole sprite line
+-- @tparam[opt='left'] string t.xalign the horizontal alignment for the whole sprite table
+-- @tparam[opt='top'] string t.yalign the vertical alignment for the whole sprite table
 -- @tparam[opt=nil] Drawable t.bgimg background image
 -- @tparam[opt=0] number t.bgmargin background margin
 -- @treturn catan.gui.Box box that bounds all sprites in the table
@@ -91,38 +137,6 @@ function Layer:addSpriteTable (t)
     local columnWidths = {}
     for j = 1, m do
         columnWidths[j] = 0
-    end
-
-    local function cellimg (cell)
-        if type(cell) == 'table' then
-            return cell[1]
-        else
-            return cell
-        end
-    end
-
-    local function cellsx (cell)
-        if type(cell) == 'table' then
-            return cell.sx
-        end
-    end
-
-    local function cellsy (cell)
-        if type(cell) == 'table' then
-            return cell.sy
-        end
-    end
-
-    local function cellonleftclick (cell)
-        if type(cell) == 'table' then
-            return cell.onleftclick
-        end
-    end
-
-    local function cellonrightclick (cell)
-        if type(cell) == 'table' then
-            return cell.onrightclick
-        end
     end
 
     for i = 1, n do
@@ -199,16 +213,40 @@ function Layer:addSpriteTable (t)
             for j = 1, m do
                 local cell = line[j]
                 if cell then
+                    local xalign = cellxalign(cell) or 'center'
+                    local yalign = cellyalign(cell) or 'center'
+
+                    local cellx
+                    if xalign == 'left' then
+                        cellx = x
+                    elseif xalign == 'center' then
+                        cellx = x + columnWidths[j] / 2
+                    else
+                        assert(xalign == 'right')
+                        cellx = x + columnWidths[j]
+                    end
+
+                    local celly
+                    if yalign == 'top' then
+                        celly = y
+                    elseif yalign == 'center' then
+                        celly = y + lineHeights[i] / 2
+                    else
+                        assert(yalign == 'bottom')
+                        celly = y + lineHeights[i]
+                    end
+
                     self:addSprite(
                         cellimg(cell),
                         {
-                            x = x + columnWidths[j] / 2,
-                            y = y + lineHeights[i] / 2,
+                            x = cellx,
+                            y = celly,
                             sx = cellsx(cell),
                             sy = cellsy(cell),
                             onleftclick = cellonleftclick(cell),
                             onrightclick = cellonrightclick(cell),
-                            center = true,
+                            xalign = xalign,
+                            yalign = yalign,
                         }
                     )
                 end

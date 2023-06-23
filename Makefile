@@ -1,4 +1,4 @@
-.PHONY: test test-utils test-catan luacov docs clean
+.PHONY: test test-utils test-catan test-coverage html-coverage-report docs clean
 
 test-utils:
 	lua $(LUAOPT) test/util/safe.lua
@@ -13,9 +13,11 @@ test-catan:
 
 test: test-utils test-catan
 
-luacov: LUAOPT=-lluacov
-luacov: FUZZYOPT=--ncalls 1000
-luacov: test
+test-coverage: LUAOPT=-lluacov
+test-coverage: FUZZYOPT=--ncalls 1000
+test-coverage: test
+
+html-coverage-report:
 	luacov util/ catan/
 
 docs:

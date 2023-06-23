@@ -37,11 +37,16 @@ make test
 If you want to check the test coverage, you may want to run the following command.
 
 ```
-make luacov
+make test-coverage
 ```
 
-This will create an HTML page on the `luacov-html/` directory, so you can more easily inspect the coverage report.
-Feel free to change value of `--ncalls` and `--ngames` in the `FUZZYOPT` variable in the `Makefile` if you wish to have a more thorough coverage on the `catan` module.
+This will generate a stats report. You may want an HTML page, so you can more easily inspect the coverage report. Simply run this command.
+
+```
+make html-coverage-report
+```
+
+Also, feel free to change value of `--ncalls` and `--ngames` in the `FUZZYOPT` variable in the `Makefile` if you wish to have a more thorough coverage on the `catan` module.
 You can also remove any output from the test coverage suite by running...
 
 ```

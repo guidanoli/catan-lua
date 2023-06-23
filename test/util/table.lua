@@ -2,6 +2,8 @@ require "util.safe"
 
 local TableUtils = require "util.table"
 
+local MAX = 10000
+
 -- sum
 
 assert(TableUtils:sum{} == 0)
@@ -16,7 +18,7 @@ for N = 0, 10 do
     for i = 1, N do
         -- We use integers because addition on
         -- floating-point numbers is not associative
-        local x = math.random(10000)
+        local x = math.random(MAX)
         sum = sum + x
         t[i] = x
     end
@@ -25,8 +27,8 @@ for N = 0, 10 do
     TableUtils:shuffleInPlace(t)
     assert(TableUtils:sum(t) == sum)
 
-    local k = 'key' .. math.random(10000)
-    local v = math.random(10000)
+    local k = 'key' .. math.random(MAX)
+    local v = math.random(MAX)
     rawset(t, k, v)
     assert(TableUtils:sum(t) == sum + v)
 end
@@ -44,7 +46,7 @@ for N = 0, 10 do
     local expected = {}
 
     for i = 1, N do
-        local x = math.random(10000)
+        local x = math.random(MAX)
         if iseven(x) then
             table.insert(expected, x)
         end

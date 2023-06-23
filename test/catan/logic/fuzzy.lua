@@ -382,8 +382,6 @@ local function run (i, args, report)
     local actionKeys = TableUtils:sortedKeys(actions)
 
     for j = 1, args.ncalls do
-        local player = game.player
-
         local actionKey = TableUtils:sample(actionKeys)
 
         local ok, msg = actions[actionKey](game)

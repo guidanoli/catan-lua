@@ -9,11 +9,13 @@ test-utils:
 
 test-catan:
 	lua $(LUAOPT) test/catan/logic/game.lua
-	lua $(LUAOPT) test/catan/logic/fuzzy.lua -v --ncalls 2000
+	lua $(LUAOPT) test/catan/logic/fuzzy.lua -v $(FUZZYOPT)
 
 test: test-utils test-catan
 
-luacov:
+luacov: LUAOPT=-lluacov
+luacov: FUZZYOPT=--ncalls 1000
+luacov: test
 	luacov util/ catan/
 
 clean:

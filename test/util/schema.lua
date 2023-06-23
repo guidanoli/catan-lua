@@ -14,6 +14,8 @@ local function pprint (v)
 end
 
 local function ok (v)
+    local ret = s:new(v)
+    assert(rawequal(ret, v))
     assert(s:validate(v))
     assert(s:isValid(v))
     assert(s:eq(v, v))
@@ -21,6 +23,7 @@ local function ok (v)
 end
 
 local function fail (v)
+    assert(not pcall(function () s:new(v) end))
     assert(not s:validate(v))
     assert(not s:isValid(v))
     print('fail (expected)...', pprint(v))
@@ -82,6 +85,8 @@ do
     ok(-1)
 
     fail('123')
+    fail(0.5)
+
     for _, value in pairs(values) do
         if type(value) ~= 'number' then
             fail(value)
@@ -109,6 +114,8 @@ do
     fail'haha'
     fail{}
     fail{x = 123}
+
+    assert(not s:eq({x = 'abc'}, {x = 'xyz'}))
 
     s = schema.Struct{x = schema.Type'string', y = schema.Type'number'}
 
@@ -233,6 +240,9 @@ do
     fail(123)
     fail'haha'
 
+    assert(not s:eq({1, 2}, {1, 2, 3}))
+    assert(not s:eq({1, 2}, {1, 77}))
+
     s = schema.Array(schema.Struct{x = schema.Type'number', y = schema.Type'number'})
 
     ok{}
@@ -268,10 +278,16 @@ do
     ok{"a", "b", "c"}
     ok{"a", "b", [77] = "c"}
     ok{"a", [3.14] = "b", [77] = "c"}
+    fail(nil)
+    fail(123)
+    fail'foo'
     fail{123}
     fail{"a", "b", "c", 123}
     fail{"a", "b", [77] = 123}
     fail{"a", "b", [3.14] = 123}
+
+    assert(not s:eq({"a"}, {"a", "b"}))
+    assert(not s:eq({"a", "b"}, {"a"}))
 
     s = schema.Map(schema.Struct{x = schema.Type'number', y = schema.Type'number'}, schema.Struct{a = schema.Type'string', b = schema.Type'boolean'})
 

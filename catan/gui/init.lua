@@ -685,8 +685,8 @@ function gui.renderers:board ()
         local boardImg = self.images.harbor.board
         local oy = boardImg:getHeight() / 2
         local RES_SIZE = 25 -- size of resource
-        local RES_OX = 30 -- x-offset of resource
-        local RES_OY = 15 -- y-offset of resource
+        local RES_OX = 35 -- x-offset of resource
+        local RES_OY = 23 -- y-offset of resource
 
         local visited = VertexMap:new()
 
@@ -705,14 +705,14 @@ function gui.renderers:board ()
                     local seaFace = self:getJoinedFaceWithoutHex(edge)
                     local x3, y3 = self:getFaceCenter(Grid:unpack(seaFace))
                     local shipImg = self:getShipImageFromHarbor(harbor)
-                    local shipSprite = layer:addSprite(shipImg, {x=x3, y=y3, center=true})
+                    local shipSprite = layer:addSprite(shipImg, {x=x3, y=y3, sx=0.8, center=true})
                     local shipX, shipY = shipSprite:getCoords()
                     local resImg = self.images.resource[harbor]
                     if resImg ~= nil then
                         local s = RES_SIZE / resImg:getHeight()
                         local x4 = shipX + RES_OX
                         local y4 = shipY + RES_OY
-                        layer:addSprite(resImg, {x=x4, y=y4, sx=s})
+                        layer:addSprite(resImg, {x=x4, y=y4, sx=s, center=true})
                     end
                 end
             end

@@ -113,10 +113,12 @@ function Box:fromUnion (...)
         bottomYs[i] = box:getBottomY()
     end
 
-    local leftX = TableUtils:fold(math.min, leftXs)
-    local rightX = TableUtils:fold(math.max, rightXs)
-    local topY = TableUtils:fold(math.min, topYs)
-    local bottomY = TableUtils:fold(math.max, bottomYs)
+    local inf = 1/0
+
+    local leftX = TableUtils:foldl(math.min, inf, leftXs)
+    local rightX = TableUtils:foldl(math.max, -inf, rightXs)
+    local topY = TableUtils:foldl(math.min, inf, topYs)
+    local bottomY = TableUtils:foldl(math.max, -inf, bottomYs)
 
     return self:new{
         x = leftX,

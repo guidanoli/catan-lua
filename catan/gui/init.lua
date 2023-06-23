@@ -33,9 +33,13 @@ gui.debug = os.getenv"DEBUG"
 
 -- GUI constants
 
+gui.LBAR_W = 100
+
 gui.SEA_W = 900
 gui.SEA_H = 700
 gui.BG_MARGIN = 10
+
+gui.RANK_W = 500
 
 gui.LAYER_NAMES = {
     "board",
@@ -237,7 +241,7 @@ end
 -- Callback triggered once at the beginning of the game.
 -- @see love2d@love.load
 function gui:load ()
-    love.window.setMode(1400, 1000)
+    love.window.setMode(self.LBAR_W + self.SEA_W + self.RANK_W, 1000)
     love.window.setTitle"Settlers of Catan"
     love.graphics.setBackgroundColor(love.math.colorFromBytes(17, 78, 232))
 
@@ -351,7 +355,7 @@ function gui:getHexSize ()
 end
 
 function gui:getFaceCenter (q, r)
-    local x0 = self.SEA_W / 2
+    local x0 = self.LBAR_W + self.SEA_W / 2
     local y0 = self.SEA_H / 2
     local hexsize = self:getHexSize()
     local sqrt3 = math.sqrt(3)
@@ -1020,9 +1024,9 @@ function gui.renderers:table ()
     local W, H = love.window.getMode()
     local YSEP = 20
 
-    local TABLE_X = self.SEA_W
+    local TABLE_X = self.LBAR_W + self.SEA_W
     local TABLE_Y = 0
-    local TABLE_W = W - self.SEA_W
+    local TABLE_W = W - self.LBAR_W - self.SEA_W
 
     local BOX_MARGIN = 10
 
@@ -1496,9 +1500,9 @@ function gui.renderers:buttons ()
 
     local W, H = love.window.getMode()
     local XMARGIN = 20
-    local YMARGIN = 300
+    local YMARGIN = XMARGIN
     local XSEP = 10
-    local NBUTTONS = 1
+    local YSEP = XSEP
 
     local canClick, canClickErr = self:canClickButtons()
 
@@ -1521,6 +1525,7 @@ function gui.renderers:buttons ()
 
         local cell = {
             chooseButtonImg(t.folder, active),
+            sx = 0.8,
             onleftclick = function ()
                 if canClick then
                     local ok, checkErr = t.check()
@@ -1541,7 +1546,6 @@ function gui.renderers:buttons ()
     do
         local t = {
             {
-                nil,
                 newCell{
 
                     folder = self.images.btn.road,
@@ -1552,6 +1556,8 @@ function gui.renderers:buttons ()
                         self:startBuildingRoadAction()
                     end,
                 },
+            },
+            {
                 newCell{
                     folder = self.images.btn.settlement,
                     check = function ()
@@ -1561,6 +1567,8 @@ function gui.renderers:buttons ()
                         self:startBuildingSettlementAction()
                     end,
                 },
+            },
+            {
                 newCell{
                     folder = self.images.btn.city,
                     check = function ()
@@ -1581,6 +1589,8 @@ function gui.renderers:buttons ()
                         self:startTrading()
                     end,
                 },
+            },
+            {
                 newCell{
                     folder = self.images.btn.devcard,
                     check = function ()
@@ -1590,6 +1600,8 @@ function gui.renderers:buttons ()
                         self:buyDevelopmentCard()
                     end,
                 },
+            },
+            {
                 newCell{
                     folder = self.images.btn.roll,
                     check = function ()
@@ -1599,6 +1611,8 @@ function gui.renderers:buttons ()
                         self:roll()
                     end,
                 },
+            },
+            {
                 newCell{
                     folder = self.images.btn.endturn,
                     check = function ()
@@ -1609,14 +1623,13 @@ function gui.renderers:buttons ()
                     end,
                 },
             },
-            n = 2,
-            m = 4,
-            x = W - XMARGIN,
-            y = H - YMARGIN,
-            xalign = "right",
-            yalign = "bottom",
+            x = XMARGIN,
+            y = YMARGIN,
             xsep = XSEP,
+            ysep = YSEP,
         }
+
+        t.n = #t
 
         layer:addSpriteTable(t)
     end

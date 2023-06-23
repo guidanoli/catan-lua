@@ -6,6 +6,22 @@ local function assertEq (ta, tb)
     assert(TableUtils:deepEqual(ta, tb))
 end
 
+local function iterationCount(...)
+    local n = 0
+    for _ in ... do
+        n = n + 1
+    end
+    return n
+end
+
+assert(iterationCount(ipairs{}) == 0)
+assert(iterationCount(ipairs{123}) == 1)
+assert(iterationCount(ipairs{123, 456}) == 2)
+
+local function assertNoIteration (...)
+    assert(iterationCount(...) == 0)
+end
+
 local MAX = 10000
 
 -- sum
@@ -323,13 +339,8 @@ end
 
 -- ipairsReversed
 
-for _ in TableUtils:ipairsReversed{} do
-    error()
-end
-
-for _ in TableUtils:ipairsReversed{a=123} do
-    error()
-end
+assertNoIteration(TableUtils:ipairsReversed{})
+assertNoIteration(TableUtils:ipairsReversed{a=123})
 
 do
     local iterationCount = 0

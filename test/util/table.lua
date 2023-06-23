@@ -148,6 +148,34 @@ for N = 0, 10 do
     end
 end
 
+-- histogram
+
+assert(TableUtils:deepEqual(TableUtils:histogram{}, {}))
+assert(TableUtils:deepEqual(TableUtils:histogram{a=123}, {}))
+assert(TableUtils:deepEqual(TableUtils:histogram{123}, {[123]=1}))
+assert(TableUtils:deepEqual(TableUtils:histogram{123, 123}, {[123]=2}))
+assert(TableUtils:deepEqual(TableUtils:histogram{123, 123, 456}, {[123]=2, [456]=1}))
+
+for N = 0, 20 do
+    local t = {}
+
+    for i = 1, N do
+        t[i] = math.random(10)
+    end
+
+    local h = TableUtils:histogram(t)
+
+    for v, n in pairs(h) do
+        local m = 0
+        for i, w in ipairs(t) do
+            if v == w then
+                m = m + 1
+            end
+        end
+        assert(m == n)
+    end
+end
+
 -- shuffleInPlace
 
 local function shuffle (t)

@@ -31,6 +31,31 @@ for N = 0, 10 do
     assert(TableUtils:sum(t) == sum + v)
 end
 
+-- filter
+
+local function iseven (v) return v % 2 == 0 end
+
+assert(TableUtils:deepEqual(TableUtils:filter({}, iseven), {}))
+assert(TableUtils:deepEqual(TableUtils:filter({a=123}, iseven), {}))
+assert(TableUtils:deepEqual(TableUtils:filter({5, 2, 7, 77, 66}, iseven), {2, 66}))
+
+for N = 0, 10 do
+    local t = {}
+    local expected = {}
+
+    for i = 1, N do
+        local x = math.random(10000)
+        if iseven(x) then
+            table.insert(expected, x)
+        end
+        t[i] = x
+    end
+
+    local obtained = TableUtils:filter(t, iseven)
+
+    assert(TableUtils:deepEqual(expected, obtained))
+end
+
 -- shuffleInPlace
 
 local function shuffle (t)

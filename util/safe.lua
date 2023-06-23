@@ -26,7 +26,11 @@ local function loc (f)
     local source = info.source:sub(2)
     local line = info.currentline
     local funcname = info.name
-    return ('%s:%d (function %s)'):format(source, line, funcname)
+    if funcname then
+        return ('%s:%d (function %s)'):format(source, line, funcname)
+    else
+        return ('%s:%d'):format(source, line)
+    end
 end
 
 setmetatable(_G, {

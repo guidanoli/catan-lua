@@ -107,6 +107,20 @@ local function randomPlayerResCards (game, player, n)
     return TableUtils:histogram(sampledCards)
 end
 
+local function randomPlayerResCardsForMaritimeTrade (game, player)
+    local mycards = {}
+    local tradeReturn = 0
+    local ratios, defaultRatio = game:getTradeRatios(player)
+    for kind, count in pairs(game.rescards[player]) do
+        local ratio = ratios[kind] or defaultRatio
+        local maxGroupCount = math.floor(count / ratio)
+        local groupCount = math.random(maxGroupCount + 1) - 1
+        mycards[kind] = groupCount * ratio
+        tradeReturn = tradeReturn + groupCount
+    end
+    return mycards, tradeReturn
+end
+
 local function randomPlayerResCardsToDiscard (game, player)
     local n = game:getNumberOfResourceCardsToDiscard(player)
     return randomPlayerResCards(game, player, n)
@@ -129,7 +143,9 @@ local function randomResCardsFromBank (game, n)
                     break
                 end
             end
-            if not added then
+            if added then
+                break -- go to next card
+            else
                 return -- Bank would be empty
             end
         end
@@ -284,10 +300,9 @@ end
 function actions.tradeWithHarbor (game)
     local ok, msg = game:canTradeWithHarbor()
     if ok then
-        local mycards = randomPlayerResCards(game, game.player)
-        local n, err = game:getMaritimeTradeReturn(mycards)
-        if not n then
-            return false, err
+        local mycards, n = randomPlayerResCardsForMaritimeTrade(game, game.player)
+        if n == 0 then
+            return false, "could not create mycards"
         end
         local theircards = randomResCardsFromBank(game, n)
         if theircards == nil then

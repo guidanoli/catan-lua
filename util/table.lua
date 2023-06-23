@@ -67,13 +67,24 @@ function TableUtils:shuffleInPlace (t)
     end
 end
 
+local function comp (a, b)
+    local ta = type(a)
+    local tb = type(b)
+
+    if ta == tb then
+        return a < b
+    else
+        return ta < tb
+    end
+end
+
 -- Returns a sorted array of keys in t
 function TableUtils:sortedKeys (t)
     local st = {}
     for k in pairs(t) do
         table.insert(st, k)
     end
-    table.sort(st)
+    table.sort(st, comp)
     return st
 end
 

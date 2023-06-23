@@ -46,7 +46,6 @@ This will generate a stats report. You may want an HTML page, so you can more ea
 make html-coverage-report
 ```
 
-Also, feel free to change value of `--ncalls` and `--ngames` in the `FUZZYOPT` variable in the `Makefile` if you wish to have a more thorough coverage on the `catan` module.
 You can also remove any output from the test coverage suite by running...
 
 ```

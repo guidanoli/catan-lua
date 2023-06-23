@@ -36,13 +36,18 @@ function TableUtils:sample (t)
     end
 end
 
-function TableUtils:uniqueSamples (t, n)
+function TableUtils:uniqueSamples (t, m)
     local samples = {}
+    local n = #t
+    assert(m <= n)
+    local indices = {}
     for i = 1, n do
-        local x, i = self:sample(t)
-        assert(x ~= nil, "no sample")
-        table.insert(samples, x)
-        table.remove(t, i)
+        indices[i] = i
+    end
+    for i = 1, m do
+        local j, k = self:sample(indices)
+        table.remove(indices, k)
+        samples[i] = rawget(t, j)
     end
     return samples
 end

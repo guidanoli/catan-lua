@@ -233,7 +233,7 @@ end
 
 -- sortedIter
 
-TableUtils:sortedIter({}, function() assert(false) end)
+TableUtils:sortedIter({}, function() error() end)
 
 do
     local called = false

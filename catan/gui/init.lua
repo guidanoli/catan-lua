@@ -1028,21 +1028,19 @@ function gui.renderers:table ()
     local TABLE_Y = 0
     local TABLE_W = W - self.LBAR_W - self.SEA_W
 
-    local BOX_MARGIN = 10
-
     local x = TABLE_X + TABLE_W / 2
     local y = YSEP
 
     -- Table (public info)
     do
-        local bounds = self:renderTable(layer, x, y)
-        y = bounds.y + bounds.h + YSEP
+        local box = self:renderTable(layer, x, y)
+        y = box:getBottomY() + YSEP
     end
 
     -- Dice
     if self.game.dice ~= nil then
-        local bounds = self:renderDice(layer, x, y)
-        y = bounds.y + bounds.h + YSEP
+        local box = self:renderDice(layer, x, y)
+        y = box:getBottomY() + YSEP
     end
 
     return layer

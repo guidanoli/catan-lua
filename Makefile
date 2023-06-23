@@ -1,4 +1,4 @@
-.PHONY: test test-utils test-catan luacov clean
+.PHONY: test test-utils test-catan luacov docs clean
 
 test-utils:
 	lua $(LUAOPT) test/util/safe.lua
@@ -17,6 +17,9 @@ luacov: LUAOPT=-lluacov
 luacov: FUZZYOPT=--ncalls 1000
 luacov: test
 	luacov util/ catan/
+
+docs:
+	ldoc .
 
 clean:
 	rm -f luacov.*

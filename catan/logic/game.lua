@@ -828,9 +828,26 @@ function Game:canTradeWithPlayer (otherplayer, mycards, theircards)
     return true
 end
 
+function Game:getTradeRatios (player)
+    local ratios = {}
+    local default = 4
+    self.harbormap:iter(function (q, r, v, kind)
+        local vertex = Grid:vertex(q, r, v)
+        local building = self.buildmap:get(vertex)
+        if building and building.player == player then
+            if kind == "generic" then
+                default = 3
+            else
+                ratios[kind] = 2
+            end
+        end
+    end)
+    return ratios, default
+end
+
 function Game:getMaritimeTradeReturn (mycards)
     local m = 0
-    local ratios, defaultRatio = self:_getTradeRatios(self.player)
+    local ratios, defaultRatio = self:getTradeRatios(self.player)
     for res, n in pairs(mycards) do
         local ratio = ratios[res] or defaultRatio
         if n % ratio == 0 then
@@ -1563,23 +1580,6 @@ function Game:_stealRandomResCardFrom (victim)
     assert(res ~= nil, "victim must have at least one card")
     self:_giveResourceToPlayer(victim, self.player, res, 1)
     return res
-end
-
-function Game:_getTradeRatios (player)
-    local ratios = {}
-    local default = 4
-    self.harbormap:iter(function (q, r, v, kind)
-        local vertex = Grid:vertex(q, r, v)
-        local building = self.buildmap:get(vertex)
-        if building and building.player == player then
-            if kind == "generic" then
-                default = 3
-            else
-                ratios[kind] = 2
-            end
-        end
-    end)
-    return ratios, default
 end
 
 function Game:_doesBankHaveResources (rescards)

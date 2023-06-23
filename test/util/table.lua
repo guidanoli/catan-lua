@@ -2,6 +2,31 @@ require "util.safe"
 
 local TableUtils = require "util.table"
 
+-- sum
+
+for N = 0, 10 do
+    local t = {}
+
+    local sum = 0
+
+    for i = 1, N do
+        -- We use integers because addition on
+        -- floating-point numbers is not associative
+        local x = math.random(10000)
+        sum = sum + x
+        t[i] = x
+    end
+    assert(TableUtils:sum(t) == sum)
+
+    TableUtils:shuffleInPlace(t)
+    assert(TableUtils:sum(t) == sum)
+
+    local k = 'key' .. math.random(10000)
+    local v = math.random(10000)
+    rawset(t, k, v)
+    assert(TableUtils:sum(t) == sum + v)
+end
+
 -- shuffleInPlace
 
 for N = 0, 10 do

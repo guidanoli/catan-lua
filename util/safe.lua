@@ -15,7 +15,7 @@ local warn = warn
 
 if warn == nil then
     warn = function (msg)
-        io.stderr:write(msg .. '\n')
+        io.stderr:write('Lua warning: ' .. msg .. '\n')
     end
 else
     warn'@on'

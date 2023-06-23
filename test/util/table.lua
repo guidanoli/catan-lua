@@ -251,20 +251,24 @@ end
 
 -- sortedIter
 
-TableUtils:sortedIter({}, function() error() end)
+TableUtils:sortedIter({}, error)
 
 do
     local called = false
+
     TableUtils:sortedIter({a=123}, function(k, v)
         assert(not called)
         assert(k == 'a')
         assert(v == 123)
         called = true
     end)
+
+    assert(called)
 end
 
 do
     local calledCount = 0
+
     TableUtils:sortedIter({777, a=123}, function(k, v)
         if calledCount == 0 then
             assert(k == 1)
@@ -274,8 +278,11 @@ do
             assert(k == 'a')
             assert(v == 123)
         end
+
         calledCount = calledCount + 1
     end)
+
+    assert(calledCount == 2)
 end
 
 for N = 1, 10 do

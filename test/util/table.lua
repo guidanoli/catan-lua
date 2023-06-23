@@ -371,6 +371,36 @@ for N = 1, 10 do
     assert(iterationCount == N)
 end
 
+-- foldl
+
+local function cons (v, acc)
+    return {v = v, acc = acc}
+end
+
+local z = {}
+
+assertEq(TableUtils:foldl(cons, z, {}), z)
+assertEq(TableUtils:foldl(cons, z, {123}), {v = 123, acc = z})
+assertEq(TableUtils:foldl(cons, z, {123, 456}), {v = 456, acc = {v = 123, acc = z}})
+
+for N = 1, 10 do
+    local t = {}
+
+    for i = 1, N do
+        t[i] = math.random(MAX)
+    end
+
+    local acc = TableUtils:foldl(cons, z, t)
+
+    while acc ~= z do
+        assert(type(acc) == 'table')
+        assert(acc.v == table.remove(t))
+        acc = acc.acc
+    end
+
+    assert(#t == 0)
+end
+
 -- shuffleInPlace
 
 local function shuffle (t)

@@ -175,10 +175,6 @@ local function green (s)
     return color(32, s)
 end
 
-local function cyan (s)
-    return color(36, s)
-end
-
 local function printSuccess (i, j, s)
     io.stderr:write(green(('SUCCESS (%d/%d): '):format(i, j)),  s, '\n')
 end

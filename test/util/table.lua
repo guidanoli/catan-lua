@@ -231,6 +231,96 @@ for N = 1, 10 do
     end
 end
 
+-- sortedIter
+
+TableUtils:sortedIter({}, function() assert(false) end)
+
+do
+    local called = false
+    TableUtils:sortedIter({a=123}, function(k, v)
+        assert(not called)
+        assert(k == 'a')
+        assert(v == 123)
+        called = true
+    end)
+end
+
+do
+    local calledCount = 0
+    TableUtils:sortedIter({777, a=123}, function(k, v)
+        if calledCount == 0 then
+            assert(k == 1)
+            assert(v == 777)
+        else
+            assert(calledCount == 1)
+            assert(k == 'a')
+            assert(v == 123)
+        end
+        calledCount = calledCount + 1
+    end)
+end
+
+for N = 1, 10 do
+    local t = {}
+
+    for i = 1, N do
+        t[i] = math.random(MAX)
+    end
+
+    for i = 1, N do
+        local k = 'key' .. i
+        t[k] = math.random(MAX)
+    end
+
+    local calledCount = 0
+
+    local visited = {}
+
+    local lastKey
+
+    TableUtils:sortedIter(t, function (k, v)
+        assert(k ~= nil)
+        assert(v ~= nil)
+        assert(not visited[k])
+        assert(t[k] == v)
+
+        if lastKey ~= nil then
+            if type(lastKey) == type(k) then
+                assert(lastKey < k)
+            else
+                assert(type(lastKey) < type(k))
+            end
+        end
+
+        visited[k] = true
+        calledCount = calledCount + 1
+
+        lastKey = k
+    end)
+
+    assert(TableUtils:numOfPairs(t) == calledCount)
+end
+
+-- numOfPairs
+
+assert(TableUtils:numOfPairs{} == 0)
+assert(TableUtils:numOfPairs{123} == 1)
+assert(TableUtils:numOfPairs{123, a=123} == 2)
+assert(TableUtils:numOfPairs{123, a=456} == 2)
+assert(TableUtils:numOfPairs{123, a=456, b=789} == 3)
+assert(TableUtils:numOfPairs{123, [3]=777, a=456, b=789} == 4)
+
+for N = 1, 10 do
+    local t = {}
+
+    for i = 1, N do
+        local k = 'key' .. i
+        t[k] = math.random(MAX)
+    end
+
+    assert(TableUtils:numOfPairs(t) == N)
+end
+
 -- shuffleInPlace
 
 local function shuffle (t)

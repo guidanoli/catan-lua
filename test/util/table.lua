@@ -12,6 +12,7 @@ assert(TableUtils:sum{a=123} == 123)
 
 for N = 0, 10 do
     local t = {}
+    local tcopy = {}
 
     local sum = 0
 
@@ -21,8 +22,10 @@ for N = 0, 10 do
         local x = math.random(MAX)
         sum = sum + x
         t[i] = x
+        tcopy[i] = x
     end
     assert(TableUtils:sum(t) == sum)
+    assert(TableUtils:deepEqual(t, tcopy))
 
     TableUtils:shuffleInPlace(t)
     assert(TableUtils:sum(t) == sum)
@@ -43,6 +46,7 @@ assert(TableUtils:deepEqual(TableUtils:filter({5, 2, 7, 77, 66}, iseven), {2, 66
 
 for N = 0, 10 do
     local t = {}
+    local tcopy = {}
     local expected = {}
 
     for i = 1, N do
@@ -51,9 +55,11 @@ for N = 0, 10 do
             table.insert(expected, x)
         end
         t[i] = x
+        tcopy[i] = x
     end
 
     local obtained = TableUtils:filter(t, iseven)
+    assert(TableUtils:deepEqual(t, tcopy))
 
     assert(TableUtils:deepEqual(expected, obtained))
 end
@@ -68,15 +74,18 @@ assert(TableUtils:deepEqual(TableUtils:map({123, a=7777}, double), {246}))
 
 for N = 0, 10 do
     local t = {}
+    local tcopy = {}
     local expected = {}
 
     for i = 1, N do
         local x = math.random(MAX)
         t[i] = x
+        tcopy[i] = x
         expected[i] = double(x)
     end
 
     local obtained = TableUtils:map(t, double)
+    assert(TableUtils:deepEqual(t, tcopy))
 
     assert(TableUtils:deepEqual(expected, obtained))
 end
@@ -89,14 +98,53 @@ assert(TableUtils:sample{123} == 123)
 
 for N = 1, 10 do
     local t = {}
+    local tcopy = {}
 
     for i = 1, N do
-        t[i] = math.random(MAX)
+        local x = math.random(MAX)
+        t[i] = x
+        tcopy[i] = x
     end
 
     for M = 1, N do
         local x, i = TableUtils:sample(t)
+        assert(TableUtils:deepEqual(t, tcopy))
         assert(x ~= nil and t[i] == x)
+    end
+end
+
+-- uniqueSamples
+
+assert(TableUtils:deepEqual(TableUtils:uniqueSamples({}, 0), {}))
+assert(TableUtils:deepEqual(TableUtils:uniqueSamples({a=123}, 0), {}))
+assert(TableUtils:deepEqual(TableUtils:uniqueSamples({123, a=123}, 1), {123}))
+
+for N = 0, 10 do
+    local t = {}
+    local tcopy = {}
+
+    for i = 1, N do
+        local x = math.random(20)
+        t[i] = x
+        tcopy[i] = x
+    end
+
+    for M = 0, N do
+        local samples = TableUtils:uniqueSamples(t, M)
+        assert(TableUtils:deepEqual(t, tcopy))
+        assert(#samples == M)
+        local used = {}
+        for i = 1, M do
+            local found = false
+            for j = 1, N do
+                if samples[i] == t[j] and not used[j] then
+                    found = true
+                    used[j] = true
+                    break
+                end
+            end
+            assert(found)
+        end
     end
 end
 
@@ -132,7 +180,9 @@ end
 
 do
     local function ok(f)
-        assert(TableUtils:deepEqual(f(), f()))
+        local ta = f()
+        local tb = f()
+        assert(TableUtils:deepEqual(ta, tb))
     end
 
     ok(function () return {} end)

@@ -58,6 +58,48 @@ for N = 0, 10 do
     assert(TableUtils:deepEqual(expected, obtained))
 end
 
+-- map
+
+local function double (v) return 2 * v end
+
+assert(TableUtils:deepEqual(TableUtils:map({}, double), {}))
+assert(TableUtils:deepEqual(TableUtils:map({123}, double), {246}))
+assert(TableUtils:deepEqual(TableUtils:map({123, a=7777}, double), {246}))
+
+for N = 0, 10 do
+    local t = {}
+    local expected = {}
+
+    for i = 1, N do
+        local x = math.random(MAX)
+        t[i] = x
+        expected[i] = double(x)
+    end
+
+    local obtained = TableUtils:map(t, double)
+
+    assert(TableUtils:deepEqual(expected, obtained))
+end
+
+-- sample
+
+assert(TableUtils:sample{} == nil)
+assert(TableUtils:sample{a=123} == nil)
+assert(TableUtils:sample{123} == 123)
+
+for N = 1, 10 do
+    local t = {}
+
+    for i = 1, N do
+        t[i] = math.random(MAX)
+    end
+
+    for M = 1, N do
+        local x, i = TableUtils:sample(t)
+        assert(x ~= nil and t[i] == x)
+    end
+end
+
 -- shuffleInPlace
 
 local function shuffle (t)

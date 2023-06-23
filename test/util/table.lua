@@ -2,6 +2,8 @@ require "util.safe"
 
 local TableUtils = require "util.table"
 
+-- shuffleInPlace
+
 for N = 0, 10 do
     local t1 = {}
     local t2 = {}
@@ -18,6 +20,8 @@ for N = 0, 10 do
         assert(t1[i] == t2[i])
     end
 end
+
+-- deepEqual
 
 do
     local function ok(t)

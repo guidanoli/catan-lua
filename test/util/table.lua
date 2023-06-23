@@ -176,6 +176,57 @@ for N = 1, 20 do
     end
 end
 
+-- sortedKeys
+
+assert(TableUtils:deepEqual(TableUtils:sortedKeys{}, {}))
+assert(TableUtils:deepEqual(TableUtils:sortedKeys{44, 1, -24}, {1, 2, 3}))
+assert(TableUtils:deepEqual(TableUtils:sortedKeys{b=34, c=10, a=42}, {'a', 'b', 'c'}))
+assert(TableUtils:deepEqual(TableUtils:sortedKeys{77, 44, b=34, a=42}, {1, 2, 'a', 'b'}))
+
+for N = 1, 10 do
+    local t = {}
+
+    -- add number-indexed entries
+    for i = 1, N do
+        t[i] = math.random(10)
+    end
+
+    -- add string-indexed entries
+    for i = 1, N do
+        local k = 'key' .. math.random(10)
+        t[k] = math.random(10)
+    end
+
+    local keys = TableUtils:sortedKeys(t)
+
+    -- check that every key in keys exists in t
+    for i, k in ipairs(keys) do
+        assert(t[k] ~= nil)
+    end
+
+    -- check that every key in t exists in keys
+    for k1 in pairs(t) do
+        local found = false
+        for i, k2 in ipairs(keys) do
+            if k1 == k2 then
+                assert(not found)
+                found = true
+            end
+        end
+        assert(found)
+    end
+
+    -- check that keys is ordered
+    for i = 1, #keys - 1 do
+        local a, b = keys[i], keys[i+1]
+        if type(a) == type(b) then
+            assert(a < b)
+        else
+            assert(type(a) < type(b))
+        end
+    end
+end
+
 -- shuffleInPlace
 
 local function shuffle (t)

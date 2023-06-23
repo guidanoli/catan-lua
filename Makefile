@@ -9,12 +9,12 @@ test-utils:
 
 test-catan:
 	lua $(LUAOPT) test/catan/logic/game.lua
-	lua $(LUAOPT) test/catan/logic/fuzzy.lua -v $(FUZZYOPT)
+	lua test/catan/logic/fuzzy.lua -v --ngames 10 --validate
+	lua -lluacov test/catan/logic/fuzzy.lua -v
 
 test: test-utils test-catan
 
 test-coverage: LUAOPT=-lluacov
-test-coverage: FUZZYOPT=--ncalls 1000
 test-coverage: test
 
 html-coverage-report:

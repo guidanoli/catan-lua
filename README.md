@@ -10,12 +10,13 @@ For users:
 For developers:
 
 * [Lua] 5.4
+* [GNU Make] 4.3
 * [LDoc] 1.5.0-1
 * [argparse] 0.7.1-1
 * [LuaCov] 0.15.0-1
 * [LuaCov-HTML] 1.0.0-1
 
-If you have [LuaRocks] on your machine, you can run the following command.
+If you have [LuaRocks] on your machine, you can install the Lua modules with the following command.
 
 ```sh
 luarocks install serpent 0.30-2
@@ -23,6 +24,28 @@ luarocks install ldoc 1.5.0-1
 luarocks install argparse 0.7.1-1
 luarocks install luacov 0.15.0-1
 luarocks install luacov-html 1.0.0-1
+```
+
+## Tests
+
+The tests reside in the `test/` folder, and can be run with the following command. Make sure you have all the developer dependencies installed!
+
+```
+make test
+```
+
+If you want to check the test coverage, you may want to run the following command.
+
+```
+make luacov
+```
+
+This will create an HTML page on the `luacov-html/` directory, so you can more easily inspect the coverage report.
+Feel free to change value of `--ncalls` and `--ngames` in the `FUZZYOPT` in the `Makefile` if you wish to have a more thorough coverage on the `catan` module.
+You can also remove any output from the test coverage suite by running...
+
+```
+make clean
 ```
 
 ## Documentation
@@ -59,3 +82,4 @@ This should load the configurations from the `config.ld` file. You can tinker wi
 [argparse]: https://luarocks.org/modules/argparse/argparse
 [LuaCov]: https://luarocks.org/modules/hisham/luacov
 [LuaCov-HTML]: https://luarocks.org/modules/wesen1/luacov-html
+[GNU Make]: https://www.gnu.org/software/make/

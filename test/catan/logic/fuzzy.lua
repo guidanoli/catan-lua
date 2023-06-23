@@ -393,6 +393,7 @@ local function run (i, args, report)
             end
             report.successes = (report.successes or 0) + 1
         else
+            msg = actionKey .. '(...) - ' .. msg
             if args.v >= 2 then
                 printFailure(i, j, msg)
             end

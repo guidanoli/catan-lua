@@ -24,17 +24,6 @@ function grid:unpack (x)
     return x.q, x.r, x.v or x.e
 end
 
-function grid:neighbors (q, r)
-    return {
-        self:face(q, r+1),
-        self:face(q+1, r),
-        self:face(q+1, r-1),
-        self:face(q, r-1),
-        self:face(q-1, r),
-        self:face(q-1, r+1),
-    }
-end
-
 function grid:borders (q, r)
     return {
         self:edge(q, r, 'NE'),

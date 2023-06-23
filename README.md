@@ -41,7 +41,7 @@ make luacov
 ```
 
 This will create an HTML page on the `luacov-html/` directory, so you can more easily inspect the coverage report.
-Feel free to change value of `--ncalls` and `--ngames` in the `FUZZYOPT` in the `Makefile` if you wish to have a more thorough coverage on the `catan` module.
+Feel free to change value of `--ncalls` and `--ngames` in the `FUZZYOPT` variable in the `Makefile` if you wish to have a more thorough coverage on the `catan` module.
 You can also remove any output from the test coverage suite by running...
 
 ```

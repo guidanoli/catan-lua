@@ -1652,7 +1652,7 @@ end
 gui.DEAL_COMMANDS = {
     b = 'brick',
     l = 'lumber',
-    o = 'ore',
+    r = 'ore',
     g = 'grain',
     w = 'wool',
 }

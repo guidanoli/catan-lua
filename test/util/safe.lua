@@ -1,3 +1,7 @@
+if os.getenv "EMULATE_LUA_51" then
+    warn = nil
+end
+
 require 'util.safe'
 
 -- global read (miss)

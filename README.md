@@ -56,10 +56,10 @@ You can see the latest version of the documentation [here](https://guidanoli.git
 
 ### Local
 
-Please make sure you have [LDoc] installed on your machine. Then, run the following command on the root of this repository:
+Please make sure you have [LDoc] installed on your machine. Then, run the following command:
 
 ```sh
-ldoc .
+make docs
 ```
 
 This should load the configurations from the `config.ld` file. You can tinker with the configuration however you like.

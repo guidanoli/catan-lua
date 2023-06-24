@@ -158,6 +158,49 @@ function gui:updateDisplayedInventory ()
     self.displayedInventory = assert(self:getDisplayedInventory())
 end
 
+function gui:updateGridActions ()
+    self.actions = {}
+
+    if self.actions.face == nil then
+        if self.game:canMoveRobber() then
+            self.actions.face = {
+                filter = function (face)
+                    return self.game:canMoveRobber(face)
+                end,
+                onleftclick = function (face)
+                    self:moveRobber(face)
+                end,
+            }
+        end
+    end
+
+    if self.actions.vertex == nil then
+        if self.game:canPlaceInitialSettlement() then
+            self.actions.vertex = {
+                filter = function (vertex)
+                    return self.game:canPlaceInitialSettlement(vertex)
+                end,
+                onleftclick = function (vertex)
+                    self:placeInitialSettlement(vertex)
+                end,
+            }
+        end
+    end
+
+    if self.actions.edge == nil then
+        if self.game:canPlaceInitialRoad() then
+            self.actions.edge = {
+                filter = function (edge)
+                    return self.game:canPlaceInitialRoad(edge)
+                end,
+                onleftclick = function (edge)
+                    self:placeInitialRoad(edge)
+                end,
+            }
+        end
+    end
+end
+
 function gui:escape ()
     self.actions = {}
 
@@ -259,8 +302,6 @@ function gui:load ()
     self.layersPendingUpdate = {}
 
     self.clickableSprites = {}
-
-    self.actions = {}
 
     self:refresh()
 end
@@ -502,6 +543,7 @@ function gui:refresh ()
     self:clearTradeReplies()
     self:clearCardSelection()
     self:updateDisplayedInventory()
+    self:updateGridActions()
     self:requestAllLayersUpdate()
     self:requestClickableSpriteCacheUpdate()
     self:requestValidation()
@@ -523,11 +565,16 @@ function gui:placeInitialSettlement (vertex)
 
     self:printProduction(production)
 
+    self.actions.vertex = nil
+
     self:refresh()
 end
 
 function gui:placeInitialRoad (edge)
     self.game:placeInitialRoad(edge)
+
+    self.actions.edge = nil
+
     self:refresh()
 end
 
@@ -575,6 +622,8 @@ function gui:moveRobber (face)
     if victim and res then
         self:printRobbery(victim, res)
     end
+
+    self.actions.face = nil
 
     self:refresh()
 end
@@ -735,19 +784,6 @@ function gui.renderers:board ()
     do
         local faceAction = self.actions.face
 
-        if faceAction == nil then
-            if self.game:canMoveRobber() then
-                faceAction = {
-                    filter = function (face)
-                        return self.game:canMoveRobber(face)
-                    end,
-                    onleftclick = function (face)
-                        self:moveRobber(face)
-                    end,
-                }
-            end
-        end
-
         if faceAction ~= nil then
             local img = self.images.selection
             self.game.hexmap:iter(function (q, r)
@@ -770,19 +806,6 @@ function gui.renderers:board ()
     -- Vertex action
     do
         local vertexAction = self.actions.vertex
-
-        if vertexAction == nil then
-            if self.game:canPlaceInitialSettlement() then
-                vertexAction = {
-                    filter = function (vertex)
-                        return self.game:canPlaceInitialSettlement(vertex)
-                    end,
-                    onleftclick = function (vertex)
-                        self:placeInitialSettlement(vertex)
-                    end,
-                }
-            end
-        end
 
         if vertexAction ~= nil then
             local hexCorners = self:getHexCorners()
@@ -808,19 +831,6 @@ function gui.renderers:board ()
     -- Edge action
     do
         local edgeAction = self.actions.edge
-
-        if edgeAction == nil then
-            if self.game:canPlaceInitialRoad() then
-                edgeAction = {
-                    filter = function (edge)
-                        return self.game:canPlaceInitialRoad(edge)
-                    end,
-                    onleftclick = function (edge)
-                        self:placeInitialRoad(edge)
-                    end,
-                }
-            end
-        end
 
         if edgeAction ~= nil then
             local hexBorders = self:getHexBorders()

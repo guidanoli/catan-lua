@@ -169,6 +169,7 @@ function gui:updateGridActions ()
                 onleftclick = function (face)
                     self:moveRobber(face)
                 end,
+                message = 'robber movement',
             }
         end
     end
@@ -182,6 +183,7 @@ function gui:updateGridActions ()
                 onleftclick = function (vertex)
                     self:placeInitialSettlement(vertex)
                 end,
+                message = 'settlement placement',
             }
         end
     end
@@ -195,6 +197,7 @@ function gui:updateGridActions ()
                 onleftclick = function (edge)
                     self:placeInitialRoad(edge)
                 end,
+                message = 'road placement',
             }
         end
     end
@@ -649,6 +652,7 @@ function gui:startBuildingRoadAction ()
         onleftclick = function (edge)
             self:buildRoad(edge)
         end,
+        message = 'road construction',
     }
 
     self:refresh()
@@ -670,6 +674,7 @@ function gui:startBuildingSettlementAction ()
         onleftclick = function (vertex)
             self:buildSettlement(vertex)
         end,
+        message = 'settlement construction',
     }
 
     self:refresh()
@@ -691,6 +696,7 @@ function gui:startBuildingCityAction ()
         onleftclick = function (vertex)
             self:buildCity(vertex)
         end,
+        message = 'settlement upgrade',
     }
 
     self:refresh()
@@ -1027,6 +1033,32 @@ function gui:renderDice (layer, x, y)
     return layer:addSpriteTable(t)
 end
 
+function gui:getMessage ()
+    for _, action in pairs(self.actions) do
+        local msg = action.message
+        if msg ~= nil then
+            return msg
+        end
+    end
+    local tradeStatus = self.tradeStatus
+    if tradeStatus == 'settingUp' then
+        return 'trading'
+    end
+end
+
+function gui:renderMessage (layer, x, y)
+    local message = self:getMessage()
+    if message ~= nil then
+        local text = self:newText(self.WHITE, 'Action: ' .. message)
+        local sprite = layer:addSprite(text, {
+            x = x,
+            y = y,
+            xalign = 'center',
+        })
+        return Box:fromSprite(sprite)
+    end
+end
+
 function gui.renderers:table ()
     local layer = Layer:new()
 
@@ -1044,6 +1076,14 @@ function gui.renderers:table ()
     do
         local box = self:renderTable(layer, x, y)
         y = box:getBottomY() + YSEP
+    end
+
+    -- Message
+    do
+        local box = self:renderMessage(layer, x, y)
+        if box ~= nil then
+            y = box:getBottomY() + YSEP
+        end
     end
 
     -- Dice

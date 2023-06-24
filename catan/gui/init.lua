@@ -53,7 +53,6 @@ gui.WHITE = {1, 1, 1}
 gui.RED = {0.8, 0, 0}
 gui.GREEN = {0, 0.5, 0}
 
-
 function gui:ccwdeg2cwrad (a)
     return - math.pi * a / 180.
 end

@@ -157,54 +157,88 @@ function gui:updateDisplayedInventory ()
     self.displayedInventory = assert(self:getDisplayedInventory())
 end
 
-function gui:updateGridActions ()
-    self.actions = {}
-
-    if self.actions.face == nil then
-        if self.game:canMoveRobber() then
-            self.actions.face = {
-                filter = function (face)
-                    return self.game:canMoveRobber(face)
-                end,
-                onleftclick = function (face)
-                    self:moveRobber(face)
-                end,
-                message = 'robber movement',
-            }
-        end
-    end
-
-    if self.actions.vertex == nil then
-        if self.game:canPlaceInitialSettlement() then
-            self.actions.vertex = {
-                filter = function (vertex)
-                    return self.game:canPlaceInitialSettlement(vertex)
-                end,
-                onleftclick = function (vertex)
-                    self:placeInitialSettlement(vertex)
-                end,
-                message = 'settlement placement',
-            }
-        end
-    end
-
-    if self.actions.edge == nil then
-        if self.game:canPlaceInitialRoad() then
-            self.actions.edge = {
-                filter = function (edge)
-                    return self.game:canPlaceInitialRoad(edge)
-                end,
-                onleftclick = function (edge)
-                    self:placeInitialRoad(edge)
-                end,
-                message = 'road placement',
-            }
-        end
+function gui:getFaceAction ()
+    if self.game:canMoveRobber() then
+        return {
+            filter = function (face)
+                return self.game:canMoveRobber(face)
+            end,
+            onleftclick = function (face)
+                self:moveRobber(face)
+            end,
+            message = 'robber movement',
+        }
     end
 end
 
+function gui:getVertexAction ()
+    if self.game:canPlaceInitialSettlement() then
+        return {
+            filter = function (vertex)
+                return self.game:canPlaceInitialSettlement(vertex)
+            end,
+            onleftclick = function (vertex)
+                self:placeInitialSettlement(vertex)
+            end,
+            message = 'settlement placement',
+        }
+    elseif self.volatile.buildingSettlement then
+        return {
+            filter = function (vertex)
+                return self.game:canBuildSettlement(vertex)
+            end,
+            onleftclick = function (vertex)
+                self:buildSettlement(vertex)
+            end,
+            message = 'settlement construction',
+        }
+    elseif self.volatile.buildingCity then
+        return {
+            filter = function (vertex)
+                return self.game:canBuildCity(vertex)
+            end,
+            onleftclick = function (vertex)
+                self:buildCity(vertex)
+            end,
+            message = 'settlement upgrade',
+        }
+    end
+end
+
+function gui:getEdgeAction ()
+    if self.game:canPlaceInitialRoad() then
+        return {
+            filter = function (edge)
+                return self.game:canPlaceInitialRoad(edge)
+            end,
+            onleftclick = function (edge)
+                self:placeInitialRoad(edge)
+            end,
+            message = 'road placement',
+        }
+    elseif self.volatile.buildingRoad then
+        return {
+            filter = function (edge)
+                return self.game:canBuildRoad(edge)
+            end,
+            onleftclick = function (edge)
+                self:buildRoad(edge)
+            end,
+            message = 'road construction',
+        }
+    end
+end
+
+function gui:updateGridActions ()
+    self.actions = {
+        face = self:getFaceAction(),
+        vertex = self:getVertexAction(),
+        edge = self:getEdgeAction(),
+    }
+end
+
 function gui:escape ()
-    self.actions = {}
+    self.volatile = {}
 
     if self.tradeStatus == nil or self.tradeStatus == "settingUp" then
         self:refresh()
@@ -304,6 +338,8 @@ function gui:load ()
     self.layersPendingUpdate = {}
 
     self.clickableSprites = {}
+
+    self.volatile = {}
 
     self:refresh()
 end
@@ -564,19 +600,12 @@ end
 
 function gui:placeInitialSettlement (vertex)
     local production = self.game:placeInitialSettlement(vertex)
-
     self:printProduction(production)
-
-    self.actions.vertex = nil
-
     self:refresh()
 end
 
 function gui:placeInitialRoad (edge)
     self.game:placeInitialRoad(edge)
-
-    self.actions.edge = nil
-
     self:refresh()
 end
 
@@ -620,13 +649,9 @@ end
 
 function gui:moveRobber (face)
     local victim, res = self.game:moveRobber(face)
-
     if victim and res then
         self:printRobbery(victim, res)
     end
-
-    self.actions.face = nil
-
     self:refresh()
 end
 
@@ -645,68 +670,35 @@ function gui:discard (player, rescards)
 end
 
 function gui:startBuildingRoadAction ()
-    self.actions.edge = {
-        filter = function (edge)
-            return self.game:canBuildRoad(edge)
-        end,
-        onleftclick = function (edge)
-            self:buildRoad(edge)
-        end,
-        message = 'road construction',
-    }
-
+    self.volatile.buildingRoad = true
     self:refresh()
 end
 
 function gui:buildRoad (edge)
     self.game:buildRoad(edge)
-
-    self.actions.edge = nil
-
+    self.volatile.buildingRoad = nil
     self:refresh()
 end
 
 function gui:startBuildingSettlementAction ()
-    self.actions.vertex = {
-        filter = function (vertex)
-            return self.game:canBuildSettlement(vertex)
-        end,
-        onleftclick = function (vertex)
-            self:buildSettlement(vertex)
-        end,
-        message = 'settlement construction',
-    }
-
+    self.volatile.buildingSettlement = true
     self:refresh()
 end
 
 function gui:buildSettlement (vertex)
     self.game:buildSettlement(vertex)
-
-    self.actions.vertex = nil
-
+    self.volatile.buildingSettlement = nil
     self:refresh()
 end
 
 function gui:startBuildingCityAction ()
-    self.actions.vertex = {
-        filter = function (vertex)
-            return self.game:canBuildCity(vertex)
-        end,
-        onleftclick = function (vertex)
-            self:buildCity(vertex)
-        end,
-        message = 'settlement upgrade',
-    }
-
+    self.volatile.buildingCity = true
     self:refresh()
 end
 
 function gui:buildCity (vertex)
     self.game:buildCity(vertex)
-
-    self.actions.vertex = nil
-
+    self.volatile.buildingCity = nil
     self:refresh()
 end
 

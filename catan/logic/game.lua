@@ -168,7 +168,6 @@ function Game:validate ()
 
     self:_validateRound()
     self:_validateDice()
-    self:_validateHasBuilt()
     self:_validateBuildMap()
     self:_validateRoadMap()
     self:_validateRobber()
@@ -202,10 +201,6 @@ function Game:_validateDice ()
     end
 
     assert(LogicUtils:implies(self.phase == "discarding", sum == 7))
-end
-
-function Game:_validateHasBuilt ()
-    assert(LogicUtils:implies(self.hasbuilt, self.dice ~= nil))
 end
 
 function Game:_validateBuildMap ()

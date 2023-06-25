@@ -8,7 +8,7 @@ local m = {}
 
 local Int = s.Integer()
 
-m.VERSION = SemanticVersion:new(1)
+m.VERSION = SemanticVersion:new(2)
 
 m.Phase = s.Enum{
     'placingInitialSettlement',
@@ -160,6 +160,7 @@ m.GameState = s.Struct{
     player = m.Player,
     devcards = PlayerMap(s.Array(m.DevelopmentCard)),
     rescards = PlayerMap(m.ResourceCardHistogram),
+    roadcredit = PlayerMap(Int),
     longestroad = s.Option(m.Player),
     largestarmy = s.Option(m.Player),
     lastdiscard = PlayerMap(Int),

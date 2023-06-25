@@ -52,6 +52,7 @@ function Game:_init (players)
     self:_placeRobberInDesert()
     self:_createDevelopmentCards()
     self:_createResourceCards()
+    self.roadcredit = {}
     self.lastdiscard = {}
     self:_createDrawPile()
     self:_createBank()
@@ -906,62 +907,57 @@ end
 
 Game.ROAD_COST = {lumber=1, brick=1}
 
-function Game:canBuildRoadInEdge (edge)
-    local ok, err = CatanSchema.Edge:isValid(edge)
-    if not ok then
-        return false, err
-    end
-    if self.roadmap:get(edge) ~= nil then
-        return false, "edge already occupied by road"
-    end
-    local isNextToPlayerBuilding = false
-    local isNextToUnblockedPlayerRoad = false
-    for _, endpoint in ipairs(Grid:endpoints(Grid:unpack(edge))) do
-        local building = self.buildmap:get(endpoint)
-        if building == nil then
-            -- If vertex is free, check if there is road ahead
-            for _, protrudingEdge in ipairs(Grid:protrudingEdges(Grid:unpack(endpoint))) do
-                if self.roadmap:get(protrudingEdge) == self.player then
-                    isNextToUnblockedPlayerRoad = true
-                end
-            end
-        else
-            -- If vertex is occupied, check the builder
-            if building.player == self.player then
-                isNextToPlayerBuilding = true
-            end
-        end
-    end
-    if not (isNextToPlayerBuilding or isNextToUnblockedPlayerRoad) then
-        return false, "edge not next to player building or unblocked road"
-    end
-    return true
-end
-
 function Game:canBuildRoad (edge)
     local ok, err = self:_isPhase"playingTurns"
     if not ok then
         return false, err
     end
-    local ok, err = self:_wereDiceRolled(true)
-    if not ok then
-        return false, err
-    end
-    local ok, err = self:_hasEnoughRoads(1)
-    if not ok then
-        return false, err
-    end
-    local ok, err = self:_canGiveResources(self.player, self.ROAD_COST)
-    if not ok then
-        return false, err
-    end
-    if edge ~= nil then
-        local ok, err = self:canBuildRoadInEdge(edge)
+    local usingCredit = self:_hasEnoughRoadCredit()
+    if not usingCredit then
+        local ok, err = self:_wereDiceRolled(true)
+        if not ok then
+            return false, err
+        end
+        local ok, err = self:_canGiveResources(self.player, self.ROAD_COST)
         if not ok then
             return false, err
         end
     end
-    return true
+    local ok, err = self:_hasEnoughRoads()
+    if not ok then
+        return false, err
+    end
+    if edge ~= nil then
+        local ok, err = CatanSchema.Edge:isValid(edge)
+        if not ok then
+            return false, err
+        end
+        if self.roadmap:get(edge) ~= nil then
+            return false, "edge already occupied by road"
+        end
+        local isNextToPlayerBuilding = false
+        local isNextToUnblockedPlayerRoad = false
+        for _, endpoint in ipairs(Grid:endpoints(Grid:unpack(edge))) do
+            local building = self.buildmap:get(endpoint)
+            if building == nil then
+                -- If vertex is free, check if there is road ahead
+                for _, protrudingEdge in ipairs(Grid:protrudingEdges(Grid:unpack(endpoint))) do
+                    if self.roadmap:get(protrudingEdge) == self.player then
+                        isNextToUnblockedPlayerRoad = true
+                    end
+                end
+            else
+                -- If vertex is occupied, check the builder
+                if building.player == self.player then
+                    isNextToPlayerBuilding = true
+                end
+            end
+        end
+        if not (isNextToPlayerBuilding or isNextToUnblockedPlayerRoad) then
+            return false, "edge not next to player building or unblocked road"
+        end
+    end
+    return true, usingCredit
 end
 
 Game.SETTLEMENT_COST = {lumber=1, brick=1, wool=1, grain=1}
@@ -1100,29 +1096,7 @@ function Game:canPlayKnightCard ()
 end
 
 function Game:canPlayRoadBuildingCard (edges)
-    local card, err = self:getPlayableCardOfKind "roadbuilding"
-    if not card then
-        return false, err
-    end
-    if edges ~= nil then
-        if type(edges) ~= "table" then
-            return false, "edges is not a table"
-        end
-        if #edges > 2 then
-            return false, "can only build up to 2 roads"
-        end
-        local ok, err = self:_hasEnoughRoads(#edges)
-        if not ok then
-            return false, err
-        end
-        for _, edge in ipairs(edges) do
-            local ok, err = self:canBuildRoadInEdge(edge)
-            if not ok then
-                return false, err
-            end
-        end
-    end
-    return card
+    return self:getPlayableCardOfKind "roadbuilding"
 end
 
 function Game:canEndTurn ()
@@ -1314,9 +1288,13 @@ function Game:tradeWithHarbor (mycards, theircards)
 end
 
 function Game:buildRoad (edge)
-    assert(self:canBuildRoad(edge))
+    local _, usingCredit = assert(self:canBuildRoad(edge))
 
-    self:_giveResourcesToBank(self.player, self.ROAD_COST)
+    if usingCredit then
+        self:_addToRoadCredit(self.player, -1)
+    else
+        self:_giveResourcesToBank(self.player, self.ROAD_COST)
+    end
 
     self.roadmap:set(edge, self.player)
 
@@ -1378,16 +1356,12 @@ function Game:playKnightCard ()
     self:_updateLargestArmyHolder()
 end
 
-function Game:playRoadBuilding (edges)
-    local devcard = assert(self:canPlayRoadBuildingCard(edges))
+function Game:playRoadBuildingCard ()
+    local devcard = assert(self:canPlayRoadBuildingCard())
 
     self:_markCardAsPlayed(devcard)
 
-    for _, edge in ipairs(edges) do
-        self.roadmap:set(edge, self.player)
-    end
-
-    self:_updateLongestRoadHolder()
+    self:_addToRoadCredit(self.player, 2)
 end
 
 function Game:endTurn ()
@@ -1399,6 +1373,7 @@ function Game:endTurn ()
         self.round = self.round + 1
     end
 
+    self.roadcredit[self.player] = nil
     self.player = self:_getPlayerAfterIndex(i)
     self.dice = nil
     self.hasbuilt = false
@@ -1572,7 +1547,7 @@ function Game:_wereDiceRolled (expectedRolled)
     end
 end
 
-function Game:_hasEnoughRoads (qnty)
+function Game:_hasEnoughRoads ()
     local n = 0
     self.roadmap:iter(function (q, r, e, player)
         if player == self.player then
@@ -1580,10 +1555,22 @@ function Game:_hasEnoughRoads (qnty)
         end
     end)
     assert(n <= CatanConstants.roads)
-    if n + qnty > CatanConstants.roads then
+    if n == CatanConstants.roads then
         return false, "player doesn't have enough roads"
     end
     return true
+end
+
+function Game:_addToRoadCredit (player, n)
+    local credit = self.roadcredit[player] or 0
+    local newCredit = credit + n
+    assert(newCredit >= 0)
+    self.roadcredit[player] = newCredit
+end
+
+function Game:_hasEnoughRoadCredit ()
+    local credit = self.roadcredit[self.player] or 0
+    return credit >= 1
 end
 
 function Game:_hasEnoughSettlements ()

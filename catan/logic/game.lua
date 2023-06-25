@@ -1326,7 +1326,7 @@ end
 function Game:playKnightCard ()
     local devcard = assert(self:canPlayKnightCard())
 
-    devcard.roundPlayed = self.round
+    self:_markCardAsPlayed(devcard)
 
     self.phase = "movingRobber"
     self:_updateLargestArmyHolder()
@@ -1349,6 +1349,11 @@ end
 --------------------------------
 -- Auxiliary functions
 --------------------------------
+
+function Game:_markCardAsPlayed (devcard)
+    assert(devcard.roundPlayed == nil)
+    devcard.roundPlayed = self.round
+end
 
 function Game:_getLongestRoadWithEdge (player, edge)
     local visitedEdges = EdgeMap:new()

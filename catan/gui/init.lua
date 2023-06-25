@@ -1106,6 +1106,9 @@ end
 function gui:playCardOfKind (kind)
     if kind == "knight" then
         self.game:playKnightCard()
+    elseif kind == "roadbuilding" then
+        self.game:playRoadBuildingCard()
+        self.volatile.buildingRoad = true
     end
     self:refresh()
 end

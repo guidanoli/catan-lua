@@ -387,6 +387,15 @@ function actions.playKnightCard (game)
     return ok, msg
 end
 
+function actions.playRoadBuildingCard (game)
+    local ok, msg = game:canPlayRoadBuildingCard()
+    if ok then
+        game:playRoadBuildingCard()
+        msg = 'playRoadBuildingCard()'
+    end
+    return ok, msg
+end
+
 local function run (i, args, report)
     local game = Game:new()
 

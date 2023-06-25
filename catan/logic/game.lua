@@ -1075,7 +1075,7 @@ function Game:getPlayableCardOfKind (kind)
     return nil, "player doesn't have such development card"
 end
 
-function Game:getPlayableKnightCard ()
+function Game:canPlayKnightCard ()
     return self:getPlayableCardOfKind "knight"
 end
 
@@ -1324,7 +1324,7 @@ function Game:buyDevelopmentCard ()
 end
 
 function Game:playKnightCard ()
-    local devcard = assert(self:getPlayableCardOfKind"knight")
+    local devcard = assert(self:canPlayKnightCard())
 
     devcard.roundPlayed = self.round
 

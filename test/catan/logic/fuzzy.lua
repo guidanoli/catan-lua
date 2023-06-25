@@ -379,7 +379,7 @@ function actions.buyDevelopmentCard (game)
 end
 
 function actions.playKnightCard (game)
-    local ok, msg = game:getPlayableKnightCard()
+    local ok, msg = game:canPlayKnightCard()
     if ok then
         game:playKnightCard()
         msg = 'playKnightCard()'

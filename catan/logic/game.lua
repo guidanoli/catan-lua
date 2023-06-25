@@ -894,6 +894,38 @@ end
 
 Game.ROAD_COST = {lumber=1, brick=1}
 
+function Game:canBuildRoadInEdge (edge)
+    local ok, err = CatanSchema.EdgePair:isValid(edges)
+    if not ok then
+        return false, err
+    end
+    if self.roadmap:get(edge) ~= nil then
+        return false, "edge already occupied by road"
+    end
+    local isNextToPlayerBuilding = false
+    local isNextToUnblockedPlayerRoad = false
+    for _, endpoint in ipairs(Grid:endpoints(Grid:unpack(edge))) do
+        local building = self.buildmap:get(endpoint)
+        if building == nil then
+            -- If vertex is free, check if there is road ahead
+            for _, protrudingEdge in ipairs(Grid:protrudingEdges(Grid:unpack(endpoint))) do
+                if self.roadmap:get(protrudingEdge) == self.player then
+                    isNextToUnblockedPlayerRoad = true
+                end
+            end
+        else
+            -- If vertex is occupied, check the builder
+            if building.player == self.player then
+                isNextToPlayerBuilding = true
+            end
+        end
+    end
+    if not (isNextToPlayerBuilding or isNextToUnblockedPlayerRoad) then
+        return false, "edge not next to player building or unblocked road"
+    end
+    return true
+end
+
 function Game:canBuildRoad (edge)
     local ok, err = self:_isPhase"playingTurns"
     if not ok then
@@ -912,33 +944,9 @@ function Game:canBuildRoad (edge)
         return false, err
     end
     if edge ~= nil then
-        local valid, err = CatanSchema.Edge:isValid(edge)
-        if not valid then
+        local ok, err = self:canBuildRoadInEdge(edge)
+        if not ok then
             return false, err
-        end
-        if self.roadmap:get(edge) ~= nil then
-            return false, "edge already occupied by road"
-        end
-        local isNextToPlayerBuilding = false
-        local isNextToUnblockedPlayerRoad = false
-        for _, endpoint in ipairs(Grid:endpoints(Grid:unpack(edge))) do
-            local building = self.buildmap:get(endpoint)
-            if building == nil then
-                -- If vertex is free, check if there is road ahead
-                for _, protrudingEdge in ipairs(Grid:protrudingEdges(Grid:unpack(endpoint))) do
-                    if self.roadmap:get(protrudingEdge) == self.player then
-                        isNextToUnblockedPlayerRoad = true
-                    end
-                end
-            else
-                -- If vertex is occupied, check the builder
-                if building.player == self.player then
-                    isNextToPlayerBuilding = true
-                end
-            end
-        end
-        if not (isNextToPlayerBuilding or isNextToUnblockedPlayerRoad) then
-            return false, "edge not next to player building or unblocked road"
         end
     end
     return true

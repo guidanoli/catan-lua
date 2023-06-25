@@ -895,7 +895,7 @@ end
 Game.ROAD_COST = {lumber=1, brick=1}
 
 function Game:canBuildRoadInEdge (edge)
-    local ok, err = CatanSchema.EdgePair:isValid(edges)
+    local ok, err = CatanSchema.Edge:isValid(edge)
     if not ok then
         return false, err
     end

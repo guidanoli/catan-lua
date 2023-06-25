@@ -1087,6 +1087,32 @@ function Game:canPlayKnightCard ()
     return self:getPlayableCardOfKind "knight"
 end
 
+function Game:canPlayRoadBuildingCard (edges)
+    local card, err = self:getPlayableCardOfKind "roadbuilding"
+    if not card then
+        return false, err
+    end
+    if edges ~= nil then
+        if type(edges) ~= "table" then
+            return false, "edges is not a table"
+        end
+        if #edges > 2 then
+            return false, "can only build up to 2 roads"
+        end
+        local ok, err = self:_hasEnoughRoads(#edges)
+        if not ok then
+            return false, err
+        end
+        for _, edge in ipairs(edges) do
+            local ok, err = self:canBuildRoadInEdge(edge)
+            if not ok then
+                return false, err
+            end
+        end
+    end
+    return card
+end
+
 function Game:canEndTurn ()
     local ok, err = self:_isPhase"playingTurns"
     if not ok then
@@ -1338,6 +1364,18 @@ function Game:playKnightCard ()
 
     self.phase = "movingRobber"
     self:_updateLargestArmyHolder()
+end
+
+function Game:playRoadBuilding (edges)
+    local devcard = assert(self:canPlayRoadBuildingCard(edges))
+
+    self:_markCardAsPlayed(devcard)
+
+    for _, edge in ipairs(edges) do
+        self.roadmap:set(edge, self.player)
+    end
+
+    self:_updateLongestRoadHolder()
 end
 
 function Game:endTurn ()

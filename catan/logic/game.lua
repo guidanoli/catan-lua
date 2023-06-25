@@ -903,7 +903,7 @@ function Game:canBuildRoad (edge)
     if not ok then
         return false, err
     end
-    local ok, err = self:_hasEnoughRoads()
+    local ok, err = self:_hasEnoughRoads(1)
     if not ok then
         return false, err
     end
@@ -1509,7 +1509,7 @@ function Game:_wereDiceRolled (expectedRolled)
     end
 end
 
-function Game:_hasEnoughRoads ()
+function Game:_hasEnoughRoads (qnty)
     local n = 0
     self.roadmap:iter(function (q, r, e, player)
         if player == self.player then
@@ -1517,8 +1517,8 @@ function Game:_hasEnoughRoads ()
         end
     end)
     assert(n <= CatanConstants.roads)
-    if n == CatanConstants.roads then
-        return false, "player has used all roads"
+    if n + qnty > CatanConstants.roads then
+        return false, "player doesn't have enough roads"
     end
     return true
 end

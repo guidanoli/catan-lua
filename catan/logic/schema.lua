@@ -1,10 +1,14 @@
 -- Catan schemas
 
+local SemanticVersion = require "util.semver"
+
 local s = require "util.schema"
 
 local m = {}
 
 local Int = s.Integer()
+
+m.VERSION = SemanticVersion:new(1)
 
 m.Phase = s.Enum{
     'placingInitialSettlement',
@@ -129,7 +133,14 @@ local function PlayerMap (t)
     return s.Map(m.Player, t)
 end
 
+m.SemanticVersion = s.Struct{
+    major = Int,
+    minor = Int,
+    patch = Int,
+}
+
 m.GameState = s.Struct{
+    version = m.SemanticVersion,
     -- common (dynamic)
     phase = m.Phase,
     round = Int,

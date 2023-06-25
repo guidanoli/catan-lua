@@ -3,6 +3,7 @@ local serpent = require "serpent"
 local Class = require "util.class"
 local TableUtils = require "util.table"
 local LogicUtils = require "util.logic"
+local SemanticVersion = require "util.semver"
 
 local CatanSchema = require "catan.logic.schema"
 local CatanConstants = require "catan.logic.constants"
@@ -38,6 +39,7 @@ end
 --------------------------------
 
 function Game:_init (players)
+    self.version = CatanSchema.VERSION
     self.phase = 'placingInitialSettlement'
     self.round = 1
     self.hasbuilt = false
@@ -475,6 +477,16 @@ function Game:deserialize (str)
     local ok, ret = pcall(f)
     if not ok then
         return false, ret or 'chunk execution failed'
+    end
+
+    -- Check version
+    local valid, err = CatanSchema.SemanticVersion:isValid(ret.version)
+    if not valid then
+        return false, 'unversioned schema'
+    end
+    SemanticVersion:__new(ret.version)
+    if not CatanSchema.VERSION:compatibleWith(ret.version) then
+        return false, 'incompatible schema version'
     end
 
     -- Set metatables

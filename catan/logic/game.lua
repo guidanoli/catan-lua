@@ -1090,8 +1090,12 @@ function Game:canPlayKnightCard ()
     return self:getPlayableCardOfKind "knight"
 end
 
-function Game:canPlayRoadBuildingCard (edges)
+function Game:canPlayRoadBuildingCard ()
     return self:getPlayableCardOfKind "roadbuilding"
+end
+
+function Game:canPlayYearOfPlentyCard ()
+    return self:getPlayableCardOfKind "yearofplenty"
 end
 
 function Game:canEndTurn ()

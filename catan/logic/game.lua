@@ -1133,6 +1133,7 @@ end
 --------------------------------
 
 function Game:placeInitialSettlement (vertex)
+    assert(vertex, "missing vertex")
     assert(self:canPlaceInitialSettlement(vertex))
 
     self.buildmap:set(vertex, {
@@ -1162,6 +1163,7 @@ function Game:placeInitialSettlement (vertex)
 end
 
 function Game:placeInitialRoad (edge)
+    assert(edge, "missing edge")
     assert(self:canPlaceInitialRoad(edge))
 
     self.roadmap:set(edge, self.player)
@@ -1190,6 +1192,7 @@ function Game:placeInitialRoad (edge)
 end
 
 function Game:roll (dice)
+    assert(dice, "missing dice")
     assert(self:canRoll(dice))
 
     local diceSum = 0
@@ -1241,6 +1244,8 @@ function Game:roll (dice)
 end
 
 function Game:discard (player, rescards)
+    assert(player, "missing player")
+    assert(rescards, "missing rescards")
     assert(self:canDiscard(player, rescards))
 
     for res, discardCount in pairs(rescards) do
@@ -1255,6 +1260,7 @@ function Game:discard (player, rescards)
 end
 
 function Game:moveRobber (face)
+    assert(face, "missing face")
     assert(self:canMoveRobber(face))
 
     self.robber = face
@@ -1281,6 +1287,7 @@ function Game:moveRobber (face)
 end
 
 function Game:chooseVictim (player)
+    assert(player, "missing player")
     assert(self:canChooseVictim(player))
 
     local res = self:_stealRandomResCardFrom(player)
@@ -1291,6 +1298,9 @@ function Game:chooseVictim (player)
 end
 
 function Game:tradeWithPlayer (otherplayer, mycards, theircards)
+    assert(otherplayer, "missing otherplayer")
+    assert(mycards, "missing mycards")
+    assert(theircards, "missing theircards")
     assert(self:canTradeWithPlayer(otherplayer, mycards, theircards))
 
     self:_giveResourcesToPlayer(self.player, otherplayer, mycards)
@@ -1298,6 +1308,8 @@ function Game:tradeWithPlayer (otherplayer, mycards, theircards)
 end
 
 function Game:tradeWithHarbor (mycards, theircards)
+    assert(mycards, "missing mycards")
+    assert(theircards, "missing theircards")
     assert(self:canTradeWithHarbor(mycards, theircards))
 
     self:_giveResourcesToBank(self.player, mycards)
@@ -1305,6 +1317,7 @@ function Game:tradeWithHarbor (mycards, theircards)
 end
 
 function Game:buildRoad (edge)
+    assert(edge, "missing edge")
     local _, usingCredit = assert(self:canBuildRoad(edge))
 
     if usingCredit then
@@ -1320,6 +1333,7 @@ function Game:buildRoad (edge)
 end
 
 function Game:buildSettlement (vertex)
+    assert(vertex, "missing vertex")
     assert(self:canBuildSettlement(vertex))
 
     self:_giveResourcesToBank(self.player, self.SETTLEMENT_COST)
@@ -1334,6 +1348,7 @@ function Game:buildSettlement (vertex)
 end
 
 function Game:buildCity (vertex)
+    assert(vertex, "missing vertex")
     assert(self:canBuildCity(vertex))
 
     self:_giveResourcesToBank(self.player, self.CITY_COST)
@@ -1382,6 +1397,7 @@ function Game:playRoadBuildingCard ()
 end
 
 function Game:playYearOfPlentyCard (rescards)
+    assert(rescards, "missing rescards")
     local devcard = assert(self:canPlayYearOfPlentyCard(rescards))
 
     self:_markCardAsPlayed(devcard)

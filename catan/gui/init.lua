@@ -116,7 +116,7 @@ function gui:getDisplayedInventory ()
                     player = player,
                     canSelectMyCards = true,
                     canPlayCards = false,
-                    arrowColor = "red",
+                    tableArrowColor = "red",
                     createSelectionText = function ()
                         return self:getDiscardSelectionText()
                     end,
@@ -134,7 +134,7 @@ function gui:getDisplayedInventory ()
                 showTheirCards = true,
                 canPlayCards = false,
                 tradeAction = "choosingPartner",
-                arrowColor = "yellow",
+                tableArrowColor = "yellow",
             }
         else
             return {
@@ -144,7 +144,7 @@ function gui:getDisplayedInventory ()
                 showTheirCards = true,
                 canPlayCards = false,
                 tradeAction = "replying",
-                arrowColor = "green",
+                tableArrowColor = "green",
             }
         end
     end
@@ -156,7 +156,7 @@ function gui:getDisplayedInventory ()
         showTheirCards = isTrading,
         canPlayCards = true,
         tradeAction = "settingUp",
-        arrowColor = "yellow",
+        tableArrowColor = "yellow",
     }
 end
 
@@ -953,8 +953,8 @@ function gui:renderTable (layer, x, y)
 
     local function getIconForPlayer (player)
         if player == self.displayedInventory.player then
-            local arrowColor = self.displayedInventory.arrowColor
-            local arrowImg = assert(self.images.arrow[arrowColor], "arrow sprite missing")
+            local tableArrowColor = self.displayedInventory.tableArrowColor
+            local arrowImg = assert(self.images.arrow[tableArrowColor], "arrow sprite missing")
             return {arrowImg, sx=0.3}
         end
 

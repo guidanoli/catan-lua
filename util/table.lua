@@ -172,4 +172,15 @@ function TableUtils:deepEqual (ta, tb)
     return equalrec(ta, tb)
 end
 
+function TableUtils:reverse (t)
+    local reversed = {}
+    local n = #t
+    for i, v in ipairs(t) do
+        local j = n - i + 1
+        reversed[j] = v
+    end
+    assert(#reversed == n)
+    return reversed
+end
+
 return TableUtils

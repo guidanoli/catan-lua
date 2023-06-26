@@ -1221,32 +1221,30 @@ function gui.renderers:inventory ()
         local tableRightX = sequenceBox:getRightX()
         local tableTopY = sequenceBox:getTopY()
 
-        if showcount then
-            local cardCountCircleSprite = layer:addSprite(
-                self.images.cardcount,
-                {
-                    x = tableRightX,
-                    y = tableTopY,
-                    center = true,
-                    sx = CARD_COUNT_SX,
-                }
-            )
+        local cardCountCircleSprite = layer:addSprite(
+            self.images.cardcount,
+            {
+                x = tableRightX,
+                y = tableTopY,
+                center = true,
+                sx = CARD_COUNT_SX,
+            }
+        )
 
-            local cardCountTextSprite = layer:addSprite(
-                self:newText(self.BLACK, count),
-                {
-                    x = tableRightX,
-                    y = tableTopY,
-                    center = true,
-                }
-            )
+        local cardCountTextSprite = layer:addSprite(
+            self:newText(self.BLACK, count),
+            {
+                x = tableRightX,
+                y = tableTopY,
+                center = true,
+            }
+        )
 
-            sequenceBox = Box:fromUnion(
-                sequenceBox,
-                Box:fromSprite(cardCountCircleSprite),
-                Box:fromSprite(cardCountTextSprite)
-            )
-        end
+        sequenceBox = Box:fromUnion(
+            sequenceBox,
+            Box:fromSprite(cardCountCircleSprite),
+            Box:fromSprite(cardCountTextSprite)
+        )
 
         return sequenceBox
     end

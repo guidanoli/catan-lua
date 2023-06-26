@@ -186,6 +186,24 @@ function gui:getDisplayedInventory ()
             okButton = okButton,
         }
     end
+    if self.volatile.playingMonopolyCard then
+        local okButton
+        if self:canPlayMonopolyCard() then
+            okButton = function ()
+                self:playMonopolyCard()
+            end
+        end
+        return {
+            player = self.game.player,
+            canSelectMyCards = false,
+            canSelectTheirCards = true,
+            showTheirCards = true,
+            canPlayCards = false,
+            tableArrowColor = "yellow",
+            inventoryArrow = "left",
+            okButton = okButton,
+        }
+    end
     return {
         player = self.game.player,
         canSelectMyCards = self.game:canTrade(),
@@ -775,6 +793,30 @@ function gui:playYearOfPlentyCard ()
     self:refresh()
 end
 
+function gui:getSingleResFrom (rescards)
+    local n = TableUtils:sum(rescards)
+    if n == 1 then
+        for res, n in pairs(rescards) do
+            if n == 1 then
+                return res
+            end
+        end
+    end
+    return nil
+end
+
+function gui:canPlayMonopolyCard ()
+    local res = self:getSingleResFrom(self.theirCards)
+    return res ~= nil and self.game:canPlayMonopolyCard(res)
+end
+
+function gui:playMonopolyCard ()
+    local res = self:getSingleResFrom(self.theirCards)
+    self.game:playMonopolyCard(res)
+    self.volatile.playingMonopolyCard = nil
+    self:refresh()
+end
+
 gui.renderers = {}
 
 function gui.renderers:board ()
@@ -1164,6 +1206,8 @@ function gui:playCardOfKind (kind)
         self.volatile.buildingRoad = true
     elseif kind == "yearofplenty" then
         self.volatile.playingYearOfPlentyCard = true
+    elseif kind == "monopoly" then
+        self.volatile.playingMonopolyCard = true
     end
     self:refresh()
 end

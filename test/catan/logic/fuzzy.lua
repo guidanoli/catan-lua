@@ -396,6 +396,19 @@ function actions.playRoadBuildingCard (game)
     return ok, msg
 end
 
+function actions.playYearOfPlentyCard (game)
+    local ok, msg = game:canPlayYearOfPlentyCard()
+    if ok then
+        local rescards = randomResCardsFromBank(game, 2)
+        if rescards == nil then
+            return false, "could not create rescards"
+        end
+        game:playYearOfPlentyCard(rescards)
+        msg = ('playYearOfPlentyCard(%s)'):format(fmtrescards(rescards))
+    end
+    return ok, msg
+end
+
 local function run (i, args, report)
     local game = Game:new()
 

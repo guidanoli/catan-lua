@@ -168,7 +168,7 @@ function gui:getDisplayedInventory ()
             end,
         }
     end
-    if self.volatile.playingYearOfPlenty then
+    if self.volatile.playingYearOfPlentyCard then
         local okButton
         if self:canPlayYearOfPlentyCard() then
             okButton = function ()
@@ -771,7 +771,7 @@ end
 
 function gui:playYearOfPlentyCard ()
     self.game:playYearOfPlentyCard(self.theirCards)
-    self.volatile.playingYearOfPlenty = nil
+    self.volatile.playingYearOfPlentyCard = nil
     self:refresh()
 end
 
@@ -1163,7 +1163,7 @@ function gui:playCardOfKind (kind)
         self.game:playRoadBuildingCard()
         self.volatile.buildingRoad = true
     elseif kind == "yearofplenty" then
-        self.volatile.playingYearOfPlenty = true
+        self.volatile.playingYearOfPlentyCard = true
     end
     self:refresh()
 end

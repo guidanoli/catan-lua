@@ -1187,6 +1187,7 @@ function gui.renderers:inventory ()
     local function addCardSequence (opt)
         local x = opt.x
         local y = opt.y
+        local xalign = opt.xalign
         local img = opt.img
         local count = opt.count
         local onleftclick = opt.onleftclick
@@ -1211,6 +1212,7 @@ function gui.renderers:inventory ()
             x = x,
             y = y,
             xsep = - CARD_W * 3 / 4,
+            xalign = xalign,
             yalign = 'bottom',
         }
 

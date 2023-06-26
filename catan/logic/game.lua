@@ -1094,8 +1094,26 @@ function Game:canPlayRoadBuildingCard ()
     return self:getPlayableCardOfKind "roadbuilding"
 end
 
-function Game:canPlayYearOfPlentyCard ()
-    return self:getPlayableCardOfKind "yearofplenty"
+function Game:canPlayYearOfPlentyCard (rescards)
+    local devcard, err = self:getPlayableCardOfKind "yearofplenty"
+    if not devcard then
+        return false, err
+    end
+    if rescards ~= nil then
+        local valid, err = CatanSchema.ResourceCardHistogram:isValid(rescards)
+        if not valid then
+            return false, err
+        end
+        local numCards = TableUtils:sum(rescards)
+        if numCards > 2 then
+            return false, "cannot claim more than 2 resource cards"
+        end
+        local ok, err = self:_doesBankHaveResources(rescards)
+        if not ok then
+            return false, err
+        end
+    end
+    return devcard
 end
 
 function Game:canEndTurn ()
@@ -1361,6 +1379,14 @@ function Game:playRoadBuildingCard ()
     self:_markCardAsPlayed(devcard)
 
     self:_addToRoadCredit(self.player, 2)
+end
+
+function Game:playYearOfPlentyCard (rescards)
+    local devcard = assert(self:canPlayYearOfPlentyCard(rescards))
+
+    self:_markCardAsPlayed(devcard)
+
+    self:_giveResourcesFromBank(self.player, rescards)
 end
 
 function Game:endTurn ()

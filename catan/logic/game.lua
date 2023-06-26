@@ -1119,6 +1119,20 @@ function Game:canPlayYearOfPlentyCard (rescards)
     return devcard
 end
 
+function Game:canPlayMonopolyCard (res)
+    local devcard, err = self:getPlayableCardOfKind "monopoly"
+    if not devcard then
+        return false, err
+    end
+    if res ~= nil then
+        local valid, err = CatanSchema.ResourceCard:isValid(res)
+        if not valid then
+            return false, err
+        end
+    end
+    return devcard
+end
+
 function Game:canEndTurn ()
     local ok, err = self:_isPhase"playingTurns"
     if not ok then
@@ -1406,6 +1420,20 @@ function Game:playYearOfPlentyCard (rescards)
     self:_markCardAsPlayed(devcard)
 
     self:_giveResourcesFromBank(self.player, rescards)
+end
+
+function Game:playMonopolyCard (res)
+    assert(res, "missing res")
+    local devcard = assert(self:canPlayMonopolyCard(res))
+
+    self:_markCardAsPlayed(devcard)
+
+    for _, player in ipairs(self.players) do
+        if player ~= self.player then
+            local n = self.rescards[player][res] or 0
+            self:_giveResourceToPlayer(player, self.player, res, n)
+        end
+    end
 end
 
 function Game:endTurn ()

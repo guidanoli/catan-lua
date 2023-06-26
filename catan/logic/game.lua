@@ -1073,6 +1073,9 @@ function Game:getPlayableCardOfKind (kind)
     if not ok then
         return nil, err
     end
+    if kind == "victorypoint" then
+        return false, "cannot play this kind of card"
+    end
     for _, devcard in ipairs(self.devcards[self.player]) do
         if devcard.roundPlayed == self.round then
             return nil, "a development card was already played in this turn"

@@ -126,6 +126,11 @@ local function randomPlayerResCardsToDiscard (game, player)
     return randomPlayerResCards(game, player, n)
 end
 
+local function randomResource (game)
+    local resources = TableUtils:sortedKeys(game.bank)
+    return TableUtils:sample(resources)
+end
+
 local function randomResCardsFromBank (game, n)
     local rescards = {}
     local resources = TableUtils:sortedKeys(game.bank)
@@ -405,6 +410,16 @@ function actions.playYearOfPlentyCard (game)
         end
         game:playYearOfPlentyCard(rescards)
         msg = ('playYearOfPlentyCard(%s)'):format(fmtrescards(rescards))
+    end
+    return ok, msg
+end
+
+function actions.playMonopolyCard (game)
+    local ok, msg = game:canPlayMonopolyCard()
+    if ok then
+        local res = randomResource(game)
+        game:playMonopolyCard(res)
+        msg = ('playMonopolyCard(%s)'):format(res)
     end
     return ok, msg
 end

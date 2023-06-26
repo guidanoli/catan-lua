@@ -1463,35 +1463,33 @@ function gui.renderers:inventory ()
     end
 
     if showTheirCards then
+
+        local x0 = W - XMARGIN
+
         -- Buttons to add cards on the right side
         if canSelectTheirCards then
-            local x = x0
-            local y = y0
 
-            local RESOURCES = {
-                'brick',
-                'grain',
-                'lumber',
-                'ore',
-                'wool',
-            }
+            local line = {}
 
-            for _, res in ipairs(RESOURCES) do
+            for _, res in ipairs(TableUtils:sortedKeys(self.game.bank)) do
                 local img = self:getResCardImage(res)
-
-                local sprite = layer:addSprite(img, {
-                    x = x,
-                    y = y,
-                    yalign = "bottom",
+                table.insert(line, {
+                    img,
                     onleftclick = function ()
                         self:addToCards(self.theirCards, res, 1)
                     end,
                 })
-
-                local box = Box:fromSprite(sprite)
-
-                x = box:getRightX() + XSEP
             end
+
+            layer:addSpriteTable{
+                line,
+                m = #line,
+                x = x0,
+                y = y0,
+                xalign = 'right',
+                yalign = 'bottom',
+                xsep = XSEP,
+            }
         end
 
         -- Selected resource cards from the right side
@@ -1499,7 +1497,8 @@ function gui.renderers:inventory ()
             local x = x0
             local y = y0 - CARD_H - YSEP
 
-            TableUtils:sortedIter(self.theirCards, function (res, selectedCount)
+            for _, res in ipairs(TableUtils:reverse(TableUtils:sortedKeys(self.theirCards))) do
+                local selectedCount = assert(self.theirCards[res])
                 local img = self:getResCardImage(res)
 
                 local onleftclick
@@ -1512,15 +1511,16 @@ function gui.renderers:inventory ()
                 local sequenceBox = addCardSequence{
                     x = x,
                     y = y,
+                    xalign = 'right',
                     img = img,
                     count = selectedCount,
                     onleftclick = onleftclick,
                 }
 
                 if sequenceBox then
-                    x = sequenceBox:getRightX() + XSEP
+                    x = sequenceBox:getLeftX() - XSEP
                 end
-            end)
+            end
         end
     end
 

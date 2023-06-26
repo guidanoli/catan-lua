@@ -133,7 +133,6 @@ function gui:getDisplayedInventory ()
                 canSelectTheirCards = false,
                 showTheirCards = true,
                 canPlayCards = false,
-                tradeAction = "choosingPartner",
                 tableArrowColor = "yellow",
                 inventoryArrow = "right",
             }
@@ -144,7 +143,6 @@ function gui:getDisplayedInventory ()
                 canSelectTheirCards = false,
                 showTheirCards = true,
                 canPlayCards = false,
-                tradeAction = "replying",
                 tableArrowColor = "green",
                 inventoryArrow = "right",
                 acceptButton = function ()
@@ -163,7 +161,6 @@ function gui:getDisplayedInventory ()
             canSelectTheirCards = true,
             showTheirCards = true,
             canPlayCards = false,
-            tradeAction = "settingUp",
             tableArrowColor = "yellow",
             inventoryArrow = "right",
             okButton = function ()
@@ -1281,7 +1278,6 @@ function gui.renderers:inventory ()
     local okButton = inv.okButton
     local acceptButton = inv.acceptButton
     local rejectButton = inv.rejectButton
-    local tradeAction = inv.tradeAction
     local inventoryArrow = inv.inventoryArrow
 
     -- Inventory

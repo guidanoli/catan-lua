@@ -476,3 +476,27 @@ do
     fail({foo={}}, {bar={}})
     fail({{'foo'}}, {{'bar'}})
 end
+
+-- reverse
+
+assertEq(TableUtils:reverse{}, {})
+assertEq(TableUtils:reverse{a=123}, {})
+assertEq(TableUtils:reverse{123}, {123})
+assertEq(TableUtils:reverse{123, b=555}, {123})
+assertEq(TableUtils:reverse{123, 456}, {456, 123})
+assertEq(TableUtils:reverse{123, 456, 789}, {789, 456, 123})
+
+for N = 1, 10 do
+    local t = {}
+
+    for i = 1, N do
+        t[i] = math.random(MAX)
+    end
+
+    local r = TableUtils:reverse(t)
+    assert(#r == N)
+
+    for i = 1, N do
+        assert(t[i] == r[N - i + 1])
+    end
+end

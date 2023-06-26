@@ -135,6 +135,7 @@ function gui:getDisplayedInventory ()
                 canPlayCards = false,
                 tradeAction = "choosingPartner",
                 tableArrowColor = "yellow",
+                inventoryArrow = "right",
             }
         else
             return {
@@ -145,17 +146,37 @@ function gui:getDisplayedInventory ()
                 canPlayCards = false,
                 tradeAction = "replying",
                 tableArrowColor = "green",
+                inventoryArrow = "right",
+                acceptButton = function ()
+                    self:replyToTradeProposal'accepted'
+                end,
+                rejectButton = function ()
+                    self:replyToTradeProposal'rejected'
+                end,
             }
         end
     end
-    local isTrading = self.tradeStatus ~= nil
+    if self.tradeStatus ~= nil then
+        return {
+            player = self.game.player,
+            canSelectMyCards = true,
+            canSelectTheirCards = true,
+            showTheirCards = true,
+            canPlayCards = false,
+            tradeAction = "settingUp",
+            tableArrowColor = "yellow",
+            inventoryArrow = "right",
+            okButton = function ()
+                self:proposeTrade()
+            end,
+        }
+    end
     return {
         player = self.game.player,
         canSelectMyCards = self.game:canTrade(),
-        canSelectTheirCards = isTrading,
-        showTheirCards = isTrading,
+        canSelectTheirCards = false,
+        showTheirCards = false,
         canPlayCards = true,
-        tradeAction = "settingUp",
         tableArrowColor = "yellow",
     }
 end
@@ -1257,7 +1278,11 @@ function gui.renderers:inventory ()
     local showTheirCards = inv.showTheirCards
     local canPlayCards = inv.canPlayCards
     local createSelectionText = inv.createSelectionText
+    local okButton = inv.okButton
+    local acceptButton = inv.acceptButton
+    local rejectButton = inv.rejectButton
     local tradeAction = inv.tradeAction
+    local inventoryArrow = inv.inventoryArrow
 
     -- Inventory
     do
@@ -1389,71 +1414,66 @@ function gui.renderers:inventory ()
         end
     end
 
-    -- Trading-related sprites
-    if self.tradeStatus ~= nil then
+    if inventoryArrow ~= nil then
+        local x = W / 2
+        local y = y0 - (3 / 2) * CARD_H - YSEP
 
-        -- Left-to-right arrow
-        do
-            local x = W / 2
-            local y = y0 - (3 / 2) * CARD_H - YSEP
+        local img = self.images.rightarrow
 
-            local img = self.images.rightarrow
+        local r
+        if inventoryArrow == "left" then
+            r = self:ccwdeg2cwrad(180)
+        end
 
-            local sprite = layer:addSprite(img, {
-                x = x,
-                y = y,
-                sx = 0.3,
-                center = true,
+        local sprite = layer:addSprite(img, {
+            x = x,
+            y = y,
+            sx = 0.3,
+            r = r,
+            center = true,
+        })
+    end
+
+    -- Buttons over arrow
+    do
+        local x = W / 2
+        local y = y0 - 2 * CARD_H - YSEP
+
+        local line = {}
+
+        if okButton then
+            table.insert(line, {
+                self.images.btn.ok,
+                sx = 0.5,
+                onleftclick = okButton,
             })
         end
 
-        -- Trade action
-        do
-            local x = W / 2
-            local y = y0 - 2 * CARD_H - YSEP
-
-            if tradeAction == "settingUp" then
-                if self:canProposeTrade() then
-                    layer:addSprite(self.images.btn.ok, {
-                        x = x,
-                        y = y,
-                        sx = 0.5,
-                        xalign = 'center',
-                        yalign = 'bottom',
-                        onleftclick = function ()
-                            self:proposeTrade()
-                        end,
-                    })
-                end
-            elseif tradeAction == "replying" then
-                layer:addSpriteTable{
-                    {
-                        {
-                            self.images.accept,
-                            sx = 0.5,
-                            onleftclick = function ()
-                                self:replyToTradeProposal'accepted'
-                            end,
-                        },
-                        {
-                            self.images.reject,
-                            sx = 0.5,
-                            onleftclick = function ()
-                                self:replyToTradeProposal'rejected'
-                            end,
-                        },
-                    },
-                    m = 2,
-                    x = x,
-                    y = y,
-                    xsep = XSEP,
-                    xalign = 'center',
-                    yalign = 'bottom'
-                }
-            else
-                assert(tradeAction == "choosingPartner")
-            end
+        if acceptButton then
+            table.insert(line, {
+                self.images.accept,
+                sx = 0.5,
+                onleftclick = acceptButton,
+            })
         end
+
+        if rejectButton then
+            table.insert(line, {
+                self.images.reject,
+                sx = 0.5,
+                onleftclick = rejectButton,
+            })
+        end
+
+        layer:addSpriteTable{
+            line,
+            m = #line,
+            x = x,
+            y = y,
+            xsep = XSEP,
+            xalign = 'center',
+            yalign = 'bottom'
+        }
     end
 
     if showTheirCards then

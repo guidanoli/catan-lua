@@ -168,6 +168,24 @@ function gui:getDisplayedInventory ()
             end,
         }
     end
+    if self.volatile.playingYearOfPlenty then
+        local okButton
+        if self:canPlayYearOfPlentyCard() then
+            okButton = function ()
+                self:playYearOfPlentyCard()
+            end
+        end
+        return {
+            player = self.game.player,
+            canSelectMyCards = false,
+            canSelectTheirCards = true,
+            showTheirCards = true,
+            canPlayCards = false,
+            tableArrowColor = "yellow",
+            inventoryArrow = "left",
+            okButton = okButton,
+        }
+    end
     return {
         player = self.game.player,
         canSelectMyCards = self.game:canTrade(),
@@ -747,6 +765,16 @@ function gui:tradeWithPlayer (player)
     self:refresh()
 end
 
+function gui:canPlayYearOfPlentyCard ()
+    return self.game:canPlayYearOfPlentyCard(self.theirCards)
+end
+
+function gui:playYearOfPlentyCard ()
+    self.game:playYearOfPlentyCard(self.theirCards)
+    self.volatile.playingYearOfPlenty = nil
+    self:refresh()
+end
+
 gui.renderers = {}
 
 function gui.renderers:board ()
@@ -1134,6 +1162,8 @@ function gui:playCardOfKind (kind)
     elseif kind == "roadbuilding" then
         self.game:playRoadBuildingCard()
         self.volatile.buildingRoad = true
+    elseif kind == "yearofplenty" then
+        self.volatile.playingYearOfPlenty = true
     end
     self:refresh()
 end

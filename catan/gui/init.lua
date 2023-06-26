@@ -1392,8 +1392,6 @@ function gui.renderers:inventory ()
     -- Trading-related sprites
     if self.tradeStatus ~= nil then
 
-        local x0
-
         -- Left-to-right arrow
         do
             local x = W / 2
@@ -1407,10 +1405,6 @@ function gui.renderers:inventory ()
                 sx = 0.3,
                 center = true,
             })
-
-            local box = Box:fromSprite(sprite)
-
-            x0 = box:getRightX() + 2 * XSEP
         end
 
         -- Trade action

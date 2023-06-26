@@ -114,9 +114,9 @@ function gui:getDisplayedInventory ()
             if self.game:canDiscard(player) then
                 return {
                     player = player,
-                    canSelectCards = true,
+                    canSelectMyCards = true,
                     canPlayCards = false,
-                    arrowcolor = "red",
+                    arrowColor = "red",
                     createSelectionText = function ()
                         return self:getDiscardSelectionText()
                     end,
@@ -129,27 +129,34 @@ function gui:getDisplayedInventory ()
         if player == nil then
             return {
                 player = self.game.player,
-                canSelectCards = false,
+                canSelectMyCards = false,
+                canSelectTheirCards = false,
+                showTheirCards = true,
                 canPlayCards = false,
                 tradeAction = "choosingPartner",
-                arrowcolor = "yellow",
+                arrowColor = "yellow",
             }
         else
             return {
                 player = player,
-                canSelectCards = false,
+                canSelectMyCards = false,
+                canSelectTheirCards = false,
+                showTheirCards = true,
                 canPlayCards = false,
                 tradeAction = "replying",
-                arrowcolor = "green",
+                arrowColor = "green",
             }
         end
     end
+    local isTrading = self.tradeStatus ~= nil
     return {
         player = self.game.player,
-        canSelectCards = self.game:canTrade(),
+        canSelectMyCards = self.game:canTrade(),
+        canSelectTheirCards = isTrading,
+        showTheirCards = isTrading,
         canPlayCards = true,
         tradeAction = "settingUp",
-        arrowcolor = "yellow",
+        arrowColor = "yellow",
     }
 end
 
@@ -946,7 +953,7 @@ function gui:renderTable (layer, x, y)
 
     local function getIconForPlayer (player)
         if player == self.displayedInventory.player then
-            local arrowColor = self.displayedInventory.arrowcolor
+            local arrowColor = self.displayedInventory.arrowColor
             local arrowImg = assert(self.images.arrow[arrowColor], "arrow sprite missing")
             return {arrowImg, sx=0.3}
         end
@@ -1183,7 +1190,6 @@ function gui.renderers:inventory ()
         local img = opt.img
         local count = opt.count
         local onleftclick = opt.onleftclick
-        local showcount = opt.showcount == nil and true or opt.showcount
 
         assert(count >= 0)
 
@@ -1246,7 +1252,9 @@ function gui.renderers:inventory ()
     local inv = self.displayedInventory
 
     local player = inv.player
-    local canSelectCards = inv.canSelectCards
+    local canSelectMyCards = inv.canSelectMyCards
+    local canSelectTheirCards = inv.canSelectTheirCards
+    local showTheirCards = inv.showTheirCards
     local canPlayCards = inv.canPlayCards
     local createSelectionText = inv.createSelectionText
     local tradeAction = inv.tradeAction
@@ -1261,7 +1269,7 @@ function gui.renderers:inventory ()
             local img = self:getResCardImage(res)
 
             local count
-            if canSelectCards then
+            if canSelectMyCards then
                 local selectedCount = self.myCards[res] or 0
                 count = totalCount - selectedCount
             else
@@ -1269,7 +1277,7 @@ function gui.renderers:inventory ()
             end
 
             local onleftclick
-            if canSelectCards then
+            if canSelectMyCards then
                 onleftclick = function ()
                     self:addToCards(self.myCards, res, 1, totalCount)
                 end
@@ -1322,7 +1330,7 @@ function gui.renderers:inventory ()
             local img = self:getResCardImage(res)
 
             local onleftclick
-            if canSelectCards then
+            if canSelectMyCards then
                 onleftclick = function ()
                     self:addToCards(self.myCards, res, -1)
                 end
@@ -1452,9 +1460,11 @@ function gui.renderers:inventory ()
                 assert(tradeAction == "choosingPartner")
             end
         end
+    end
 
+    if showTheirCards then
         -- Buttons to add cards on the right side
-        do
+        if canSelectTheirCards then
             local x = x0
             local y = y0
 
@@ -1469,18 +1479,13 @@ function gui.renderers:inventory ()
             for _, res in ipairs(RESOURCES) do
                 local img = self:getResCardImage(res)
 
-                local onleftclick
-                if canSelectCards then
-                    onleftclick = function ()
-                        self:addToCards(self.theirCards, res, 1)
-                    end
-                end
-
                 local sprite = layer:addSprite(img, {
                     x = x,
                     y = y,
                     yalign = "bottom",
-                    onleftclick = onleftclick,
+                    onleftclick = function ()
+                        self:addToCards(self.theirCards, res, 1)
+                    end,
                 })
 
                 local box = Box:fromSprite(sprite)
@@ -1498,7 +1503,7 @@ function gui.renderers:inventory ()
                 local img = self:getResCardImage(res)
 
                 local onleftclick
-                if canSelectCards then
+                if canSelectTheirCards then
                     onleftclick = function ()
                         self:addToCards(self.theirCards, res, -1)
                     end

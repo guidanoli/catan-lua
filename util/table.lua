@@ -179,7 +179,6 @@ function TableUtils:reverse (t)
         local j = n - i + 1
         reversed[j] = v
     end
-    assert(#reversed == n)
     return reversed
 end
 

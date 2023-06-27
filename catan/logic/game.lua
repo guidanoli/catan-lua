@@ -169,6 +169,7 @@ function Game:validate ()
     self:_validateBuildMap()
     self:_validateRoadMap()
     self:_validateRobber()
+    self:_validateWinner()
     self:_validateDevCards()
     self:_validateResCards()
     self:_validateLongestRoad()
@@ -345,6 +346,10 @@ end
 function Game:_validateRobber ()
     -- Check if robber is on top of a face with hex
     assert(self.hexmap:get(self.robber))
+end
+
+function Game:_validateWinner ()
+    assert(LogicUtils:iff(self.phase == 'end', self.winner == self.player))
 end
 
 function Game:_validateDevCards ()

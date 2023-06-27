@@ -1491,13 +1491,13 @@ function Game:_getNewTitleHolder (values, currentHolder, minValueForTitle)
 
     if currentHolder == nil then
         if tiedCount == 1 and maxValue >= minValueForTitle then
-            return assert(next(tiedPlayers))
+            return next(tiedPlayers)
         end
     else
         if maxValue >= minValueForTitle then
             if tiedPlayers[currentHolder] == nil then
                 if tiedCount == 1 then
-                    return assert(next(tiedPlayers))
+                    return next(tiedPlayers)
                 else
                     return nil
                 end

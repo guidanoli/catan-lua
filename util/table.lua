@@ -132,12 +132,12 @@ end
 local function equalkeyset (ta, tb)
     for k in pairs(tb) do
         if rawget(ta, k) == nil then
-            return false, ("[%q] == nil in table a"):format(k)
+            return false, (".%s == nil in table a"):format(k)
         end
     end
     for k in pairs(ta) do
         if rawget(tb, k) == nil then
-            return false, ("[%q] == nil in table b"):format(k)
+            return false, (".%s == nil in table b"):format(k)
         end
     end
     return true
@@ -148,6 +148,11 @@ local function istable (o)
 end
 
 local function equalrec (ta, tb, checkmetatable)
+    if checkmetatable then
+        if getmetatable(ta) ~= getmetatable(tb) then
+            return false, ". differ (metatables)"
+        end
+    end
     local ok, err = equalkeyset(ta, tb)
     if not ok then
         return false, err
@@ -155,18 +160,13 @@ local function equalrec (ta, tb, checkmetatable)
     for k, va in pairs(ta) do
         local vb = rawget(tb, k)
         if istable(va) and istable(vb) then
-            if checkmetatable then
-                if getmetatable(va) ~= getmetatable(vb) then
-                    return false, ("[%q] have different metatables"):format(k)
-                end
-            end
             local ok, err = equalrec(va, vb, checkmetatable)
             if not ok then
-                return false, ("[%q]%s"):format(k, err)
+                return false, (".%s%s"):format(k, err)
             end
         else
             if va ~= vb then
-                return false, ("[%q] differ (%q ~= %q)"):format(k, va, vb)
+                return false, (".%s differ (%s ~= %s)"):format(k, va, vb)
             end
         end
     end

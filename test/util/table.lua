@@ -455,7 +455,7 @@ do
     local function ok(f)
         local ta = f()
         local tb = f()
-        assertEq(ta, tb)
+        assertEq(ta, tb, true)
     end
 
     ok(function () return {} end)
@@ -464,9 +464,12 @@ do
     ok(function () return {1, 2, 3, foo=345, bar=567} end)
     ok(function () return {{}, {}, {{}, {}}} end)
 
-    local function fail(ta, tb)
-        assert(not TableUtils:deepEqual(ta, tb))
-        assert(not TableUtils:deepEqual(tb, ta))
+    local mt = {}
+    ok(function () return setmetatable({}, mt) end)
+
+    local function fail(ta, tb, checkmetatable)
+        assert(not TableUtils:deepEqual(ta, tb, checkmetatable))
+        assert(not TableUtils:deepEqual(tb, ta, checkmetatable))
     end
 
     fail({}, {123})
@@ -475,6 +478,13 @@ do
     fail({}, {{}})
     fail({foo={}}, {bar={}})
     fail({{'foo'}}, {{'bar'}})
+
+    local mt1 = {}
+    local mt2 = {}
+    fail(setmetatable({}, mt1), setmetatable({}, mt2), true)
+    fail(setmetatable({}, mt1), {}, true)
+
+    assertEq(setmetatable({}, mt1), setmetatable({}, mt2), false)
 end
 
 -- reverse

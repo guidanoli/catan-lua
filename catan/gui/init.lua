@@ -1124,19 +1124,22 @@ function gui:getMessage ()
     for _, action in pairs(self.actions) do
         local msg = action.message
         if msg ~= nil then
-            return msg
+            return 'Action: ' .. msg
         end
     end
     local tradeStatus = self.tradeStatus
     if tradeStatus == 'settingUp' then
-        return 'trading'
+        return 'Action: trading'
+    end
+    if self.game.winner ~= nil then
+        return 'Player ' .. self.game.winner .. ' is the winner!'
     end
 end
 
 function gui:renderMessage (layer, x, y)
     local message = self:getMessage()
     if message ~= nil then
-        local text = self:newText(self.WHITE, 'Action: ' .. message)
+        local text = self:newText(self.WHITE, message)
         local sprite = layer:addSprite(text, {
             x = x,
             y = y,

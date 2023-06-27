@@ -610,10 +610,28 @@ function Game:getArmySize (player)
     return n
 end
 
+---
+-- Check if number of resource cards is above limit for discard.
+--
+-- If a player has more resource cards than the limit, and a 7 is rolled,
+-- they will have to discard half of their cards (rounding down).
+--
+-- @tparam number n number of resource cards
+-- @treturn boolean whether number is above limit
+-- @see catan.logic.game:getNumberOfResourceCardsToDiscard
 function Game:isNumberOfResourceCardsAboveLimit (n)
     return n > 7
 end
 
+---
+-- Get number of resource cards a player must discard.
+--
+-- If the number of resource cards is above the limit, the player must
+-- discard half of their cards (rounding down).
+--
+-- @tparam string player
+-- @treturn number number of resource cards to discard
+-- @see catan.logic.game:isNumberOfResourceCardsAboveLimit
 function Game:getNumberOfResourceCardsToDiscard (player)
     local count = self:getNumberOfResourceCards(player)
     if self:isNumberOfResourceCardsAboveLimit(count) then
@@ -623,6 +641,30 @@ function Game:getNumberOfResourceCardsToDiscard (player)
     end
 end
 
+---
+-- Check if player would have to discard half of their cards if someone rolled a 7.
+--
+-- Does not check whether someone has rolled a 7.
+--
+-- @tparam string player
+-- @treturn boolean
+-- @treturn ?string error message (in case of failure)
+function Game:mustPlayerDiscard (player)
+    if self.lastdiscard[player] == self.round then
+        return false, "player has discarded in this round already"
+    end
+    local expectedTotalDiscardCount = self:getNumberOfResourceCardsToDiscard(player)
+    if expectedTotalDiscardCount == 0 then
+        return false, "player does not need to discard anything"
+    end
+    return true
+end
+
+---
+-- Get the length of the longest road of a player.
+--
+-- @tparam string player
+-- @treturn number length of the longest road of player
 function Game:getLongestRoadLength (player)
     local maxLength = 0
     self.roadmap:iter(function (q, r, e, p)
@@ -637,7 +679,16 @@ function Game:getLongestRoadLength (player)
     return maxLength
 end
 
+--==============================
+-- Checkers
+--==============================
 
+---
+-- Check whether current player can place its initial settlement in a given vertex.
+--
+-- @tparam {q=number,r=number,v='N'|'S'} vertex
+-- @treturn boolean
+-- @treturn ?string error message (in case of failure)
 function Game:canPlaceInitialSettlement (vertex)
     local ok, err = self:_isPhase"placingInitialSettlement"
     if not ok then
@@ -661,6 +712,12 @@ function Game:canPlaceInitialSettlement (vertex)
     return true
 end
 
+---
+-- Check whether current player can place its initial road in a given edge.
+--
+-- @tparam {q=number,r=number,e='NE'|'NW'|'W'} edge
+-- @treturn boolean
+-- @treturn ?string error message (in case of failure)
 function Game:canPlaceInitialRoad (edge)
     local ok, err = self:_isPhase"placingInitialRoad"
     if not ok then
@@ -681,6 +738,14 @@ function Game:canPlaceInitialRoad (edge)
     return true
 end
 
+---
+-- Check whether current player can roll the given dice.
+--
+-- The possible values for each die are: 1, 2, 3, 4, 5, and 6.
+--
+-- @tparam {number,number} dice
+-- @treturn boolean
+-- @treturn ?string error message (in case of failure)
 function Game:canRoll (dice)
     local ok, err = self:_isPhase"playingTurns"
     if not ok then
@@ -699,18 +764,13 @@ function Game:canRoll (dice)
     return true
 end
 
--- Does not check if phase is right to discard
-function Game:mustPlayerDiscard (player)
-    if self.lastdiscard[player] == self.round then
-        return false, "player has discarded in this round already"
-    end
-    local expectedTotalDiscardCount = self:getNumberOfResourceCardsToDiscard(player)
-    if expectedTotalDiscardCount == 0 then
-        return false, "player does not need to discard anything"
-    end
-    return true
-end
-
+---
+-- Check whether player can discard the given resource cards.
+--
+-- @tparam string player
+-- @tparam table rescards
+-- @treturn boolean
+-- @treturn ?string error message (in case of failure)
 function Game:canDiscard (player, rescards)
     local ok, err = self:_isPhase"discarding"
     if not ok then

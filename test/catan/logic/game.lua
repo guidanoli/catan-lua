@@ -34,6 +34,10 @@ local stateFiles = {
     "roadCredit.lua",
 }
 
+local function mutate (game)
+    game.player = "foobar"
+end
+
 for _, stateFile in ipairs(stateFiles) do
     local path = {"test", "catan", "states", stateFile}
     local pathStr = table.concat(path, platform.PATH_SEPARATOR)
@@ -49,4 +53,14 @@ for _, stateFile in ipairs(stateFiles) do
     local game2 = assert(Game:deserialize(str2))
 
     assert(TableUtils:deepEqual(game1, game2, true))
+
+    mutate(game2)
+
+    local str3 = game2:serialize()
+    assert(not Game:deserialize(str3))
 end
+
+assert(not Game:deserialize"return {")
+assert(not Game:deserialize"error()")
+assert(not Game:deserialize"return 123")
+assert(not Game:deserialize"return {}")

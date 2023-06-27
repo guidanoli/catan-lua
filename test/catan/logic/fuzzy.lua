@@ -440,15 +440,14 @@ local function run (i, args, report)
 
         if ok then
             game:validate()
-            local winner = game:getWinner()
             if args.v >= 1 then
-                if winner ~= nil then
-                    msg = msg .. ' / Winner is ' .. winner
+                if game.winner ~= nil then
+                    msg = msg .. ' / Winner is ' .. game.winner
                 end
                 printSuccess(i, j, msg)
             end
             report.successes = (report.successes or 0) + 1
-            if winner ~= nil then
+            if game.winner ~= nil then
                 break
             end
         else

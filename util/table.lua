@@ -187,4 +187,27 @@ function TableUtils:reverse (t)
     return reversed
 end
 
+function TableUtils:podium (t)
+    local maxValue
+    local tiedCount = 0
+    local tiedKeys = {}
+
+    for _, value in pairs(t) do
+        if maxValue == nil or value > maxValue then
+            maxValue = value
+        end
+    end
+
+    for key, value in pairs(t) do
+        if value == maxValue then
+            tiedCount = tiedCount + 1
+            tiedKeys[key] = true
+        end
+    end
+
+    assert(tiedCount >= 0)
+
+    return maxValue, tiedCount, tiedKeys
+end
+
 return TableUtils

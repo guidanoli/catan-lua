@@ -8,8 +8,9 @@ test-utils:
 	lua $(LUAOPT) test/util/table.lua
 
 test-catan:
-	lua $(LUAOPT) test/catan/logic/game.lua
 	lua $(LUAOPT) test/catan/logic/grid.lua
+	lua $(LUAOPT) test/catan/logic/constants.lua
+	lua $(LUAOPT) test/catan/logic/game.lua
 	lua $(LUAOPT) test/catan/logic/fuzzy.lua -vv --ncalls 100
 	lua $(LUAOPT) test/catan/logic/fuzzy.lua -v --state-file test/catan/states/emptyBank.lua --ngames 100 --ncalls 5
 	lua $(LUAOPT) test/catan/logic/fuzzy.lua -v --state-file test/catan/states/maximalRoadNetwork.lua --ngames 100 --ncalls 5

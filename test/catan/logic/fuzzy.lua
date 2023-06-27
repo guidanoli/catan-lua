@@ -443,10 +443,6 @@ local function run (i, args, report)
 
         local ok, msg = actions[actionKey](game)
 
-        if msg == nil then
-            msg = ('(no message given by %q)'):format(actionKey)
-        end
-
         if ok then
             game:validate()
             if args.v >= 1 then

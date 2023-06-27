@@ -1,5 +1,7 @@
 ---
--- Catan game state
+-- Catan match state
+--
+-- This class implements the state of a Catan match.
 --
 -- @classmod catan.logic.Game
 
@@ -33,12 +35,11 @@ local load = loadstring or load
 
 ---
 -- Create a new game from a list of players colors.
---
 -- The valid player colors are `"red"`, `"blue"`, `"yellow"` and `"white"`.
 -- The list must not have repetitions or fewer than 3 colors.
 -- The list dictates the order of turns, starting with the first.
 --
--- @tparam ?{string,...} players an array of player colors
+-- @tparam[opt] {string,...} players an array of player colors
 -- @treturn Game game
 function Game:new (players)
     players = players or CatanConstants.players
@@ -529,6 +530,7 @@ end
 
 ---
 -- Get the number of victory points of a player.
+--
 -- @tparam string player
 -- @treturn number number of victory points
 function Game:getNumberOfVictoryPoints (player)
@@ -569,6 +571,7 @@ end
 
 ---
 -- Get the number of development cards of a player.
+--
 -- @tparam string player
 -- @treturn number number of development cards
 function Game:getNumberOfDevelopmentCards (player)
@@ -583,6 +586,7 @@ end
 
 ---
 -- Get the number of resource cards of a player.
+--
 -- @tparam string player
 -- @treturn number number of resource cards
 function Game:getNumberOfResourceCards (player)
@@ -595,7 +599,6 @@ end
 
 ---
 -- Get the size of a player's army.
---
 -- A player's army is composed of the knights they have used so far.
 --
 -- @tparam string player
@@ -611,21 +614,7 @@ function Game:getArmySize (player)
 end
 
 ---
--- Check if number of resource cards is above limit for discard.
---
--- If a player has more resource cards than the limit, and a 7 is rolled,
--- they will have to discard half of their cards (rounding down).
---
--- @tparam number n number of resource cards
--- @treturn boolean whether number is above limit
--- @see catan.logic.Game:getNumberOfResourceCardsToDiscard
-function Game:isNumberOfResourceCardsAboveLimit (n)
-    return n > 7
-end
-
----
 -- Get number of resource cards a player must discard.
---
 -- If the number of resource cards is above the limit, the player must
 -- discard half of their cards (rounding down).
 --
@@ -639,25 +628,6 @@ function Game:getNumberOfResourceCardsToDiscard (player)
     else
         return 0
     end
-end
-
----
--- Check if player would have to discard half of their cards if someone rolled a 7.
---
--- Does not check whether someone has rolled a 7.
---
--- @tparam string player
--- @treturn boolean
--- @treturn ?string error message (in case of failure)
-function Game:mustPlayerDiscard (player)
-    if self.lastdiscard[player] == self.round then
-        return false, "player has discarded in this round already"
-    end
-    local expectedTotalDiscardCount = self:getNumberOfResourceCardsToDiscard(player)
-    if expectedTotalDiscardCount == 0 then
-        return false, "player does not need to discard anything"
-    end
-    return true
 end
 
 ---
@@ -679,14 +649,116 @@ function Game:getLongestRoadLength (player)
     return maxLength
 end
 
+---
+-- Get the winner of the game.
+--
+-- @treturn ?string the winner (or `nil` if no one has won yet)
+function Game:getWinner ()
+    local scores = {}
+
+    for _, player in ipairs(self.players) do
+        scores[player] = self:getNumberOfVictoryPoints(player)
+    end
+
+    local maxScore, tiedCount, tiedPlayers = TableUtils:podium(scores)
+
+    if maxScore >= 10 then
+        if tiedPlayers[self.player] then
+            return self.player
+        else
+            return nil
+        end
+    else
+        return nil
+    end
+end
+
+---
+-- Get the ratios with which a player can trade in harbors.
+-- We represent a ratio of `x:1` simply by the number `x`.
+--
+-- @tparam string player
+-- @treturn table ratios trading ratios for each resource
+-- @treturn number baseRatio base trading ratio (if not in `ratios`)
+--
+-- @usage
+-- local ratios, baseRatio = game:getTradeRatios(player)
+-- local ratio = ratios[res] or baseRatio
+function Game:getTradeRatios (player)
+    local ratios = {}
+    local baseRatio = 4
+    self.harbormap:iter(function (q, r, v, kind)
+        local vertex = Grid:vertex(q, r, v)
+        local building = self.buildmap:get(vertex)
+        if building and building.player == player then
+            if kind == "generic" then
+                baseRatio = 3
+            else
+                ratios[kind] = 2
+            end
+        end
+    end)
+    return ratios, baseRatio
+end
+
+---
+-- Get the number of cards a player can receive from a maritime trade.
+-- If some resource card has a bad ratio (for example, 5:1),
+-- returns `nil` and an error message.
+--
+-- @tparam string player
+-- @tparam table mycards histogram of resource cards from the player
+-- @treturn ?number the maritime trade return
+-- @treturn ?string error message (in case of failure)
+function Game:getMaritimeTradeReturn (player, mycards)
+    local m = 0
+    local ratios, defaultRatio = self:getTradeRatios(player)
+    for res, n in pairs(mycards) do
+        local ratio = ratios[res] or defaultRatio
+        if n % ratio == 0 then
+            m = m + n / ratio
+        else
+            return nil, "bad ratio for " .. res
+        end
+    end
+    return m
+end
+
+----
+-- Get the first playable card of a given kind from the current player's hand.
+--
+-- @tparam string kind
+-- @treturn boolean
+-- @treturn ?string error message (in case of failure)
+function Game:getPlayableCardOfKind (kind)
+    local ok, err = self:_isPhase"playingTurns"
+    if not ok then
+        return nil, err
+    end
+    if kind == "victorypoint" then
+        return false, "cannot play this kind of card"
+    end
+    for _, devcard in ipairs(self.devcards[self.player]) do
+        if devcard.roundPlayed == self.round then
+            return nil, "a development card was already played in this turn"
+        end
+    end
+    for _, devcard in ipairs(self.devcards[self.player]) do
+        if devcard.kind == kind and self:isCardPlayable(devcard) then
+            return devcard
+        end
+    end
+    return nil, "player doesn't have such development card"
+end
+
 --==============================
 -- Checkers
 --==============================
 
 ---
--- Check whether current player can place its initial settlement in a given vertex.
+-- Check whether the current player can place one of its initial settlement in a given vertex.
 --
--- @tparam {q=number,r=number,v='N'|'S'} vertex
+-- @tparam[opt] {q=number,r=number,v='N'|'S'} vertex
 -- @treturn boolean
 -- @treturn ?string error message (in case of failure)
 function Game:canPlaceInitialSettlement (vertex)
@@ -713,9 +785,9 @@ function Game:canPlaceInitialSettlement (vertex)
 end
 
 ---
--- Check whether current player can place its initial road in a given edge.
+-- Check whether the current player can place one of its initial road in a given edge.
 --
--- @tparam {q=number,r=number,e='NE'|'NW'|'W'} edge
+-- @tparam[opt] {q=number,r=number,e='NE'|'NW'|'W'} edge
 -- @treturn boolean
 -- @treturn ?string error message (in case of failure)
 function Game:canPlaceInitialRoad (edge)
@@ -739,11 +811,10 @@ function Game:canPlaceInitialRoad (edge)
 end
 
 ---
--- Check whether current player can roll the given dice.
---
+-- Check whether the current player can roll the given dice.
 -- The possible values for each die are: 1, 2, 3, 4, 5, and 6.
 --
--- @tparam {number,number} dice
+-- @tparam[opt] {number,number} dice
 -- @treturn boolean
 -- @treturn ?string error message (in case of failure)
 function Game:canRoll (dice)
@@ -765,10 +836,40 @@ function Game:canRoll (dice)
 end
 
 ---
--- Check whether player can discard the given resource cards.
+-- Check whether a number of resource cards is above limit for discard.
+-- If a player has more resource cards than the limit, and a 7 is rolled,
+-- they will have to discard half of their cards (rounding down).
+--
+-- @tparam number n number of resource cards
+-- @treturn boolean whether number is above limit
+-- @see catan.logic.Game:getNumberOfResourceCardsToDiscard
+function Game:isNumberOfResourceCardsAboveLimit (n)
+    return n > 7
+end
+
+---
+-- Check whether a player would have to discard half of their cards if someone rolled a 7.
+-- Does not check whether someone has rolled a 7.
 --
 -- @tparam string player
--- @tparam table rescards
+-- @treturn boolean
+-- @treturn ?string error message (in case of failure)
+function Game:mustPlayerDiscard (player)
+    if self.lastdiscard[player] == self.round then
+        return false, "player has discarded in this round already"
+    end
+    local expectedTotalDiscardCount = self:getNumberOfResourceCardsToDiscard(player)
+    if expectedTotalDiscardCount == 0 then
+        return false, "player does not need to discard anything"
+    end
+    return true
+end
+
+---
+-- Check whether a player can discard the given resource cards.
+--
+-- @tparam[opt] string player
+-- @tparam[optchain] table rescards histogram of resource cards from player
 -- @treturn boolean
 -- @treturn ?string error message (in case of failure)
 function Game:canDiscard (player, rescards)
@@ -807,6 +908,12 @@ function Game:canDiscard (player, rescards)
     return true
 end
 
+----
+-- Check whether the current player can move the robber to a given face.
+--
+-- @tparam[opt] {q=number,r=number} face
+-- @treturn boolean
+-- @treturn ?string error message (in case of failure)
 function Game:canMoveRobber (face)
     local ok, err = self:_isPhase"movingRobber"
     if not ok then
@@ -827,6 +934,12 @@ function Game:canMoveRobber (face)
     return true
 end
 
+----
+-- Check whether the current player can choose a given player as victim of the robber.
+--
+-- @tparam[opt] string player
+-- @treturn boolean
+-- @treturn ?string error message (in case of failure)
 function Game:canChooseVictim (player)
     local ok, err = self:_isPhase"choosingVictim"
     if not ok then
@@ -845,6 +958,11 @@ function Game:canChooseVictim (player)
     return true
 end
 
+----
+-- Check whether the current player can trade.
+--
+-- @treturn boolean
+-- @treturn ?string error message (in case of failure)
 function Game:canTrade ()
     local ok, err = self:_isPhase"playingTurns"
     if not ok then
@@ -857,6 +975,14 @@ function Game:canTrade ()
     return true
 end
 
+----
+-- Check whether the current player can trade resource cards with a given player.
+--
+-- @tparam[opt] string otherplayer player to trade with (cannot be current player)
+-- @tparam[optchain] table mycards histogram of resource cards from the current player
+-- @tparam[optchain] table theircards histogram of resource cards from the other player
+-- @treturn boolean
+-- @treturn ?string error message (in case of failure)
 function Game:canTradeWithPlayer (otherplayer, mycards, theircards)
     local ok, err = self:canTrade()
     if not ok then
@@ -875,65 +1001,46 @@ function Game:canTradeWithPlayer (otherplayer, mycards, theircards)
             if not ok then
                 return false, err
             end
-            local ok, err = CatanSchema.ResourceCardHistogram:isValid(theircards)
-            if not ok then
-                return false, err
-            end
             local m = TableUtils:sum(mycards)
-            local n = TableUtils:sum(theircards)
-            if m < 1 or n < 1 then
+            if m < 1 then
                 return false, "player cannot give away cards"
-            end
-            for res in pairs(mycards) do
-                local n = theircards[res] or 0
-                if n > 0 then
-                    return false, "cannot trade cards of same type"
-                end
             end
             local ok, err = self:_canGiveResources(self.player, mycards)
             if not ok then
                 return false, err
             end
-            local ok, err = self:_canGiveResources(otherplayer, theircards)
-            if not ok then
-                return false, err
+            if theircards ~= nil then
+                local ok, err = CatanSchema.ResourceCardHistogram:isValid(theircards)
+                if not ok then
+                    return false, err
+                end
+                local n = TableUtils:sum(theircards)
+                if n < 1 then
+                    return false, "player cannot give away cards"
+                end
+                for res in pairs(mycards) do
+                    local n = theircards[res] or 0
+                    if n > 0 then
+                        return false, "cannot trade cards of same type"
+                    end
+                end
+                local ok, err = self:_canGiveResources(otherplayer, theircards)
+                if not ok then
+                    return false, err
+                end
             end
         end
     end
     return true
 end
 
-function Game:getTradeRatios (player)
-    local ratios = {}
-    local default = 4
-    self.harbormap:iter(function (q, r, v, kind)
-        local vertex = Grid:vertex(q, r, v)
-        local building = self.buildmap:get(vertex)
-        if building and building.player == player then
-            if kind == "generic" then
-                default = 3
-            else
-                ratios[kind] = 2
-            end
-        end
-    end)
-    return ratios, default
-end
-
-function Game:getMaritimeTradeReturn (mycards)
-    local m = 0
-    local ratios, defaultRatio = self:getTradeRatios(self.player)
-    for res, n in pairs(mycards) do
-        local ratio = ratios[res] or defaultRatio
-        if n % ratio == 0 then
-            m = m + n / ratio
-        else
-            return false, "bad ratio for " .. res
-        end
-    end
-    return m
-end
-
+----
+-- Check whether the current player can trade resource cards with harbor.
+--
+-- @tparam[opt] table mycards histogram of resource cards from the current player
+-- @tparam[optchain] table theircards histogram of resource cards to receive
+-- @treturn boolean
+-- @treturn ?string error message (in case of failure)
 function Game:canTradeWithHarbor (mycards, theircards)
     local ok, err = self:canTrade()
     if not ok then
@@ -944,24 +1051,26 @@ function Game:canTradeWithHarbor (mycards, theircards)
         if not ok then
             return false, err
         end
-        local ok, err = CatanSchema.ResourceCardHistogram:isValid(theircards)
-        if not ok then
-            return false, err
-        end
         local ok, err = self:_canGiveResources(self.player, mycards)
         if not ok then
             return false, err
         end
-        local m, err = self:getMaritimeTradeReturn(mycards)
+        local m, err = self:getMaritimeTradeReturn(self.player, mycards)
         if not m then
             return false, err
         end
-        if TableUtils:sum(theircards) ~= m then
-            return false, "bad sum of theircards"
-        end
-        local ok, err = self:_doesBankHaveResources(theircards)
-        if not ok then
-            return false, err
+        if theircards ~= nil then
+            local ok, err = CatanSchema.ResourceCardHistogram:isValid(theircards)
+            if not ok then
+                return false, err
+            end
+            if TableUtils:sum(theircards) ~= m then
+                return false, "bad sum of theircards"
+            end
+            local ok, err = self:_doesBankHaveResources(theircards)
+            if not ok then
+                return false, err
+            end
         end
     end
     return true
@@ -969,6 +1078,14 @@ end
 
 Game.ROAD_COST = {lumber=1, brick=1}
 
+----
+-- Check whether the current player can build a road on a given edge.
+--
+-- @tparam[opt] {q=number,r=number,e='NE'|'NW'|'W'} edge
+-- @treturn boolean
+-- @treturn string|boolean error message (in case of failure) or
+-- whether player would use credit gained from playing an
+-- Year of Plenty card (in case of success)
 function Game:canBuildRoad (edge)
     local ok, err = self:_isPhase"playingTurns"
     if not ok then
@@ -1024,6 +1141,12 @@ end
 
 Game.SETTLEMENT_COST = {lumber=1, brick=1, wool=1, grain=1}
 
+----
+-- Check whether the current player can build a settlement on a given vertex.
+--
+-- @tparam[opt] {q=number,r=number,v='N'|'S'} vertex
+-- @treturn boolean
+-- @treturn ?string error message (in case of failure)
 function Game:canBuildSettlement (vertex)
     local ok, err = self:_isPhase"playingTurns"
     if not ok then
@@ -1067,6 +1190,12 @@ end
 
 Game.CITY_COST = {grain=2, ore=3}
 
+----
+-- Check whether the current player can build a city on a given vertex.
+--
+-- @tparam[opt] {q=number,r=number,v='N'|'S'} vertex
+-- @treturn boolean
+-- @treturn ?string error message (in case of failure)
 function Game:canBuildCity (vertex)
     local ok, err = self:_isPhase"playingTurns"
     if not ok then
@@ -1105,6 +1234,11 @@ end
 
 Game.DEVCARD_COST = {wool=1, ore=1, grain=1}
 
+----
+-- Check whether the current player can buy a development card.
+--
+-- @treturn boolean
+-- @treturn ?string error message (in case of failure)
 function Game:canBuyDevelopmentCard ()
     local ok, err = self:_isPhase"playingTurns"
     if not ok then
@@ -1125,6 +1259,12 @@ function Game:canBuyDevelopmentCard ()
     return true
 end
 
+----
+-- Check whether a development card can be played.
+--
+-- @tparam table devcard
+-- @treturn boolean
+-- @treturn ?string error message (in case of failure)
 function Game:isCardPlayable (devcard)
     if devcard.roundBought == self.round then
         return false, "cannot buy and play a development card in the same round"
@@ -1135,35 +1275,32 @@ function Game:isCardPlayable (devcard)
     return true
 end
 
-function Game:getPlayableCardOfKind (kind)
-    local ok, err = self:_isPhase"playingTurns"
-    if not ok then
-        return nil, err
-    end
-    if kind == "victorypoint" then
-        return false, "cannot play this kind of card"
-    end
-    for _, devcard in ipairs(self.devcards[self.player]) do
-        if devcard.roundPlayed == self.round then
-            return nil, "a development card was already played in this turn"
-        end
-    end
-    for _, devcard in ipairs(self.devcards[self.player]) do
-        if devcard.kind == kind and self:isCardPlayable(devcard) then
-            return devcard
-        end
-    end
-    return nil, "player doesn't have such development card"
-end
-
+----
+-- Check whether the current player can play a Knight card.
+--
+-- @treturn boolean
+-- @treturn ?string error message (in case of failure)
 function Game:canPlayKnightCard ()
     return self:getPlayableCardOfKind "knight"
 end
 
+----
+-- Check whether the current player can play a Road Building card.
+--
+-- @treturn boolean
+-- @treturn ?string error message (in case of failure)
 function Game:canPlayRoadBuildingCard ()
     return self:getPlayableCardOfKind "roadbuilding"
 end
 
+----
+-- Check whether the current player can play an Year of Plenty card.
+-- The current player can receive up to 2 resource cards from the bank,
+-- depending on its availability.
+--
+-- @tparam[opt] table rescards histogram of resource cards to be received
+-- @treturn boolean
+-- @treturn ?string error message (in case of failure)
 function Game:canPlayYearOfPlentyCard (rescards)
     local devcard, err = self:getPlayableCardOfKind "yearofplenty"
     if not devcard then
@@ -1186,6 +1323,12 @@ function Game:canPlayYearOfPlentyCard (rescards)
     return devcard
 end
 
+----
+-- Check whether the current player can play a Monopoly card.
+--
+-- @tparam[opt] string res the resource to be monopolized
+-- @treturn boolean
+-- @treturn ?string error message (in case of failure)
 function Game:canPlayMonopolyCard (res)
     local devcard, err = self:getPlayableCardOfKind "monopoly"
     if not devcard then
@@ -1200,6 +1343,11 @@ function Game:canPlayMonopolyCard (res)
     return devcard
 end
 
+----
+-- Check whether the current player can end their turn.
+--
+-- @treturn boolean
+-- @treturn ?string error message (in case of failure)
 function Game:canEndTurn ()
     local ok, err = self:_isPhase"playingTurns"
     if not ok then
@@ -1212,30 +1360,16 @@ function Game:canEndTurn ()
     return true
 end
 
-function Game:getWinner ()
-    local scores = {}
-
-    for _, player in ipairs(self.players) do
-        scores[player] = self:getNumberOfVictoryPoints(player)
-    end
-
-    local maxScore, tiedCount, tiedPlayers = TableUtils:podium(scores)
-
-    if maxScore >= 10 then
-        if tiedPlayers[self.player] then
-            return self.player
-        else
-            return nil
-        end
-    else
-        return nil
-    end
-end
-
 --==============================
 -- Actions
 --==============================
 
+---
+-- Place a settlement in a given vertex.
+-- This is exclusive to the set-up phase.
+--
+-- @tparam {q=number,r=number,v='N'|'S'} vertex
+-- @treturn catan.logic.HexProduction any resources gained from settlement placement
 function Game:placeInitialSettlement (vertex)
     assert(vertex, "missing vertex")
     assert(self:canPlaceInitialSettlement(vertex))
@@ -1266,6 +1400,11 @@ function Game:placeInitialSettlement (vertex)
     return hexprod
 end
 
+---
+-- Place a road in a given edge.
+-- This is exclusive to the set-up phase.
+--
+-- @tparam {q=number,r=number,e='NE'|'NW'|'W'} edge
 function Game:placeInitialRoad (edge)
     assert(edge, "missing edge")
     assert(self:canPlaceInitialRoad(edge))
@@ -1295,6 +1434,12 @@ function Game:placeInitialRoad (edge)
     end
 end
 
+---
+-- Roll dice for resource production.
+-- The possible values for each die are: 1, 2, 3, 4, 5, and 6.
+--
+-- @tparam {number,number} dice
+-- @treturn catan.logic.HexProduction any resources gained from dice roll
 function Game:roll (dice)
     assert(dice, "missing dice")
     assert(self:canRoll(dice))
@@ -1347,6 +1492,11 @@ function Game:roll (dice)
     return hexprod
 end
 
+---
+-- Discard half of a player's resource cards.
+--
+-- @tparam string player
+-- @tparam table rescards histogram of resource cards from player
 function Game:discard (player, rescards)
     assert(player, "missing player")
     assert(rescards, "missing rescards")
@@ -1363,6 +1513,12 @@ function Game:discard (player, rescards)
     end
 end
 
+---
+-- Move the robber to another face.
+--
+-- @tparam {q=number,r=number} face
+-- @treturn ?string robber victim (or `nil` if there isn't a single victim)
+-- @treturn ?string resource stolen from victim (or `nil` if there is no victim, or victim has no resources)
 function Game:moveRobber (face)
     assert(face, "missing face")
     assert(self:canMoveRobber(face))
@@ -1390,6 +1546,11 @@ function Game:moveRobber (face)
     return victim, res
 end
 
+---
+-- Choose victim of the robber.
+--
+-- @tparam string player the victim
+-- @treturn ?string resource stolen from victim (or `nil` if victim has no resources)
 function Game:chooseVictim (player)
     assert(player, "missing player")
     assert(self:canChooseVictim(player))
@@ -1401,6 +1562,12 @@ function Game:chooseVictim (player)
     return res
 end
 
+---
+-- Trade resource cards with a given player.
+--
+-- @tparam string otherplayer the player to trade with
+-- @tparam table mycards the resource cards offered by the current player
+-- @tparam table theircards the resource cards from the other player
 function Game:tradeWithPlayer (otherplayer, mycards, theircards)
     assert(otherplayer, "missing otherplayer")
     assert(mycards, "missing mycards")
@@ -1411,6 +1578,11 @@ function Game:tradeWithPlayer (otherplayer, mycards, theircards)
     self:_giveResourcesToPlayer(otherplayer, self.player, theircards)
 end
 
+---
+-- Trade resource cards in the harbor.
+--
+-- @tparam table mycards the resource cards offered by the current player
+-- @tparam table theircards the resource cards from the harbor
 function Game:tradeWithHarbor (mycards, theircards)
     assert(mycards, "missing mycards")
     assert(theircards, "missing theircards")
@@ -1420,6 +1592,10 @@ function Game:tradeWithHarbor (mycards, theircards)
     self:_giveResourcesFromBank(self.player, theircards)
 end
 
+---
+-- Build a road on a given edge.
+--
+-- @tparam {q=number,r=number,e='NE'|'NW'|'W'} edge
 function Game:buildRoad (edge)
     assert(edge, "missing edge")
     local _, usingCredit = assert(self:canBuildRoad(edge))
@@ -1436,6 +1612,10 @@ function Game:buildRoad (edge)
     self:_checkForWinner()
 end
 
+---
+-- Build a settlement on a given vertex.
+--
+-- @tparam {q=number,r=number,v='N'|'S'} vertex
 function Game:buildSettlement (vertex)
     assert(vertex, "missing vertex")
     assert(self:canBuildSettlement(vertex))
@@ -1451,6 +1631,10 @@ function Game:buildSettlement (vertex)
     self:_checkForWinner()
 end
 
+---
+-- Build a city on a given vertex.
+--
+-- @tparam {q=number,r=number,v='N'|'S'} vertex
 function Game:buildCity (vertex)
     assert(vertex, "missing vertex")
     assert(self:canBuildCity(vertex))
@@ -1466,6 +1650,10 @@ function Game:buildCity (vertex)
     self:_checkForWinner()
 end
 
+---
+-- Buy a development card.
+--
+-- @treturn string the kind of the newly-bought development card
 function Game:buyDevelopmentCard ()
     assert(self:canBuyDevelopmentCard())
 
@@ -1483,6 +1671,8 @@ function Game:buyDevelopmentCard ()
     return kind
 end
 
+---
+-- Play a Knight card.
 function Game:playKnightCard ()
     local devcard = assert(self:canPlayKnightCard())
 
@@ -1494,6 +1684,8 @@ function Game:playKnightCard ()
     self:_checkForWinner()
 end
 
+---
+-- Play a Road Building card.
 function Game:playRoadBuildingCard ()
     local devcard = assert(self:canPlayRoadBuildingCard())
 
@@ -1502,6 +1694,12 @@ function Game:playRoadBuildingCard ()
     self:_addToRoadCredit(self.player, 2)
 end
 
+---
+-- Play an Year of Plenty card.
+-- The current player can receive up to 2 resource cards from the bank,
+-- depending on its availability.
+--
+-- @tparam table rescards histogram of resource cards to be received
 function Game:playYearOfPlentyCard (rescards)
     assert(rescards, "missing rescards")
     local devcard = assert(self:canPlayYearOfPlentyCard(rescards))
@@ -1511,6 +1709,10 @@ function Game:playYearOfPlentyCard (rescards)
     self:_giveResourcesFromBank(self.player, rescards)
 end
 
+---
+-- Play a Monopoly card.
+--
+-- @tparam string res the resource to be monopolized
 function Game:playMonopolyCard (res)
     assert(res, "missing res")
     local devcard = assert(self:canPlayMonopolyCard(res))
@@ -1525,6 +1727,8 @@ function Game:playMonopolyCard (res)
     end
 end
 
+----
+-- End the current player's turn.
 function Game:endTurn ()
     assert(self:canEndTurn())
 

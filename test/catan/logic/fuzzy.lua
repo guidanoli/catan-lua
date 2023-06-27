@@ -110,9 +110,9 @@ end
 local function randomPlayerResCardsForMaritimeTrade (game, player)
     local mycards = {}
     local tradeReturn = 0
-    local ratios, defaultRatio = game:getTradeRatios(player)
+    local ratios, baseRatio = game:getTradeRatios(player)
     for kind, count in pairs(game.rescards[player]) do
-        local ratio = ratios[kind] or defaultRatio
+        local ratio = ratios[kind] or baseRatio
         local maxGroupCount = math.floor(count / ratio)
         local groupCount = math.random(maxGroupCount + 1) - 1
         mycards[kind] = groupCount * ratio

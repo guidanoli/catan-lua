@@ -45,6 +45,7 @@ local stateFiles = {
     "breakLongestRoadLeadsToTie",
     "breakLongestRoadLeadsToTieBelowMin",
     "limitedHexProduction",
+    "emptyDrawpile",
 }
 
 local games = {}
@@ -258,4 +259,11 @@ end
 do
     local game = games.breakLongestRoadLeadsToTieBelowMin
     game:buildSettlement{q=-1, r=1, v='S'}
+end
+
+-- buyDevelopmentCard
+
+do
+    local game = games.emptyDrawpile
+    assert(not game:canBuyDevelopmentCard())
 end

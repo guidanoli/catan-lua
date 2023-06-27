@@ -126,7 +126,7 @@ end
 function Game:_createHarborMap ()
     self.harbormap = VertexMap:new()
     for _, harbor in ipairs(CatanConstants.harbors) do
-        self.harbormap:set(harbor, harbor.kind)
+        self.harbormap:set(harbor.vertex, harbor.kind)
     end
 end
 

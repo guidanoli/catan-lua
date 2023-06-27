@@ -32,6 +32,7 @@ local stateFiles = {
     "movingRobberBeforeRoll.lua",
     "movingRobber.lua",
     "roadCredit.lua",
+    "end.lua",
 }
 
 local function mutate (game)

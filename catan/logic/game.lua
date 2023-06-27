@@ -495,6 +495,12 @@ function Game:deserialize (str)
         return nil, 'incompatible schema version'
     end
 
+    -- Check schema
+    local ok, err = CatanSchema.GameState:isValid(ret)
+    if not ok then
+        return nil, err
+    end
+
     -- Set metatables
     FaceMap:__new(ret.hexmap)
     FaceMap:__new(ret.numbermap)
@@ -503,7 +509,7 @@ function Game:deserialize (str)
     EdgeMap:__new(ret.roadmap)
     local game = self:__new(ret)
 
-    -- Validate table against game schema and logic
+    -- Validate game state
     local ok, err = pcall(self.validate, game)
     if not ok then
         return nil, err

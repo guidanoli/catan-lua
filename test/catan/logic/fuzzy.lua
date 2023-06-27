@@ -294,10 +294,13 @@ function actions.tradeWithPlayer (game)
         end)
         local mycards = randomPlayerResCards(game, game.player)
         local theircards = randomPlayerResCards(game, otherplayer)
-        game:tradeWithPlayer(otherplayer, mycards, theircards)
-        msg = ('tradeWithPlayer(%s, %s, %s)'):format(otherplayer,
-                                                     fmtrescards(mycards),
-                                                     fmtrescards(theircards))
+        ok, msg = game:canTradeWithPlayer(otherplayer, mycards, theircards)
+        if ok then
+            game:tradeWithPlayer(otherplayer, mycards, theircards)
+            msg = ('tradeWithPlayer(%s, %s, %s)'):format(otherplayer,
+                                                         fmtrescards(mycards),
+                                                         fmtrescards(theircards))
+        end
     end
     return ok, msg
 end

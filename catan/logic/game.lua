@@ -16,15 +16,15 @@ local HexProduction = require "catan.logic.HexProduction"
 
 local Game = Class "Game"
 
---------------------------------
+--==============================
 -- Compatibility with Lua 5.1
---------------------------------
+--==============================
 
 local load = loadstring or load
 
---------------------------------
+--==============================
 -- Constructor
---------------------------------
+--==============================
 
 function Game:new (players)
     players = players or CatanConstants.players
@@ -33,9 +33,9 @@ function Game:new (players)
     return game
 end
 
---------------------------------
+--==============================
 -- Initialization code
---------------------------------
+--==============================
 
 function Game:_init (players)
     self.version = CatanSchema.VERSION
@@ -154,9 +154,9 @@ function Game:_createBank ()
     end
 end
 
---------------------------------
+--==============================
 -- Validation
---------------------------------
+--==============================
 
 function Game:validate ()
     assert(CatanSchema.GameState:isValid(self))
@@ -440,9 +440,9 @@ function Game:_validateLastDiscard ()
     end
 end
 
---------------------------------
+--==============================
 -- Serialization
---------------------------------
+--==============================
 
 function Game:serialize ()
     return 'return ' .. serpent.block(self, {
@@ -450,9 +450,9 @@ function Game:serialize ()
     })
 end
 
---------------------------------
+--==============================
 -- Deserialization
---------------------------------
+--==============================
 
 function Game:deserialize (str)
     -- Load table from string
@@ -492,9 +492,9 @@ function Game:deserialize (str)
     return game
 end
 
---------------------------------
+--==============================
 -- Getters
---------------------------------
+--==============================
 
 function Game:getNumberOfVictoryPoints (player)
     local n = 0
@@ -1163,9 +1163,9 @@ function Game:getWinner ()
     end
 end
 
---------------------------------
+--==============================
 -- Actions
---------------------------------
+--==============================
 
 function Game:placeInitialSettlement (vertex)
     assert(vertex, "missing vertex")
@@ -1472,9 +1472,9 @@ function Game:endTurn ()
     self:_checkForWinner()
 end
 
---------------------------------
+--==============================
 -- Auxiliary functions
---------------------------------
+--==============================
 
 function Game:_checkForWinner ()
     local winner = self:getWinner()

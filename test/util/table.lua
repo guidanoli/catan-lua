@@ -500,3 +500,19 @@ for N = 1, 10 do
         assert(t[i] == r[N - i + 1])
     end
 end
+
+-- podium
+
+local function check(t, expectedMax, expectedCount, expectedKeys)
+    local max, count, keys = TableUtils:podium(t)
+    assert(max == expectedMax)
+    assert(count == expectedCount)
+    assertEq(keys, expectedKeys)
+end
+
+check({}, nil, 0, {})
+check({a=123}, 123, 1, {a=true})
+check({a=123, b=456}, 456, 1, {b=true})
+check({a=123, b=123}, 123, 2, {a=true, b=true})
+check({a=123, b=123, c=77}, 123, 2, {a=true, b=true})
+check({a=123, b=123, c=999}, 999, 1, {c=true})

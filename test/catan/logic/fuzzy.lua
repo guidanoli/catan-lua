@@ -428,7 +428,13 @@ function actions.playMonopolyCard (game)
 end
 
 local function run (i, args, report)
-    local game = Game:new()
+    local game
+
+    if args.stateString then
+        game = Game:deserialize(args.stateString)
+    else
+        game = Game:new()
+    end
 
     local actionKeys = TableUtils:sortedKeys(actions)
 
@@ -467,9 +473,17 @@ local parser = argparse("fuzzy", "Catan fuzzy tester")
 parser:option("--seed", "Pseudo-random number generator seed.", os.time())
 parser:option("--ncalls", "Number of call attempts per game.", 50000)
 parser:option("--ngames", "Number of games.", 1)
+parser:option("--state-file", "Load state from file"):target("stateFile")
 parser:flag("-v", "Verbosity level."):count"*"
 
 local args = parser:parse()
+
+if args.stateFile then
+    local fp = assert(io.open(args.stateFile))
+    local str = fp:read"*a"
+    assert(fp:close())
+    args.stateString = str
+end
 
 print('Seed: ' .. args.seed)
 math.randomseed(args.seed)

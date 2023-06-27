@@ -47,7 +47,7 @@ end
 -- Set the number of resources produced by player.
 -- @tparam string player the player
 -- @tparam string res the kind of resource
--- @tparam number n the number of resources
+-- @tparam ?number n the number of resources
 -- @usage
 -- local hexprod = HexProduction:new()
 -- local player = "red"
@@ -57,6 +57,8 @@ end
 -- print(hexprod:get(player, res)) --> 3
 -- hexprod:set(player, res, 1)
 -- print(hexprod:get(player, res)) --> 1
+-- hexprod:set(player, res, nil)
+-- print(hexprod:get(player, res)) --> 0
 function HexProduction:set (player, res, n)
     assert(Player:isValid(player))
     assert(ResourceCard:isValid(res))
@@ -65,7 +67,7 @@ function HexProduction:set (player, res, n)
         playerprod = {}
         rawset(self, player, playerprod)
     end
-    assert(n >= 0, "resource count cannot be negative")
+    assert(n == nil or n >= 0, "resource count cannot be negative")
     rawset(playerprod, res, n)
 end
 

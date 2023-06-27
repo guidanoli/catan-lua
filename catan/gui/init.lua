@@ -155,6 +155,12 @@ function gui:getDisplayedInventory ()
         end
     end
     if self.tradeStatus ~= nil then
+        local okButton
+        if self:canProposeTrade() then
+            okButton = function ()
+                self:proposeTrade()
+            end
+        end
         return {
             player = self.game.player,
             canSelectMyCards = true,
@@ -163,9 +169,7 @@ function gui:getDisplayedInventory ()
             canPlayCards = false,
             tableArrowColor = "yellow",
             inventoryArrow = "right",
-            okButton = function ()
-                self:proposeTrade()
-            end,
+            okButton = okButton,
         }
     end
     if self.volatile.playingYearOfPlentyCard then
@@ -1231,9 +1235,12 @@ function gui:getResCardImage (res)
 end
 
 function gui:canProposeTrade ()
-    local n = TableUtils:sum(self.myCards)
-    local m = TableUtils:sum(self.theirCards)
-    return n >= 1 and m >= 1
+    for _, player in ipairs(self.game.players) do
+        if self:canTradeWithPlayer(player) then
+            return true
+        end
+    end
+    return false
 end
 
 function gui:startTradingWithPlayer ()

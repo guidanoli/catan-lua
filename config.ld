@@ -12,6 +12,8 @@ file = {
     'main.lua',
 }
 
+style = 'style'
+
 local loveURL = "https://love2d.org/wiki/%s"
 
 custom_see_handler('^love2d@(.*)$', function(name)

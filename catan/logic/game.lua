@@ -610,30 +610,6 @@ function Game:getArmySize (player)
     return n
 end
 
-Game.RES_FROM_HEX = {
-    hills = 'brick',
-    forest = 'lumber',
-    mountains = 'ore',
-    fields = 'grain',
-    pasture = 'wool',
-}
-
-function Game:resFromHex (hex)
-    local res = self.RES_FROM_HEX[hex]
-    if res ~= nil then
-        return CatanSchema.ResourceCard:new(res)
-    end
-end
-
-function Game:numResCardsForBuilding (kind)
-    if kind == "settlement" then
-        return 1
-    else
-        assert(kind == "city")
-        return 2
-    end
-end
-
 function Game:getNumberOfResourceCardsOfType (player, res)
     return self.rescards[player][res] or 0
 end
@@ -1232,7 +1208,7 @@ function Game:placeInitialSettlement (vertex)
         for _, touchingFace in ipairs(Grid:touches(Grid:unpack(vertex))) do
             local touchingHex = self.hexmap:get(touchingFace)
             if touchingHex ~= nil then
-                local res = self:resFromHex(touchingHex)
+                local res = self:_resourceProducedByHex(touchingHex)
                 if res ~= nil then
                     hexprod:add(self.player, res, 1)
                 end
@@ -1294,12 +1270,12 @@ function Game:roll (dice)
                 return false -- skip to next iteration
             end
             local hex = assert(self.hexmap:get(face))
-            local res = self:resFromHex(hex)
+            local res = self:_resourceProducedByHex(hex)
             if res ~= nil then
                 for _, corner in ipairs(Grid:corners(q, r)) do
                     local building = self.buildmap:get(corner)
                     if building ~= nil then
-                        local numCards = self:numResCardsForBuilding(building.kind)
+                        local numCards = self:_numResourcesProducedByBuilding(building.kind)
                         hexprod:add(building.player, res, numCards)
                     end
                 end
@@ -1525,6 +1501,27 @@ end
 --==============================
 -- Auxiliary functions
 --==============================
+
+Game.NUM_RESOURCES_FROM_BUILDING_KIND = {
+    settlement = 1,
+    city = 2,
+}
+
+function Game:_numResourcesProducedByBuilding (kind)
+    return self.NUM_RESOURCES_FROM_BUILDING_KIND[kind]
+end
+
+Game.RESOURCE_FROM_HEX = {
+    hills = 'brick',
+    forest = 'lumber',
+    mountains = 'ore',
+    fields = 'grain',
+    pasture = 'wool',
+}
+
+function Game:_resourceProducedByHex (hex)
+    return self.RESOURCE_FROM_HEX[hex]
+end
 
 function Game:_checkForWinner ()
     local winner = self:getWinner()

@@ -1128,6 +1128,30 @@ function Game:canEndTurn ()
     return true
 end
 
+function Game:getWinner ()
+    local scores = {}
+
+    for _, player in ipairs(self.players) do
+        scores[player] = self:getNumberOfVictoryPoints(player)
+    end
+
+    local maxScore, tiedCount, tiedPlayers = TableUtils:podium(scores)
+
+    if maxScore >= 10 then
+        if tiedCount == 1 then
+            return next(tiedPlayers)
+        else
+            if tiedPlayers[self.player] then
+                return self.player
+            else
+                return nil
+            end
+        end
+    else
+        return nil
+    end
+end
+
 --------------------------------
 -- Actions
 --------------------------------

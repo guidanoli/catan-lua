@@ -9,6 +9,7 @@ test-utils:
 
 test-catan:
 	lua $(LUAOPT) test/catan/logic/game.lua
+	lua $(LUAOPT) test/catan/logic/grid.lua
 	lua $(LUAOPT) test/catan/logic/fuzzy.lua -v
 
 test: test-utils test-catan

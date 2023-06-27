@@ -26,32 +26,32 @@ expect('invalid player', function() Game:new{'red', 'blue', 'xyz'} end)
 expect('repeated player', function() Game:new{'red', 'blue', 'red'} end)
 
 local stateFiles = {
-    "choosingVictimBeforeRoll.lua",
-    "choosingVictim.lua",
-    "lastDiscard.lua",
-    "movingRobberBeforeRoll.lua",
-    "movingRobber.lua",
-    "roadCredit.lua",
-    "end.lua",
+    "choosingVictimBeforeRoll",
+    "choosingVictim",
+    "lastDiscard",
+    "movingRobberBeforeRoll",
+    "movingRobber",
+    "roadCredit",
+    "endPhase",
 }
+
+local games = {}
 
 local function loadFrom (stateFile)
     local path = {"test", "catan", "states", stateFile}
     local pathStr = table.concat(path, platform.PATH_SEPARATOR)
-    local fp = io.open(pathStr)
+    local fp = assert(io.open(pathStr))
     local str = fp:read"*a"
-    fp:close()
+    assert(fp:close())
 
     return assert(Game:deserialize(str))
 end
 
-local function mutate (game)
-    game.player = "foobar"
+for _, stateFile in ipairs(stateFiles) do
+    games[stateFile] = loadFrom(stateFile .. '.lua')
 end
 
-for _, stateFile in ipairs(stateFiles) do
-    local game1 = loadFrom(stateFile)
-
+for stateFile, game1 in pairs(games) do
     game1:validate()
 
     local str1 = game1:serialize()
@@ -59,7 +59,7 @@ for _, stateFile in ipairs(stateFiles) do
 
     assert(TableUtils:deepEqual(game1, game2, true))
 
-    mutate(game2)
+    game2.player = "foobar"
 
     local str2 = game2:serialize()
     assert(not Game:deserialize(str2))

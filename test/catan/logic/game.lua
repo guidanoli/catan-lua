@@ -115,3 +115,18 @@ do
         end
     end
 end
+
+-- moveRobber
+
+do
+    local game = games.movingRobber
+    assert(not game:canMoveRobber"foo")
+    assert(not game:canMoveRobber{q=777, r=777})
+end
+
+-- chooseVictim
+
+do
+    local game = games.choosingVictim
+    assert(not game:canChooseVictim"foo")
+end

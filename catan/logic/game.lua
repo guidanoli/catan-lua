@@ -1537,9 +1537,7 @@ end
 function Game:_getNewTitleHolder (values, currentHolder, minValueForTitle)
     local maxValue, tiedCount, tiedPlayers = TableUtils:podium(values)
 
-    if maxValue == nil then
-        return nil
-    end
+    assert(maxValue ~= nil)
 
     if currentHolder == nil then
         if tiedCount == 1 and maxValue >= minValueForTitle then

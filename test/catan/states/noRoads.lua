@@ -1,19 +1,27 @@
 return {
   bank = {
-    brick = 0,
-    grain = 14,
-    lumber = 18,
-    ore = 14,
-    wool = 11
+    brick = 13,
+    grain = 16,
+    lumber = 13,
+    ore = 15,
+    wool = 15
   },
   buildmap = {
     {
       [-1] = {
         N = {
           kind = "settlement",
-          player = "yellow"
-        },
-        S = {
+          player = "white"
+        }
+      },
+      [-2] = {
+        N = {
+          kind = "settlement",
+          player = "blue"
+        }
+      },
+      [0] = {
+        N = {
           kind = "settlement",
           player = "red"
         }
@@ -21,43 +29,35 @@ return {
     },
     {
       [-1] = {
-        S = {
-          kind = "settlement",
-          player = "red"
-        }
-      }
-    },
-    [-1] = {
-      {
-        S = {
-          kind = "settlement",
-          player = "blue"
-        }
-      },
-      [-1] = {
-        S = {
+        N = {
           kind = "settlement",
           player = "white"
         }
       },
-      [0] = {
-        S = {
+      [-2] = {
+        N = {
           kind = "settlement",
           player = "yellow"
+        }
+      },
+      [0] = {
+        N = {
+          kind = "settlement",
+          player = "blue"
         }
       }
     },
     [0] = {
       [-1] = {
-        S = {
+        N = {
           kind = "settlement",
-          player = "blue"
+          player = "yellow"
         }
       },
       [-2] = {
-        S = {
+        N = {
           kind = "settlement",
-          player = "white"
+          player = "red"
         }
       }
     }
@@ -69,21 +69,27 @@ return {
     yellow = {}
   },
   dice = {
-    4,
-    2
+    3,
+    1
   },
   drawpile = {
+    "roadbuilding",
+    "victorypoint",
     "yearofplenty",
+    "victorypoint",
+    "knight",
+    "knight",
+    "yearofplenty",
+    "knight",
     "monopoly",
+    "knight",
+    "victorypoint",
+    "knight",
+    "victorypoint",
+    "knight",
+    "knight",
+    "knight",
     "monopoly",
-    "knight",
-    "knight",
-    "victorypoint",
-    "knight",
-    "victorypoint",
-    "knight",
-    "knight",
-    "victorypoint",
     "victorypoint",
     "knight",
     "knight",
@@ -91,13 +97,7 @@ return {
     "knight",
     "roadbuilding",
     "knight",
-    "knight",
-    "roadbuilding",
-    "knight",
-    "knight",
-    "victorypoint",
-    "knight",
-    "yearofplenty"
+    "knight"
   },
   harbormap = {
     {
@@ -171,53 +171,53 @@ return {
   },
   hexmap = {
     {
-      "forest",
-      [-1] = "pasture",
-      [-2] = "fields",
-      [0] = "pasture"
-    },
-    {
-      [-1] = "forest",
+      "pasture",
+      [-1] = "mountains",
       [-2] = "fields",
       [0] = "hills"
     },
+    {
+      [-1] = "mountains",
+      [-2] = "pasture",
+      [0] = "desert"
+    },
     [-1] = {
       "fields",
-      "hills",
-      [-1] = "mountains",
+      "forest",
+      [-1] = "pasture",
       [0] = "forest"
     },
     [-2] = {
-      "forest",
-      "mountains",
-      [0] = "pasture"
+      "pasture",
+      "hills",
+      [0] = "forest"
     },
     [0] = {
-      "desert",
       "mountains",
-      [-1] = "hills",
-      [-2] = "pasture",
+      "hills",
+      [-1] = "fields",
+      [-2] = "forest",
       [0] = "fields"
     }
   },
   lastdiscard = {},
+  longestroad = "red",
   numbermap = {
     {
       12,
       [-1] = 3,
-      [-2] = 10,
+      [-2] = 8,
       [0] = 6
     },
     {
-      [-1] = 4,
-      [-2] = 8,
-      [0] = 11
+      [-1] = 11,
+      [-2] = 4
     },
     [-1] = {
-      5,
+      4,
       10,
       [-1] = 2,
-      [0] = 4
+      [0] = 9
     },
     [-2] = {
       3,
@@ -225,9 +225,9 @@ return {
       [0] = 6
     },
     [0] = {
-      nil,
+      5,
       9,
-      [-1] = 9,
+      [-1] = 10,
       [-2] = 5,
       [0] = 11
     }
@@ -242,24 +242,21 @@ return {
   },
   rescards = {
     blue = {
-      brick = 1,
-      grain = 1,
       ore = 1
     },
     red = {
-      brick = 17,
-      grain = 2,
-      lumber = 1,
-      ore = 3,
-      wool = 5
+      brick = 6,
+      lumber = 5,
+      ore = 2
     },
     white = {
-      brick = 1,
+      grain = 1,
       ore = 1,
-      wool = 2
+      wool = 3
     },
     yellow = {
       grain = 2,
+      lumber = 1,
       wool = 1
     }
   },
@@ -267,40 +264,75 @@ return {
   roadmap = {
     {
       [-1] = {
-        NE = "yellow"
+        NW = "white"
+      },
+      [-2] = {
+        NE = "blue"
       },
       [0] = {
         NW = "red"
       }
     },
     {
+      [-1] = {
+        NW = "white"
+      },
+      [-2] = {
+        NE = "yellow"
+      },
       [0] = {
-        NW = "red"
+        NW = "blue"
       }
     },
     [-1] = {
+      [-1] = {
+        NW = "red",
+        W = "red"
+      },
+      [3] = {
+        NW = "red"
+      }
+    },
+    [-2] = {
       {
-        W = "yellow"
+        W = "red"
       },
       {
-        W = "blue"
+        W = "red"
+      },
+      {
+        NE = "red",
+        NW = "red"
       },
       [0] = {
-        NW = "white"
+        NW = "red",
+        W = "red"
+      }
+    },
+    [-3] = {
+      {
+        NE = "red"
+      },
+      {
+        NE = "red"
+      },
+      {
+        NE = "red"
       }
     },
     [0] = {
       [-1] = {
-        NW = "white"
+        NW = "yellow"
       },
-      [0] = {
-        W = "blue"
+      [-2] = {
+        NW = "red",
+        W = "red"
       }
     }
   },
   robber = {
-    q = 0,
-    r = 1
+    q = 2,
+    r = 0
   },
   round = 3,
   version = 2

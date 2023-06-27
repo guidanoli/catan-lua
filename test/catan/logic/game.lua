@@ -37,6 +37,13 @@ local stateFiles = {
     "discarding",
     "roadToSea",
     "turn",
+    "noRoads",
+    "noSettlements",
+    "noCities",
+    "devcards",
+    "breakLongestRoad",
+    "breakLongestRoadLeadsToTie",
+    "breakLongestRoadLeadsToTieBelowMin",
 }
 
 local games = {}
@@ -141,4 +148,101 @@ do
     assert(not game:canTradeWithPlayer("blue", {}, "foo"))
     assert(not game:canTradeWithPlayer("blue", {brick=777}, {grain=1}))
     assert(not game:canTradeWithPlayer("blue", {brick=1}, {grain=777}))
+end
+
+-- tradeWithHarbor
+
+do
+    local game = games.turn
+    assert(not game:canTradeWithHarbor"foo")
+    assert(not game:canTradeWithHarbor({}, "foo"))
+    assert(not game:canTradeWithHarbor({wool=777}, {}))
+    assert(not game:canTradeWithHarbor({wool=4}, {}))
+    assert(not game:canTradeWithHarbor({wool=5}, {}))
+    assert(not game:canTradeWithHarbor({wool=4}, {brick=1}))
+end
+
+-- buildRoad
+
+do
+    local game = games.noRoads
+    assert(not game:canBuildRoad())
+end
+
+do
+    local game = games.turn
+    assert(not game:canBuildRoad"foo")
+end
+
+-- buildSettlement
+
+do
+    local game = games.noSettlements
+    assert(not game:canBuildSettlement())
+end
+
+do
+    local game = games.turn
+    assert(not game:canBuildSettlement"foo")
+end
+
+-- buildCity
+
+do
+    local game = games.noCities
+    assert(not game:canBuildCity())
+end
+
+do
+    local game = games.turn
+    assert(not game:canBuildCity"foo")
+end
+
+-- getPlayableCardOfKind
+
+do
+    local game = games.devcards
+    assert(not game:getPlayableCardOfKind "victorypoint")
+end
+
+-- getNumberOfDevelopmentCards
+
+do
+    local game = games.devcards
+    assert(game:getNumberOfDevelopmentCards"red" == 8)
+end
+
+-- playYearOfPlentyCard
+
+do
+    local game = games.devcards
+    assert(not game:canPlayYearOfPlentyCard"foo")
+    assert(not game:canPlayYearOfPlentyCard{brick=3})
+    assert(not game:canPlayYearOfPlentyCard{brick=2})
+end
+
+-- playMonopolyCard
+
+do
+    local game = games.devcards
+    assert(not game:canPlayMonopolyCard"foo")
+end
+
+-- getWinner
+
+do
+    local game = games.breakLongestRoad
+    game:buildSettlement{q=-1, r=1, v='S'}
+end
+
+-- _getNewTitleHolder
+
+do
+    local game = games.breakLongestRoadLeadsToTie
+    game:buildSettlement{q=-1, r=1, v='S'}
+end
+
+do
+    local game = games.breakLongestRoadLeadsToTieBelowMin
+    game:buildSettlement{q=-1, r=1, v='S'}
 end

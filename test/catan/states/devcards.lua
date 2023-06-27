@@ -1,53 +1,13 @@
 return {
   bank = {
     brick = 0,
-    grain = 14,
-    lumber = 18,
-    ore = 14,
-    wool = 11
+    grain = 17,
+    lumber = 14,
+    ore = 12,
+    wool = 17
   },
   buildmap = {
     {
-      [-1] = {
-        N = {
-          kind = "settlement",
-          player = "yellow"
-        },
-        S = {
-          kind = "settlement",
-          player = "red"
-        }
-      }
-    },
-    {
-      [-1] = {
-        S = {
-          kind = "settlement",
-          player = "red"
-        }
-      }
-    },
-    [-1] = {
-      {
-        S = {
-          kind = "settlement",
-          player = "blue"
-        }
-      },
-      [-1] = {
-        S = {
-          kind = "settlement",
-          player = "white"
-        }
-      },
-      [0] = {
-        S = {
-          kind = "settlement",
-          player = "yellow"
-        }
-      }
-    },
-    [0] = {
       [-1] = {
         S = {
           kind = "settlement",
@@ -59,45 +19,112 @@ return {
           kind = "settlement",
           player = "white"
         }
+      },
+      [0] = {
+        S = {
+          kind = "settlement",
+          player = "red"
+        }
+      }
+    },
+    {
+      [-1] = {
+        S = {
+          kind = "settlement",
+          player = "yellow"
+        }
+      },
+      [-2] = {
+        S = {
+          kind = "settlement",
+          player = "white"
+        }
+      }
+    },
+    [-1] = {
+      [-1] = {
+        S = {
+          kind = "settlement",
+          player = "blue"
+        }
+      }
+    },
+    [0] = {
+      [-1] = {
+        S = {
+          kind = "settlement",
+          player = "yellow"
+        }
+      },
+      [-2] = {
+        S = {
+          kind = "settlement",
+          player = "red"
+        }
       }
     }
   },
   devcards = {
     blue = {},
-    red = {},
+    red = {
+      {
+        kind = "roadbuilding",
+        roundBought = 3
+      },
+      {
+        kind = "monopoly",
+        roundBought = 3
+      },
+      {
+        kind = "knight",
+        roundBought = 3,
+        roundPlayed = 4
+      },
+      {
+        kind = "knight",
+        roundBought = 3
+      },
+      {
+        kind = "knight",
+        roundBought = 3
+      },
+      {
+        kind = "knight",
+        roundBought = 3
+      },
+      {
+        kind = "victorypoint",
+        roundBought = 3
+      },
+      {
+        kind = "yearofplenty",
+        roundBought = 3
+      },
+      {
+        kind = "knight",
+        roundBought = 3
+      }
+    },
     white = {},
     yellow = {}
   },
-  dice = {
-    4,
-    2
-  },
   drawpile = {
+    "knight",
+    "victorypoint",
+    "knight",
+    "victorypoint",
+    "knight",
+    "knight",
+    "victorypoint",
+    "knight",
+    "knight",
+    "monopoly",
+    "knight",
+    "victorypoint",
     "yearofplenty",
-    "monopoly",
-    "monopoly",
-    "knight",
-    "knight",
-    "victorypoint",
-    "knight",
-    "victorypoint",
-    "knight",
-    "knight",
-    "victorypoint",
-    "victorypoint",
-    "knight",
-    "knight",
-    "knight",
-    "knight",
     "roadbuilding",
     "knight",
-    "knight",
-    "roadbuilding",
-    "knight",
-    "knight",
-    "victorypoint",
-    "knight",
-    "yearofplenty"
+    "knight"
   },
   harbormap = {
     {
@@ -171,33 +198,33 @@ return {
   },
   hexmap = {
     {
-      "forest",
-      [-1] = "pasture",
-      [-2] = "fields",
-      [0] = "pasture"
+      "pasture",
+      [-1] = "fields",
+      [-2] = "mountains",
+      [0] = "desert"
     },
     {
-      [-1] = "forest",
-      [-2] = "fields",
-      [0] = "hills"
+      [-1] = "hills",
+      [-2] = "mountains",
+      [0] = "forest"
     },
     [-1] = {
       "fields",
-      "hills",
-      [-1] = "mountains",
-      [0] = "forest"
+      "pasture",
+      [-1] = "forest",
+      [0] = "fields"
     },
     [-2] = {
       "forest",
-      "mountains",
-      [0] = "pasture"
+      "pasture",
+      [0] = "hills"
     },
     [0] = {
-      "desert",
-      "mountains",
-      [-1] = "hills",
+      "forest",
+      "fields",
+      [-1] = "mountains",
       [-2] = "pasture",
-      [0] = "fields"
+      [0] = "hills"
     }
   },
   lastdiscard = {},
@@ -205,8 +232,7 @@ return {
     {
       12,
       [-1] = 3,
-      [-2] = 10,
-      [0] = 6
+      [-2] = 10
     },
     {
       [-1] = 4,
@@ -225,7 +251,7 @@ return {
       [0] = 6
     },
     [0] = {
-      nil,
+      6,
       9,
       [-1] = 9,
       [-2] = 5,
@@ -242,66 +268,66 @@ return {
   },
   rescards = {
     blue = {
-      brick = 1,
-      grain = 1,
-      ore = 1
+      brick = 3,
+      grain = 1
     },
     red = {
-      brick = 17,
-      grain = 2,
-      lumber = 1,
+      brick = 13,
+      grain = 0,
+      lumber = 2,
       ore = 3,
-      wool = 5
+      wool = 2
     },
     white = {
       brick = 1,
-      ore = 1,
-      wool = 2
+      grain = 1,
+      ore = 2
     },
     yellow = {
-      grain = 2,
-      wool = 1
+      brick = 2,
+      lumber = 3,
+      ore = 2
     }
   },
   roadcredit = {},
   roadmap = {
     {
+      {
+        W = "red"
+      },
       [-1] = {
-        NE = "yellow"
+        W = "white"
       },
       [0] = {
-        NW = "red"
+        W = "blue"
       }
     },
     {
+      [-1] = {
+        W = "white"
+      },
       [0] = {
-        NW = "red"
+        W = "yellow"
       }
     },
     [-1] = {
-      {
-        W = "yellow"
-      },
-      {
-        W = "blue"
-      },
       [0] = {
-        NW = "white"
+        W = "blue"
       }
     },
     [0] = {
       [-1] = {
-        NW = "white"
+        W = "red"
       },
       [0] = {
-        W = "blue"
+        W = "yellow"
       }
     }
   },
   robber = {
-    q = 0,
-    r = 1
+    q = 2,
+    r = -2
   },
-  round = 3,
+  round = 5,
   version = 2
 }

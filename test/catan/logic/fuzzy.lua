@@ -439,13 +439,18 @@ local function run (i, args, report)
         end
 
         if ok then
-            if args.validate then
-                game:validate()
-            end
+            game:validate()
+            local winner = game:getWinner()
             if args.v >= 1 then
+                if winner ~= nil then
+                    msg = msg .. ' / Winner is ' .. winner
+                end
                 printSuccess(i, j, msg)
             end
             report.successes = (report.successes or 0) + 1
+            if winner ~= nil then
+                break
+            end
         else
             msg = actionKey .. '(...) - ' .. msg
             if args.v >= 2 then
@@ -458,9 +463,8 @@ end
 
 local parser = argparse("fuzzy", "Catan fuzzy tester")
 parser:option("--seed", "Pseudo-random number generator seed.", os.time())
-parser:option("--ncalls", "Number of call attempts per game.", 10000)
+parser:option("--ncalls", "Number of call attempts per game.", 50000)
 parser:option("--ngames", "Number of games.", 1)
-parser:flag("--validate", "Validate game after every successful action.")
 parser:flag("-v", "Verbosity level."):count"*"
 
 local args = parser:parse()

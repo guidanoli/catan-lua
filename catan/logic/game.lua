@@ -815,6 +815,12 @@ function Game:canTradeWithPlayer (otherplayer, mycards, theircards)
             if m < 1 or n < 1 then
                 return false, "player cannot give away cards"
             end
+            for res in pairs(mycards) do
+                local n = theircards[res] or 0
+                if n > 0 then
+                    return false, "cannot trade cards of same type"
+                end
+            end
             local ok, err = self:_canGiveResources(self.player, mycards)
             if not ok then
                 return false, err

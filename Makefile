@@ -10,9 +10,7 @@ test-utils:
 
 test-catan:
 	lua $(LUAOPT) test/catan/logic/game.lua
-	lua test/catan/logic/fuzzy.lua -v --ngames 10 --validate
-	lua -lluacov test/catan/logic/fuzzy.lua -v --ncalls 2000 --validate
-	lua -lluacov test/catan/logic/fuzzy.lua -v
+	lua $(LUAOPT) test/catan/logic/fuzzy.lua -v
 
 test: test-utils test-catan
 

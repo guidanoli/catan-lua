@@ -341,9 +341,5 @@ return {
     r = 1
   },
   round = 7,
-  version = {
-    major = 2,
-    minor = 0,
-    patch = 0
-  }
+  version = 2
 }

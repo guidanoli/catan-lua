@@ -3,7 +3,6 @@ local serpent = require "serpent"
 local Class = require "util.class"
 local TableUtils = require "util.table"
 local LogicUtils = require "util.logic"
-local SemanticVersion = require "util.semver"
 
 local CatanSchema = require "catan.logic.schema"
 local CatanConstants = require "catan.logic.constants"
@@ -461,13 +460,13 @@ function Game:deserialize (str)
         return false, ret or 'chunk execution failed'
     end
 
-    -- Check version
-    local valid, err = CatanSchema.SemanticVersion:isValid(ret.version)
-    if not valid then
-        return false, 'unversioned schema'
+    -- Check return type
+    if type(ret) ~= 'table' then
+        return false, 'not a table'
     end
-    SemanticVersion:__new(ret.version)
-    if not CatanSchema.VERSION:compatibleWith(ret.version) then
+
+    -- Check version
+    if ret.version ~= CatanSchema.VERSION then
         return false, 'incompatible schema version'
     end
 

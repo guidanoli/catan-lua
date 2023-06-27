@@ -5,7 +5,6 @@ test-utils:
 	EMULATE_LUA_51=yes lua $(LUAOPT) test/util/safe.lua
 	lua $(LUAOPT) test/util/platform.lua
 	lua $(LUAOPT) test/util/schema.lua
-	lua $(LUAOPT) test/util/semver.lua
 	lua $(LUAOPT) test/util/table.lua
 
 test-catan:

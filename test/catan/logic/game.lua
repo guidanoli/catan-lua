@@ -5,7 +5,7 @@ local platform = require "util.platform"
 local TableUtils = require "util.table"
 local schema = require "util.schema"
 
-local Game = require "catan.logic.game"
+local Game = require "catan.logic.Game"
 local Grid = require "catan.logic.grid"
 
 Game:new():validate()

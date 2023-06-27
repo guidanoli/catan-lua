@@ -618,7 +618,7 @@ end
 --
 -- @tparam number n number of resource cards
 -- @treturn boolean whether number is above limit
--- @see catan.logic.game:getNumberOfResourceCardsToDiscard
+-- @see catan.logic.Game:getNumberOfResourceCardsToDiscard
 function Game:isNumberOfResourceCardsAboveLimit (n)
     return n > 7
 end
@@ -631,7 +631,7 @@ end
 --
 -- @tparam string player
 -- @treturn number number of resource cards to discard
--- @see catan.logic.game:isNumberOfResourceCardsAboveLimit
+-- @see catan.logic.Game:isNumberOfResourceCardsAboveLimit
 function Game:getNumberOfResourceCardsToDiscard (player)
     local count = self:getNumberOfResourceCards(player)
     if self:isNumberOfResourceCardsAboveLimit(count) then

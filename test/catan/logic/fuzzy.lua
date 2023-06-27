@@ -10,7 +10,7 @@ local FaceMap = require "catan.logic.FaceMap"
 local VertexMap = require "catan.logic.VertexMap"
 local EdgeMap = require "catan.logic.EdgeMap"
 
-local Game = require "catan.logic.game"
+local Game = require "catan.logic.Game"
 
 local function validFaces (game, isValid)
     local facemap = FaceMap:new()

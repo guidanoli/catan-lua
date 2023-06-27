@@ -11,7 +11,7 @@ local TableUtils = require "util.table"
 
 local CatanSchema = require "catan.logic.schema"
 local CatanConstants = require "catan.logic.constants"
-local Game = require "catan.logic.game"
+local Game = require "catan.logic.Game"
 local FaceMap = require "catan.logic.FaceMap"
 local VertexMap = require "catan.logic.VertexMap"
 local EdgeMap = require "catan.logic.EdgeMap"

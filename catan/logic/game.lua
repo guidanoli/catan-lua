@@ -1744,7 +1744,7 @@ function Game:_addToResourceCount (player, rescard, count)
 end
 
 function Game:_produce (hexprod)
-   local hexprod = self:_limitHexProductionByResCardSupply(hexprod)
+   self:_limitHexProductionByResCardSupply(hexprod)
    self:_applyHexProduction(hexprod)
 end
 
@@ -1752,24 +1752,17 @@ function Game:_limitHexProductionByResCardSupply (hexprod)
     local totalResProduction = {}
     local resProducers = {}
 
-    -- Initialize totalResProduction resProducers
-    hexprod:iter(function (player, res, n)
-        if totalResProduction[res] == nil then
-            totalResProduction[res] = 0
-        end
-        if resProducers[res] == nil then
-            resProducers[res] = {}
-        end
-    end)
-
     -- Count total number of resource produced per type
     -- and populate the resProducers with the producers of each type
     hexprod:iter(function (player, res, n)
-        totalResProduction[res] = totalResProduction[res] + n
-        resProducers[res][player] = true
+        totalResProduction[res] = (totalResProduction[res] or 0) + n
+        if n >= 1 then
+            if resProducers[res] == nil then
+                resProducers[res] = {}
+            end
+            resProducers[res][player] = true
+        end
     end)
-
-    local limitedHexProd = HexProduction:new()
 
     -- For each resource, check if the total amount produced surpasses
     -- the total supply in the bank. If so, check if only one player
@@ -1783,17 +1776,14 @@ function Game:_limitHexProductionByResCardSupply (hexprod)
             assert(nplayers >= 1)
             if nplayers == 1 then
                 local player = assert(next(players))
-                limitedHexProd:add(player, res, supply)
-            end
-        else
-            for player in pairs(players) do
-                local amount = hexprod:get(player, res)
-                limitedHexProd:add(player, res, amount)
+                hexprod:set(player, res, supply)
+            else
+                for player in pairs(players) do
+                    hexprod:set(player, res, nil)
+                end
             end
         end
     end
-
-    return limitedHexProd
 end
 
 function Game:_applyHexProduction (hexprod)

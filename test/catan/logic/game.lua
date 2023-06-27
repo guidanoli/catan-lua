@@ -44,6 +44,7 @@ local stateFiles = {
     "breakLongestRoad",
     "breakLongestRoadLeadsToTie",
     "breakLongestRoadLeadsToTieBelowMin",
+    "limitedHexProduction",
 }
 
 local games = {}
@@ -103,11 +104,23 @@ do
     assert(not game:canPlaceInitialRoad{q=2, r=-3, e='W'})
 end
 
--- canRoll
+-- roll
 
 do
     local game = games.roll
     assert(not game:canRoll"foo")
+end
+
+do
+    local game = games.limitedHexProduction
+    local hexprod = game:roll{5, 6}
+
+    -- one player, receives all remaining resources
+    assert(hexprod:get("red", "brick") == 1)
+
+    -- two players, receive nothing
+    assert(hexprod:get("red", "grain") == 0)
+    assert(hexprod:get("blue", "grain") == 0)
 end
 
 -- discard

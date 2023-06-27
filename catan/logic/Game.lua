@@ -807,15 +807,6 @@ function Game:canDiscard (player, rescards)
     return true
 end
 
-function Game:nobodyCanDiscard ()
-    for _, player in ipairs(self.players) do
-        if self:canDiscard(player) then
-            return false
-        end
-    end
-    return true
-end
-
 function Game:canMoveRobber (face)
     local ok, err = self:_isPhase"movingRobber"
     if not ok then
@@ -1367,7 +1358,7 @@ function Game:discard (player, rescards)
 
     self.lastdiscard[player] = self.round
 
-    if self:nobodyCanDiscard() then
+    if self:_nobodyCanDiscard() then
         self.phase = "movingRobber"
     end
 end
@@ -1553,6 +1544,15 @@ end
 --==============================
 -- Auxiliary functions
 --==============================
+
+function Game:_nobodyCanDiscard ()
+    for _, player in ipairs(self.players) do
+        if self:canDiscard(player) then
+            return false
+        end
+    end
+    return true
+end
 
 Game.NUM_RESOURCES_FROM_BUILDING_KIND = {
     settlement = 1,

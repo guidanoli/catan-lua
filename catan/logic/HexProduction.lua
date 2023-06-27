@@ -5,7 +5,6 @@
 
 local Class = require "util.class"
 
-local Grid = require "catan.logic.grid"
 local CatanSchema = require "catan.logic.schema"
 
 local Player = CatanSchema.Player
@@ -15,7 +14,7 @@ local HexProduction = Class "HexProduction"
 
 ---
 -- Create an empty hex production.
--- @treturn catan.logic.HexProduction an empty hex production
+-- @treturn catan.logic.HexProduction
 function HexProduction:new ()
     return self:__new{}
 end

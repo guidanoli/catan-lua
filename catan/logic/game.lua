@@ -415,17 +415,17 @@ function Game:_validateLongestRoad ()
         lengths[player] = self:getLongestRoadLength(player)
     end
 
-    local maxlength, tiedcount, tiedplayers = TableUtils:podium(lengths)
+    local maxLength, tiedCount, tiedPlayers = TableUtils:podium(lengths)
 
-    assert(maxlength >= 1)
+    assert(maxLength >= 1)
 
     if self.longestroad == nil then
-        if tiedcount == 1 then
-            assert(maxlength < 5)
+        if tiedCount == 1 then
+            assert(maxLength < 5)
         end
     else
-        assert(maxlength >= 5)
-        assert(tiedplayers[self.longestroad])
+        assert(maxLength >= 5)
+        assert(tiedPlayers[self.longestroad])
     end
 end
 
@@ -602,17 +602,17 @@ function Game:getNumberOfResourceCardsToDiscard (player)
 end
 
 function Game:getLongestRoadLength (player)
-    local maxlength = 0
+    local maxLength = 0
     self.roadmap:iter(function (q, r, e, p)
         if p == player then
             local edge = Grid:edge(q, r, e)
             local length = self:_getLongestRoadWithEdge(p, edge)
-            if length > maxlength then
-                maxlength = length
+            if length > maxLength then
+                maxLength = length
             end
         end
     end)
-    return maxlength
+    return maxLength
 end
 
 
@@ -1455,31 +1455,31 @@ function Game:_getLongestRoadWithEdge (player, edge)
     end
 
     local function visit (vertex)
-        local maxlength = 0
+        local maxLength = 0
         for _, pair in ipairs(Grid:adjacentEdgeVertexPairs(Grid:unpack(vertex))) do
             if canVisit(pair) then
                 visitedEdges:set(pair.edge, true)
                 local length = 1 + visit(pair.vertex)
-                if length > maxlength then
-                    maxlength = length
+                if length > maxLength then
+                    maxLength = length
                 end
                 visitedEdges:set(pair.edge, false)
             end
         end
-        return maxlength
+        return maxLength
     end
 
-    local maxlength = 0
+    local maxLength = 0
     for _, endpoint in ipairs(Grid:endpoints(Grid:unpack(edge))) do
         local building = self.buildmap:get(endpoint)
         if building == nil or building.player == player then
             local length = visit(endpoint)
-            if length > maxlength then
-                maxlength = length
+            if length > maxLength then
+                maxLength = length
             end
         end
     end
-    return maxlength
+    return maxLength
 end
 
 function Game:_getNewTitleHolder (values, currentHolder, minValueForTitle)

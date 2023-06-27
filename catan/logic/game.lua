@@ -1,3 +1,8 @@
+---
+-- Catan game state
+--
+-- @classmod catan.logic.Game
+
 local serpent = require "serpent"
 
 local Class = require "util.class"
@@ -26,6 +31,15 @@ local load = loadstring or load
 -- Constructor
 --==============================
 
+---
+-- Create a new game from a list of players colors.
+--
+-- The valid player colors are `"red"`, `"blue"`, `"yellow"` and `"white"`.
+-- The list must not have repetitions or fewer than 3 colors.
+-- The list dictates the order of turns, starting with the first.
+--
+-- @tparam ?{string,...} players an array of player colors
+-- @treturn Game game
 function Game:new (players)
     players = players or CatanConstants.players
     local game = self:__new{}
@@ -158,6 +172,9 @@ end
 -- Validation
 --==============================
 
+---
+-- Validate game state against invariants.
+-- Raises an error message if an invariant is not satisfied.
 function Game:validate ()
     assert(CatanSchema.GameState:isValid(self))
 
@@ -444,6 +461,9 @@ end
 -- Serialization
 --==============================
 
+---
+-- Serialize game state.
+-- @treturn string game state serialization
 function Game:serialize ()
     return 'return ' .. serpent.block(self, {
         comment = false,
@@ -496,6 +516,10 @@ end
 -- Getters
 --==============================
 
+---
+-- Get the number of victory points of a player.
+-- @tparam string player
+-- @treturn number number of victory points
 function Game:getNumberOfVictoryPoints (player)
     local n = 0
 
@@ -532,6 +556,10 @@ function Game:getNumberOfVictoryPoints (player)
     return n
 end
 
+---
+-- Get the number of development cards of a player.
+-- @tparam string player
+-- @treturn number number of development cards
 function Game:getNumberOfDevelopmentCards (player)
     local n = 0
     for i, devcard in ipairs(self.devcards[player]) do
@@ -542,6 +570,10 @@ function Game:getNumberOfDevelopmentCards (player)
     return n
 end
 
+---
+-- Get the number of resource cards of a player.
+-- @tparam string player
+-- @treturn number number of resource cards
 function Game:getNumberOfResourceCards (player)
     local n = 0
     for res, count in pairs(self.rescards[player]) do
@@ -550,6 +582,13 @@ function Game:getNumberOfResourceCards (player)
     return n
 end
 
+---
+-- Get the size of a player's army.
+--
+-- A player's army is composed of the knights they have used so far.
+--
+-- @tparam string player
+-- @treturn number army size
 function Game:getArmySize (player)
     local n = 0
     for i, devcard in ipairs(self.devcards[player]) do

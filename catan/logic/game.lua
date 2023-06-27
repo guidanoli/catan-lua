@@ -478,21 +478,21 @@ function Game:deserialize (str)
     -- Load table from string
     local f, err = load(str)
     if f == nil then
-        return false, err or 'chunk parsing failed'
+        return nil, err
     end
     local ok, ret = pcall(f)
     if not ok then
-        return false, ret or 'chunk execution failed'
+        return nil, ret or 'chunk execution failed'
     end
 
     -- Check return type
     if type(ret) ~= 'table' then
-        return false, 'not a table'
+        return nil, 'chunk does not return a table'
     end
 
     -- Check version
     if ret.version ~= CatanSchema.VERSION then
-        return false, 'incompatible schema version'
+        return nil, 'incompatible schema version'
     end
 
     -- Set metatables
@@ -506,7 +506,7 @@ function Game:deserialize (str)
     -- Validate table against game schema and logic
     local ok, err = pcall(self.validate, game)
     if not ok then
-        return false, err or 'input validation failed'
+        return nil, err
     end
 
     return game

@@ -1142,14 +1142,10 @@ function Game:getWinner ()
     local maxScore, tiedCount, tiedPlayers = TableUtils:podium(scores)
 
     if maxScore >= 10 then
-        if tiedCount == 1 then
-            return next(tiedPlayers)
+        if tiedPlayers[self.player] then
+            return self.player
         else
-            if tiedPlayers[self.player] then
-                return self.player
-            else
-                return nil
-            end
+            return nil
         end
     else
         return nil

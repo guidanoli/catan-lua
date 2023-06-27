@@ -36,6 +36,7 @@ local stateFiles = {
     "roll",
     "discarding",
     "roadToSea",
+    "turn",
 }
 
 local games = {}
@@ -129,4 +130,15 @@ end
 do
     local game = games.choosingVictim
     assert(not game:canChooseVictim"foo")
+end
+
+-- tradeWithPlayer
+
+do
+    local game = games.turn
+    assert(not game:canTradeWithPlayer"foo")
+    assert(not game:canTradeWithPlayer("blue", "foo"))
+    assert(not game:canTradeWithPlayer("blue", {}, "foo"))
+    assert(not game:canTradeWithPlayer("blue", {brick=777}, {grain=1}))
+    assert(not game:canTradeWithPlayer("blue", {brick=1}, {grain=777}))
 end

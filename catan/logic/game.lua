@@ -415,22 +415,9 @@ function Game:_validateLongestRoad ()
         lengths[player] = self:getLongestRoadLength(player)
     end
 
-    local maxlength = 0
-    for player, length in pairs(lengths) do
-        if length > maxlength then
-            maxlength = length
-        end
-    end
+    local maxlength, tiedcount, tiedplayers = TableUtils:podium(lengths)
 
-    local tiedplayers = {}
-    for player, length in pairs(lengths) do
-        if length == maxlength then
-            tiedplayers[player] = true
-        end
-    end
-
-    local tiedcount = TableUtils:numOfPairs(tiedplayers)
-    assert(tiedcount >= 1)
+    assert(maxlength >= 1)
 
     if self.longestroad == nil then
         if tiedcount == 1 then
@@ -1496,25 +1483,11 @@ function Game:_getLongestRoadWithEdge (player, edge)
 end
 
 function Game:_getNewTitleHolder (values, currentHolder, minValueForTitle)
-    local maxValue
-    for player, value in pairs(values) do
-        if maxValue == nil or value > maxValue then
-            maxValue = value
-        end
-    end
+    local maxValue, tiedCount, tiedPlayers = TableUtils:podium(values)
+
     if maxValue == nil then
         return nil
     end
-
-    local tiedPlayers = {}
-    for player, value in pairs(values) do
-        if value == maxValue then
-            tiedPlayers[player] = true
-        end
-    end
-
-    local tiedCount = TableUtils:numOfPairs(tiedPlayers)
-    assert(tiedCount >= 1)
 
     if currentHolder == nil then
         if tiedCount == 1 and maxValue >= minValueForTitle then

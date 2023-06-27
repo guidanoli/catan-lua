@@ -417,7 +417,7 @@ function Game:_validateLongestRoad ()
 
     local maxLength, tiedCount, tiedPlayers = TableUtils:podium(lengths)
 
-    assert(maxLength >= 1)
+    assert(maxLength >= 0)
 
     if self.longestroad == nil then
         if tiedCount == 1 then

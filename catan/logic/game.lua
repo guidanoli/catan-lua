@@ -474,6 +474,11 @@ end
 -- Deserialization
 --==============================
 
+---
+-- Deserialize game state.
+-- @tparam string str game state serialization
+-- @treturn ?Game deserialized game state (or `nil` in case of failure)
+-- @treturn ?string error message (in case of failure)
 function Game:deserialize (str)
     -- Load table from string
     local f, err = load(str)

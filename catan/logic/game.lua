@@ -42,7 +42,6 @@ function Game:_init (players)
     self.version = CatanSchema.VERSION
     self.phase = 'placingInitialSettlement'
     self.round = 1
-    self.hasbuilt = false
     self:_setPlayers(players)
     self:_createHexMap()
     self:_createNumberMap()
@@ -795,9 +794,6 @@ function Game:canTrade ()
     if not ok then
         return false, err
     end
-    if self.hasbuilt then
-        return false, "cannot trade after building"
-    end
     return true
 end
 
@@ -1345,7 +1341,6 @@ function Game:buildRoad (edge)
 
     self.roadmap:set(edge, self.player)
 
-    self.hasbuilt = true
     self:_updateLongestRoadHolder()
 end
 
@@ -1360,7 +1355,6 @@ function Game:buildSettlement (vertex)
         player = self.player,
     })
 
-    self.hasbuilt = true
     self:_updateLongestRoadHolder()
 end
 
@@ -1375,7 +1369,6 @@ function Game:buildCity (vertex)
         player = self.player,
     })
 
-    self.hasbuilt = true
     self:_updateLongestRoadHolder()
 end
 
@@ -1390,8 +1383,6 @@ function Game:buyDevelopmentCard ()
         kind = kind,
         roundBought = self.round,
     })
-
-    self.hasbuilt = true
 
     return kind
 end
@@ -1448,7 +1439,6 @@ function Game:endTurn ()
     self.roadcredit[self.player] = nil
     self.player = self:_getPlayerAfterIndex(i)
     self.dice = nil
-    self.hasbuilt = false
 end
 
 --------------------------------

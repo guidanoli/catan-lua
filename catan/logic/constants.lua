@@ -1,40 +1,48 @@
-local FaceMap = require "catan.logic.FaceMap"
-local VertexMap = require "catan.logic.VertexMap"
+---
+-- Catan Constants
+--
+-- @module catan.logic.constants
+
+local Grid = require "catan.logic.grid"
+
+-- Note: We define some tables twice to avoid LDoc from rendering
+-- the fields of the real table.
 
 local constants = {}
 
--- In the same order as the number placement
+---
+-- List of terrain faces.
+constants.terrainFaces = {}
 constants.terrainFaces = {
-    {q = 0, r = -2},
-    {q = -1, r = -1},
-    {q = -2, r = 0},
-    {q = -2, r = 1},
-    {q = -2, r = 2},
-    {q = -1, r = 2},
-    {q = 0, r = 2},
-    {q = 1, r = 1},
-    {q = 2, r = 0},
-    {q = 2, r = -1},
-    {q = 2, r = -2},
-    {q = 1, r = -2},
-    {q = 0, r = -1},
-    {q = -1, r = 0},
-    {q = -1, r = 1},
-    {q = 0, r = 1},
-    {q = 1, r = 0},
-    {q = 1, r = -1},
-    {q = 0, r = 0},
+    Grid:face(0, -2),
+    Grid:face(-1, -1),
+    Grid:face(-2, 0),
+    Grid:face(-2, 1),
+    Grid:face(-2, 2),
+    Grid:face(-1, 2),
+    Grid:face(0, 2),
+    Grid:face(1, 1),
+    Grid:face(2, 0),
+    Grid:face(2, -1),
+    Grid:face(2, -2),
+    Grid:face(1, -2),
+    Grid:face(0, -1),
+    Grid:face(-1, 0),
+    Grid:face(-1, 1),
+    Grid:face(0, 1),
+    Grid:face(1, 0),
+    Grid:face(1, -1),
+    Grid:face(0, 0),
 }
 
-do
-    -- Check for duplicate coordinates
-    local map = FaceMap:new()
-    for _, face in pairs(constants.terrainFaces) do
-        assert(map:get(face) == nil)
-        map:set(face, true)
-    end
-end
-
+---
+-- Number of hexes per type.
+-- @tfield number hills 3
+-- @tfield number forest 4
+-- @tfield number mountains 3
+-- @tfield number fields 4
+-- @tfield number pasture 4
+-- @tfield number desert 1
 constants.terrain = {
     hills = 3,
     forest = 4,
@@ -44,64 +52,50 @@ constants.terrain = {
     desert = 1,
 }
 
-do
-    -- Check if #hexes = #terrainFaces
-    local sum = 0
-    for kind, count in pairs(constants.terrain) do
-        assert(count >= 0)
-        sum = sum + count
-    end
-    assert(sum == #constants.terrainFaces)
-end
-
+---
+-- List of number tokens, in the same order as @{terrainFaces}.
+constants.numbers = {}
 constants.numbers = {
     5, 2, 6, 3, 8, 10,
     9, 12, 11, 4, 8, 10,
     9, 4, 5, 6, 3, 11,
 }
 
-do
-    -- Check if #numbers = #non-desert-hexes
-    local sum = 0
-    for kind, count in pairs(constants.terrain) do
-        if kind ~= 'desert' then
-            sum = sum + count
-        end
-    end
-    assert(sum == #constants.numbers)
+local function Harbor(kind, q, r, v)
+    return {
+        kind = kind,
+        vertex = Grid:vertex(q, r, v),
+    }
 end
 
+---
+-- List of harbors.
+-- Each harbor is a table containing fields `vertex` and `kind`.
+constants.harbors = {}
 constants.harbors = {
-    {q = 0, r = -3, v = 'S', kind = 'generic'},
-    {q = 0, r = -2, v = 'N', kind = 'generic'},
-    {q = 1, r = -2, v = 'N', kind = 'grain'},
-    {q = 2, r = -3, v = 'S', kind = 'grain'},
-    {q = 2, r = -1, v = 'N', kind = 'ore'},
-    {q = 3, r = -2, v = 'S', kind = 'ore'},
-    {q = 3, r = -1, v = 'S', kind = 'generic'},
-    {q = 2, r = 1, v = 'N', kind = 'generic'},
-    {q = 1, r = 2, v = 'N', kind = 'wool'},
-    {q = 1, r = 1, v = 'S', kind = 'wool'},
-    {q = -1, r = 3, v = 'N', kind = 'generic'},
-    {q = -1, r = 2, v = 'S', kind = 'generic'},
-    {q = -2, r = 2, v = 'S', kind = 'generic'},
-    {q = -3, r = 3, v = 'N', kind = 'generic'},
-    {q = -3, r = 2, v = 'N', kind = 'brick'},
-    {q = -2, r = 0, v = 'S', kind = 'brick'},
-    {q = -2, r = 0, v = 'N', kind = 'lumber'},
-    {q = -1, r = -2, v = 'S', kind = 'lumber'},
+    Harbor('generic', 0, -3, 'S'),
+    Harbor('generic', 0, -2, 'N'),
+    Harbor('grain', 1, -2, 'N'),
+    Harbor('grain', 2, -3, 'S'),
+    Harbor('ore', 2, -1, 'N'),
+    Harbor('ore', 3, -2, 'S'),
+    Harbor('generic', 3, -1, 'S'),
+    Harbor('generic', 2, 1, 'N'),
+    Harbor('wool', 1, 2, 'N'),
+    Harbor('wool', 1, 1, 'S'),
+    Harbor('generic', -1, 3, 'N'),
+    Harbor('generic', -1, 2, 'S'),
+    Harbor('generic', -2, 2, 'S'),
+    Harbor('generic', -3, 3, 'N'),
+    Harbor('brick', -3, 2, 'N'),
+    Harbor('brick', -2, 0, 'S'),
+    Harbor('lumber', -2, 0, 'N'),
+    Harbor('lumber', -1, -2, 'S'),
 }
 
-do
-    -- Check for duplicate coordinates
-    local map = VertexMap:new()
-    for _, h in pairs(constants.harbors) do
-        local vertex = {q = h.q, r = h.r, v = h.v}
-        assert(map:get(vertex) == nil)
-        map:set(vertex, true)
-    end
-end
-
+---
+-- List of valid player names.
+constants.players = {}
 constants.players = {
     'red',
     'blue',
@@ -109,15 +103,13 @@ constants.players = {
     'white',
 }
 
-do
-    -- Check for duplicate players
-    local set = {}
-    for _, p in pairs(constants.players) do
-        assert(set[p] == nil)
-        set[p] = true
-    end
-end
-
+---
+-- Number of development cards per type.
+-- @tfield number knight 14
+-- @tfield number roadbuilding 2
+-- @tfield number yearofplenty 2
+-- @tfield number monopoly 2
+-- @tfield number victorypoint 5
 constants.devcards = {
     knight = 14,
     roadbuilding = 2,
@@ -126,6 +118,13 @@ constants.devcards = {
     victorypoint = 5,
 }
 
+---
+-- Number of resource cards per type.
+-- @tfield number brick 19
+-- @tfield number lumber 19
+-- @tfield number ore 19
+-- @tfield number grain 19
+-- @tfield number wool 19
 constants.rescards = {
     brick = 19,
     lumber = 19,
@@ -134,10 +133,16 @@ constants.rescards = {
     wool = 19,
 }
 
+---
+-- Number of roads per player.
 constants.roads = 15
 
+---
+-- Number of settlements per player.
 constants.settlements = 5
 
+---
+-- Number of cities per player.
 constants.cities = 4
 
 return constants

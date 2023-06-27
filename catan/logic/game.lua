@@ -610,14 +610,6 @@ function Game:getArmySize (player)
     return n
 end
 
-function Game:getNumberOfResourceCardsOfType (player, res)
-    return self.rescards[player][res] or 0
-end
-
-function Game:hasDiscardedInThisRound (player)
-    return self.lastdiscard[player] == self.round
-end
-
 function Game:isNumberOfResourceCardsAboveLimit (n)
     return n > 7
 end
@@ -709,7 +701,7 @@ end
 
 -- Does not check if phase is right to discard
 function Game:mustPlayerDiscard (player)
-    if self:hasDiscardedInThisRound(player) then
+    if self.lastdiscard[player] == self.round then
         return false, "player has discarded in this round already"
     end
     local expectedTotalDiscardCount = self:getNumberOfResourceCardsToDiscard(player)
@@ -740,7 +732,7 @@ function Game:canDiscard (player, rescards)
             end
             local totalDiscardCount = 0
             for res, discardCount in pairs(rescards) do
-                local currentCount = self:getNumberOfResourceCardsOfType(player, res)
+                local currentCount = self.rescards[player][res] or 0
                 if discardCount > currentCount then
                     return false, "player cannot discard more than they currently have"
                 end

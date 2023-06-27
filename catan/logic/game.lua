@@ -810,6 +810,11 @@ function Game:canTradeWithPlayer (otherplayer, mycards, theircards)
             if not ok then
                 return false, err
             end
+            local m = TableUtils:sum(mycards)
+            local n = TableUtils:sum(theircards)
+            if m < 1 or n < 1 then
+                return false, "player cannot give away cards"
+            end
             local ok, err = self:_canGiveResources(self.player, mycards)
             if not ok then
                 return false, err

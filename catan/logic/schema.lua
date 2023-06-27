@@ -15,6 +15,7 @@ m.Phase = s.Enum{
     'discarding',
     'movingRobber',
     'choosingVictim',
+    'end',
 }
 
 m.D6 = s.Enum{
@@ -149,6 +150,7 @@ m.GameState = s.Struct{
     robber = m.Face,
     -- players (dynamic)
     player = m.Player,
+    winner = s.Option(m.Player),
     devcards = PlayerMap(s.Array(m.DevelopmentCard)),
     rescards = PlayerMap(m.ResourceCardHistogram),
     roadcredit = PlayerMap(Int),

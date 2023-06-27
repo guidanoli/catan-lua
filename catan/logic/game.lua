@@ -1352,6 +1352,7 @@ function Game:buildRoad (edge)
     self.roadmap:set(edge, self.player)
 
     self:_updateLongestRoadHolder()
+    self:_checkForWinner()
 end
 
 function Game:buildSettlement (vertex)
@@ -1366,6 +1367,7 @@ function Game:buildSettlement (vertex)
     })
 
     self:_updateLongestRoadHolder()
+    self:_checkForWinner()
 end
 
 function Game:buildCity (vertex)
@@ -1380,6 +1382,7 @@ function Game:buildCity (vertex)
     })
 
     self:_updateLongestRoadHolder()
+    self:_checkForWinner()
 end
 
 function Game:buyDevelopmentCard ()
@@ -1394,6 +1397,8 @@ function Game:buyDevelopmentCard ()
         roundBought = self.round,
     })
 
+    self:_checkForWinner()
+
     return kind
 end
 
@@ -1403,7 +1408,9 @@ function Game:playKnightCard ()
     self:_markCardAsPlayed(devcard)
 
     self.phase = "movingRobber"
+
     self:_updateLargestArmyHolder()
+    self:_checkForWinner()
 end
 
 function Game:playRoadBuildingCard ()
@@ -1449,11 +1456,21 @@ function Game:endTurn ()
     self.roadcredit[self.player] = nil
     self.player = self:_getPlayerAfterIndex(i)
     self.dice = nil
+
+    self:_checkForWinner()
 end
 
 --------------------------------
 -- Auxiliary functions
 --------------------------------
+
+function Game:_checkForWinner ()
+    local winner = self:getWinner()
+    if winner ~= nil then
+        self.phase = 'end'
+        self.winner = winner
+    end
+end
 
 function Game:_markCardAsPlayed (devcard)
     assert(devcard.roundPlayed == nil)

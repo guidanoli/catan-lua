@@ -23,15 +23,20 @@ local HexProduction = require "catan.logic.HexProduction"
 
 local Game = Class "Game"
 
---==============================
+--------------------------------
 -- Compatibility with Lua 5.1
---==============================
+--------------------------------
 
 local load = loadstring or load
 
---==============================
+---------------------------------------------------------
 -- Constructor
---==============================
+--
+-- The class constructor is responsible for creating
+-- new matches with random initial setups.
+--
+-- @section constructor
+---------------------------------------------------------
 
 ---
 -- Create a new game from a list of players colors.
@@ -47,10 +52,6 @@ function Game:new (players)
     game:_init(players)
     return game
 end
-
---==============================
--- Initialization code
---==============================
 
 function Game:_init (players)
     self.version = CatanSchema.VERSION
@@ -169,9 +170,14 @@ function Game:_createBank ()
     end
 end
 
---==============================
+-----------------------------------------------------------------------
 -- Validation
---==============================
+--
+-- We can check that the game state is valid according to a set of
+-- invariants, to increase the chance of detecting bugs.
+--
+-- @section validation
+-----------------------------------------------------------------------
 
 ---
 -- Validate game state against invariants.
@@ -458,9 +464,14 @@ function Game:_validateLastDiscard ()
     end
 end
 
---==============================
+----------------------------------------------------------------------
 -- Serialization
---==============================
+--
+-- We can store a game state in a file, and load it back up
+-- through serialization and deserialization, respectively.
+--
+-- @section serialization
+----------------------------------------------------------------------
 
 ---
 -- Serialize game state.
@@ -470,10 +481,6 @@ function Game:serialize ()
         comment = false,
     })
 end
-
---==============================
--- Deserialization
---==============================
 
 ---
 -- Deserialize game state.
@@ -524,9 +531,14 @@ function Game:deserialize (str)
     return game
 end
 
---==============================
+----------------------------------------------------------------
 -- Getters
---==============================
+--
+-- Getters are read-only methods that provide information
+-- about the current state of the game.
+--
+-- @section getters
+----------------------------------------------------------------
 
 ---
 -- Get the number of victory points of a player.
@@ -751,9 +763,14 @@ function Game:getPlayableCardOfKind (kind)
     return nil, "player doesn't have such development card"
 end
 
---==============================
--- Checkers
---==============================
+---------------------------------------------------------------
+-- Predicates
+--
+-- Predicates are read-only methods that allow the developer
+-- to know if they can call a given action method.
+--
+-- @section predicates
+---------------------------------------------------------------
 
 ---
 -- Check whether the current player can place one of its initial settlement in a given vertex.
@@ -1360,9 +1377,13 @@ function Game:canEndTurn ()
     return true
 end
 
---==============================
+-------------------------------------------------------------------------
 -- Actions
---==============================
+--
+-- Actions are methods that necessarily change the state of the game.
+--
+-- @section actions
+-------------------------------------------------------------------------
 
 ---
 -- Place a settlement in a given vertex.
@@ -1745,9 +1766,10 @@ function Game:endTurn ()
     self:_checkForWinner()
 end
 
---==============================
--- Auxiliary functions
---==============================
+--------------------------------
+-- Internals
+-- @section internals
+--------------------------------
 
 function Game:_nobodyCanDiscard ()
     for _, player in ipairs(self.players) do

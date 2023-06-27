@@ -33,6 +33,9 @@ local stateFiles = {
     "movingRobber",
     "roadCredit",
     "endPhase",
+    "roll",
+    "discarding",
+    "roadToSea",
 }
 
 local games = {}
@@ -85,4 +88,30 @@ do
     game:placeInitialSettlement{q=0, r=0, v='N'}
     assert(not game:canPlaceInitialRoad"foo")
     assert(not game:canPlaceInitialRoad{q=777, r=777, e='W'})
+end
+
+do
+    local game = games.roadToSea
+    assert(not game:canPlaceInitialRoad{q=2, r=-3, e='W'})
+end
+
+-- canRoll
+
+do
+    local game = games.roll
+    assert(not game:canRoll"foo")
+end
+
+-- discard
+
+do
+    local game = games.discarding
+    assert(not game:canDiscard"foo")
+    for _, player in ipairs(game.players) do
+        assert(not game:canDiscard(player, "foo"))
+        if game:canDiscard(player) then
+            assert(not game:canDiscard(player, {grain=777}))
+            assert(not game:canDiscard(player, {}))
+        end
+    end
 end

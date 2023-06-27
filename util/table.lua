@@ -147,7 +147,7 @@ local function istable (o)
     return type(o) == "table"
 end
 
-local function equalrec (ta, tb)
+local function equalrec (ta, tb, checkmetatable)
     local ok, err = equalkeyset(ta, tb)
     if not ok then
         return false, err
@@ -155,7 +155,12 @@ local function equalrec (ta, tb)
     for k, va in pairs(ta) do
         local vb = rawget(tb, k)
         if istable(va) and istable(vb) then
-            local ok, err = equalrec(va, vb)
+            if checkmetatable then
+                if getmetatable(va) ~= getmetatable(vb) then
+                    return false, ("[%q] have different metatables"):format(k)
+                end
+            end
+            local ok, err = equalrec(va, vb, checkmetatable)
             if not ok then
                 return false, ("[%q]%s"):format(k, err)
             end
@@ -168,8 +173,8 @@ local function equalrec (ta, tb)
     return true
 end
 
-function TableUtils:deepEqual (ta, tb)
-    return equalrec(ta, tb)
+function TableUtils:deepEqual (...)
+    return equalrec(...)
 end
 
 function TableUtils:reverse (t)

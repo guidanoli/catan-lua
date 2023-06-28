@@ -1,4 +1,18 @@
--- Source: https://www.redblobgames.com/grids/parts/#hexagons
+---
+-- Hexagonal grid parts and relations
+--
+-- We use the axial coordinate system, since it is the simplest to implement.
+-- We'll use letters `q` and `r` for integers, and `e` and `v` for strings.
+--
+-- In this system, faces are located by a tuple `<q,r>`.
+--
+-- Each edge is either northeast, northwest or west to some face, thus `<q,r,e>`,
+-- where `e` is either `"NE"` (for northeast), `"NW"` (for northwest), or `"W"` (for west).
+--
+-- Each vertex is either north or south to some face, thus `<q,r,v>`,
+-- where `v` is either `"N"` (for north), or `"S"` (for south).
+--
+-- @module catan.logic.grid
 
 local CatanSchema = require "catan.logic.schema"
 
@@ -8,22 +22,50 @@ local Vertex = CatanSchema.Vertex
 
 local grid = {}
 
+---
+-- Create a face from axial coordinates `<q,r>`
+-- @tparam number q
+-- @tparam number r
+-- @treturn Face
 function grid:face (q, r)
     return Face:new{q = q, r = r}
 end
 
+---
+-- Create an edge from axial coordinates `<q,r,e>`
+-- @tparam number q
+-- @tparam number r
+-- @tparam string e
+-- @treturn Edge
 function grid:edge (q, r, e)
     return Edge:new{q = q, r = r, e = e}
 end
 
+---
+-- Create a vertex from axial coordinates `<q,r,v>`
+-- @tparam number q
+-- @tparam number r
+-- @tparam string v
+-- @treturn Vertex
 function grid:vertex (q, r, v)
     return Vertex:new{q = q, r = r, v = v}
 end
 
+---
+-- Get axial coordinates of grid parts
+-- @tparam Face|Edge|Vertex x grid part
+-- @treturn number q
+-- @treturn number r
+-- @treturn ?string e or v
 function grid:unpack (x)
-    return x.q, x.r, x.v or x.e
+    return x.q, x.r, x.e or x.v
 end
 
+---
+-- Get list of 6 edges that border face `<q,r>`
+-- @tparam number q
+-- @tparam number r
+-- @treturn {Edge,...}
 function grid:borders (q, r)
     return {
         self:edge(q, r, 'NE'),
@@ -35,6 +77,11 @@ function grid:borders (q, r)
     }
 end
 
+---
+-- Get list of 6 vertices that corner face `<q,r>`
+-- @tparam number q
+-- @tparam number r
+-- @treturn {Vertex,...}
 function grid:corners (q, r)
     return {
         self:vertex(q, r, 'N'),
@@ -46,6 +93,12 @@ function grid:corners (q, r)
     }
 end
 
+---
+-- Get list of 3 faces that touch vertex `<q,r,v>`
+-- @tparam number q
+-- @tparam number r
+-- @tparam string v
+-- @treturn {Face,...}
 function grid:touches (q, r, v)
     if v == 'N' then
         return {
@@ -63,6 +116,12 @@ function grid:touches (q, r, v)
     end
 end
 
+---
+-- Get list of 3 edges that protrude vertex `<q,r,v>`
+-- @tparam number q
+-- @tparam number r
+-- @tparam string v
+-- @treturn {Edge,...}
 function grid:protrudingEdges (q, r, v)
     if v == 'N' then
         return {
@@ -80,6 +139,12 @@ function grid:protrudingEdges (q, r, v)
     end
 end
 
+---
+-- Get list of 3 vertices that are adjacent to vertex `<q,r,v>`
+-- @tparam number q
+-- @tparam number r
+-- @tparam string v
+-- @treturn {Vertex,...}
 function grid:adjacentVertices (q, r, v)
     if v == 'N' then
         return {
@@ -97,6 +162,12 @@ function grid:adjacentVertices (q, r, v)
     end
 end
 
+---
+-- Get list of 2 faces joined by edge `<q,r,e>`
+-- @tparam number q
+-- @tparam number r
+-- @tparam string e
+-- @treturn {Face,...}
 function grid:joins (q, r, e)
     if e == 'NE' then
         return {
@@ -117,6 +188,12 @@ function grid:joins (q, r, e)
     end
 end
 
+---
+-- Get list of 2 vertices that are endpoints of edge `<q,r,e>`
+-- @tparam number q
+-- @tparam number r
+-- @tparam string e
+-- @treturn {Vertex,...}
 function grid:endpoints (q, r, e)
     if e == 'NE' then
         return {
@@ -137,6 +214,12 @@ function grid:endpoints (q, r, e)
     end
 end
 
+---
+-- Get list of 3 edge-vertex pairs that stem from vertex `<q,r,v>`
+-- @tparam number q
+-- @tparam number r
+-- @tparam string v
+-- @treturn {{edge=Edge,vertex=Vertex},...}
 function grid:adjacentEdgeVertexPairs (q, r, v)
     if v == 'N' then
         return {
@@ -154,6 +237,11 @@ function grid:adjacentEdgeVertexPairs (q, r, v)
     end
 end
 
+---
+-- Get edge in between two vertices, if there is any
+-- @tparam Vertex vertex1
+-- @tparam Vertex vertex2
+-- @treturn ?Edge
 function grid:edgeInBetween (vertex1, vertex2)
     local edges1 = self:protrudingEdges(self:unpack(vertex1))
     local edges2 = self:protrudingEdges(self:unpack(vertex2))
@@ -164,9 +252,13 @@ function grid:edgeInBetween (vertex1, vertex2)
             end
         end
     end
-    error"no edge in-between"
 end
 
+---
+-- Get orientation of edge in relation to a face it borders
+-- @tparam Face face
+-- @tparam Edge edge
+-- @treturn 'E'|'NE'|'NW'|'W'|'SW'|'SE' orientation
 function grid:edgeOrientationInFace (face, edge)
     local q, r, e = self:unpack(edge)
     if q == face.q and r == face.r then

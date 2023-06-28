@@ -430,8 +430,8 @@ end
 local function run (i, args, report)
     local game
 
-    if args.stateString then
-        game = Game:deserialize(args.stateString)
+    if args.baseGame then
+        game = args.baseGame:clone()
     else
         game = Game:new()
     end
@@ -478,7 +478,7 @@ if args.stateFile then
     local fp = assert(io.open(args.stateFile))
     local str = fp:read"*a"
     assert(fp:close())
-    args.stateString = str
+    args.baseGame = Game:deserialize(str)
 end
 
 print('Seed: ' .. args.seed)

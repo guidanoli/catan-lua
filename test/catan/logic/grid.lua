@@ -32,6 +32,7 @@ do
         local vertex = randomVertex()
         for _, pair in ipairs(Grid:adjacentEdgeVertexPairs(Grid:unpack(vertex))) do
             local edgeInBetween = Grid:edgeInBetween(vertex, pair.vertex)
+            assert(edgeInBetween ~= nil)
             assert(TableUtils:deepEqual(pair.edge, edgeInBetween))
         end
     end

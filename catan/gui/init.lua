@@ -566,6 +566,7 @@ end
 function gui:getHarborAngles (vertex1, vertex2)
     -- First, we get the edge between the vertices
     local edge = Grid:edgeInBetween(vertex1, vertex2)
+    assert(edge ~= nil, "no edge in between")
 
     -- Then, we get the face joined by the edge
     -- which has a hex on top of it

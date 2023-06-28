@@ -210,4 +210,21 @@ function TableUtils:podium (t)
     return maxValue, tiedCount, tiedKeys
 end
 
+local function copyrec (t)
+    if type(t) == 'table' then
+        local mt = getmetatable(t)
+        local tc = setmetatable({}, mt)
+        for k, v in pairs(t) do
+            rawset(tc, k, copyrec(v))
+        end
+        return tc
+    else
+        return t
+    end
+end
+
+function TableUtils:deepCopy (...)
+    return copyrec(...)
+end
+
 return TableUtils

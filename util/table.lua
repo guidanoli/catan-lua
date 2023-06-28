@@ -323,12 +323,12 @@ function TableUtils:podium (t)
     return maxValue, tiedCount, tiedKeys
 end
 
-local function copyrec (t)
+local function clonerec (t)
     if type(t) == 'table' then
         local mt = getmetatable(t)
         local tc = setmetatable({}, mt)
         for k, v in pairs(t) do
-            rawset(tc, k, copyrec(v))
+            rawset(tc, k, clonerec(v))
         end
         return tc
     else
@@ -337,11 +337,11 @@ local function copyrec (t)
 end
 
 ---
--- Recursively copy a table. Also sets metatables.
+-- Recursively clone a table. Also sets metatables.
 -- @tparam table t
 -- @treturn table a clone of `t`
-function TableUtils:deepCopy (...)
-    return copyrec(...)
+function TableUtils:deepClone (...)
+    return clonerec(...)
 end
 
 return TableUtils

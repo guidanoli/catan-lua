@@ -527,10 +527,10 @@ check({a=123, b=123}, 123, 2, {a=true, b=true})
 check({a=123, b=123, c=77}, 123, 2, {a=true, b=true})
 check({a=123, b=123, c=999}, 999, 1, {c=true})
 
--- deepCopy
+-- deepClone
 
 local function check (t)
-    local tc = TableUtils:deepCopy(t)
+    local tc = TableUtils:deepClone(t)
     assertEq(t, tc, true)
 end
 

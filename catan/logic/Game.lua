@@ -477,7 +477,7 @@ end
 -- Clone game state.
 -- @treturn Game identical game state
 function Game:clone ()
-    return TableUtils:deepCopy(self)
+    return TableUtils:deepClone(self)
 end
 
 ---

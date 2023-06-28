@@ -474,6 +474,13 @@ end
 ----------------------------------------------------------------------
 
 ---
+-- Clone game state.
+-- @treturn Game identical game state
+function Game:clone ()
+    return TableUtils:deepCopy(self)
+end
+
+---
 -- Serialize game state.
 -- @treturn string game state serialization
 function Game:serialize ()

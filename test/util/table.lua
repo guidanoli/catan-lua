@@ -526,3 +526,14 @@ check({a=123, b=456}, 456, 1, {b=true})
 check({a=123, b=123}, 123, 2, {a=true, b=true})
 check({a=123, b=123, c=77}, 123, 2, {a=true, b=true})
 check({a=123, b=123, c=999}, 999, 1, {c=true})
+
+-- deepCopy
+
+local function check (t)
+    local tc = TableUtils:deepCopy(t)
+    assertEq(t, tc, true)
+end
+
+check{}
+check(setmetatable({}, {}))
+check{777, [5]=999, a=123, b={3, 2, 1}}

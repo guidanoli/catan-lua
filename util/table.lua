@@ -10,16 +10,8 @@
 local TableUtils = {}
 
 ---
--- Sum all values of a table.
--- @tparam table t
--- @treturn number sum of all values of `t`
-function TableUtils:sum (t)
-    local n = 0
-    for k, v in pairs(t) do
-        n = n + v
-    end
-    return n
-end
+-- Lists
+-- @section lists
 
 ---
 -- Filter values of a list.
@@ -64,6 +56,147 @@ function TableUtils:map (l, m)
 end
 
 ---
+-- Perform a left fold of a list with a combining function and an initial value.
+-- @tparam function f combining function
+-- @param z initial value
+-- @tparam table l list
+-- @return final state of the accumulator
+-- @usage
+-- local TableUtils = require "util.table"
+-- local l = {'a', 'b', 'c'}
+-- print(TableUtils:foldl(string.concat, '', l)) -- abc
+function TableUtils:foldl (f, z, l)
+    local acc = z
+    for _, v in ipairs(l) do
+        acc = f(v, acc)
+    end
+    return acc
+end
+
+---
+-- Reverse a list.
+-- @tparam table l
+-- @treturn table a list with all values of `l` in reverse order
+function TableUtils:reverse (l)
+    local reversed = {}
+    local n = #l
+    for i, v in ipairs(l) do
+        local j = n - i + 1
+        reversed[j] = v
+    end
+    return reversed
+end
+
+---
+-- Create histogram of values of a list.
+-- @tparam table l
+-- @treturn table histogram of values of `l`
+function TableUtils:histogram (l)
+    local h = {}
+    for _, v in ipairs(l) do
+        h[v] = (h[v] or 0) + 1
+    end
+    return h
+end
+
+---
+-- Arithmetic
+-- @section arithmetic
+
+---
+-- Sum all values of a table.
+-- @tparam table t
+-- @treturn number sum of all values of `t`
+function TableUtils:sum (t)
+    local n = 0
+    for k, v in pairs(t) do
+        n = n + v
+    end
+    return n
+end
+
+---
+-- Get the number of key-value pairs in a table.
+-- @tparam table t
+-- @treturn number number of key-value pairs in `t`
+function TableUtils:numOfPairs (t)
+    local n = 0
+    for _ in pairs(t) do
+        n = n + 1
+    end
+    return n
+end
+
+---
+-- Create a podium for a table of comparable values.
+-- @tparam table t
+-- @return the maximum value in `t`, or `nil` if `t` is empty
+-- @treturn number the number of keys paired with the maximum value
+-- @treturn table the set of keys paired with the maximum value
+-- @usage
+-- local TableUtils = require "util.table"
+-- local t = {a=5, b=7, c=3, d=7, e=1}
+-- local maxValue, tiedCount, tiedKeys = TableUtils:podium(t)
+-- print(maxValue) -- 7
+-- print(tiedCount) -- 2
+-- print(table.concat(TableUtils:sortedKeys(tiedCount), ', ')) -- b, d
+function TableUtils:podium (t)
+    local maxValue
+    local tiedCount = 0
+    local tiedKeys = {}
+
+    for _, value in pairs(t) do
+        if maxValue == nil or value > maxValue then
+            maxValue = value
+        end
+    end
+
+    for key, value in pairs(t) do
+        if value == maxValue then
+            tiedCount = tiedCount + 1
+            tiedKeys[key] = true
+        end
+    end
+
+    assert(tiedCount >= 0)
+
+    return maxValue, tiedCount, tiedKeys
+end
+
+---
+-- Keys
+-- @section keys
+
+local function comp (a, b)
+    local ta = type(a)
+    local tb = type(b)
+
+    if ta == tb then
+        return a < b
+    else
+        return ta < tb
+    end
+end
+
+---
+-- Create an ordered list with all the keys of a table.
+-- Orders keys by `<` on the key types, and then by `<` on the keys.
+-- @tparam table t
+-- @treturn table an ordered list of all the keys of `t`
+function TableUtils:sortedKeys (t)
+    local st = {}
+    for k in pairs(t) do
+        table.insert(st, k)
+    end
+    table.sort(st, comp)
+    return st
+end
+
+---
+-- Random
+-- @section random
+
+---
 -- Choose a random value from a list.
 -- @tparam table l
 -- @return some `l[i]` such that `i` is in `[1, #l]`, or `nil` if `#l < 1`
@@ -101,18 +234,6 @@ function TableUtils:uniqueSamples (l, m)
 end
 
 ---
--- Create histogram of values of a list.
--- @tparam table l
--- @treturn table histogram of values of `l`
-function TableUtils:histogram (l)
-    local h = {}
-    for _, v in ipairs(l) do
-        h[v] = (h[v] or 0) + 1
-    end
-    return h
-end
-
----
 -- Shuffle the values of a list in-place.
 -- @tparam table l
 -- @see math.random
@@ -123,30 +244,9 @@ function TableUtils:shuffleInPlace (l)
     end
 end
 
-local function comp (a, b)
-    local ta = type(a)
-    local tb = type(b)
-
-    if ta == tb then
-        return a < b
-    else
-        return ta < tb
-    end
-end
-
 ---
--- Create an ordered list with all the keys of a table.
--- Orders keys by `<` on the key types, and then by `<` on the keys.
--- @tparam table t
--- @treturn table an ordered list of all the keys of `t`
-function TableUtils:sortedKeys (t)
-    local st = {}
-    for k in pairs(t) do
-        table.insert(st, k)
-    end
-    table.sort(st, comp)
-    return st
-end
+-- Iteration
+-- @section iteration
 
 ---
 -- Iterate through the pairs of a table, ordered by the keys.
@@ -162,18 +262,6 @@ function TableUtils:sortedIter (t, f)
         local ret = f(k, v)
         if ret then return ret end
     end
-end
-
----
--- Get the number of key-value pairs in a table.
--- @tparam table t
--- @treturn number number of key-value pairs in `t`
-function TableUtils:numOfPairs (t)
-    local n = 0
-    for _ in pairs(t) do
-        n = n + 1
-    end
-    return n
 end
 
 local function reversedipairsiter (l, i)
@@ -197,24 +285,6 @@ end
 -- end
 function TableUtils:ipairsReversed (l)
     return reversedipairsiter, l, #l + 1
-end
-
----
--- Perform a left fold of a list with a combining function and an initial value.
--- @tparam function f combining function
--- @param z initial value
--- @tparam table l list
--- @return final state of the accumulator
--- @usage
--- local TableUtils = require "util.table"
--- local l = {'a', 'b', 'c'}
--- print(TableUtils:foldl(string.concat, '', l)) -- abc
-function TableUtils:foldl (f, z, l)
-    local acc = z
-    for _, v in ipairs(l) do
-        acc = f(v, acc)
-    end
-    return acc
 end
 
 local function equalkeyset (ta, tb)
@@ -262,6 +332,10 @@ local function equalrec (ta, tb, checkmetatable)
 end
 
 ---
+-- Recursion
+-- @section recursion
+
+---
 -- Recursively check if two tables are equal.
 -- You can also check for metatable equality with `checkmetatable`.
 -- @tparam table ta
@@ -271,56 +345,6 @@ end
 -- @treturn ?string an error message (if `ta` and `tb` are not equal)
 function TableUtils:deepEqual (...)
     return equalrec(...)
-end
-
----
--- Reverse a list.
--- @tparam table l
--- @treturn table a list with all values of `l` in reverse order
-function TableUtils:reverse (l)
-    local reversed = {}
-    local n = #l
-    for i, v in ipairs(l) do
-        local j = n - i + 1
-        reversed[j] = v
-    end
-    return reversed
-end
-
----
--- Create a podium for a table of comparable values.
--- @tparam table t
--- @return the maximum value in `t`, or `nil` if `t` is empty
--- @treturn number the number of keys paired with the maximum value
--- @treturn table the set of keys paired with the maximum value
--- @usage
--- local TableUtils = require "util.table"
--- local t = {a=5, b=7, c=3, d=7, e=1}
--- local maxValue, tiedCount, tiedKeys = TableUtils:podium(t)
--- print(maxValue) -- 7
--- print(tiedCount) -- 2
--- print(table.concat(TableUtils:sortedKeys(tiedCount), ', ')) -- b, d
-function TableUtils:podium (t)
-    local maxValue
-    local tiedCount = 0
-    local tiedKeys = {}
-
-    for _, value in pairs(t) do
-        if maxValue == nil or value > maxValue then
-            maxValue = value
-        end
-    end
-
-    for key, value in pairs(t) do
-        if value == maxValue then
-            tiedCount = tiedCount + 1
-            tiedKeys[key] = true
-        end
-    end
-
-    assert(tiedCount >= 0)
-
-    return maxValue, tiedCount, tiedKeys
 end
 
 local function clonerec (t)

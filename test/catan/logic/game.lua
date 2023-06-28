@@ -50,32 +50,41 @@ local stateFiles = {
 
 local games = {}
 
-local function loadFrom (stateFile)
-    local path = {"test", "catan", "states", stateFile}
+for _, stateFile in ipairs(stateFiles) do
+    local path = {"test", "catan", "states", stateFile .. ".lua"}
     local pathStr = table.concat(path, platform.PATH_SEPARATOR)
     local fp = assert(io.open(pathStr))
     local str = fp:read"*a"
     assert(fp:close())
 
-    return assert(Game:deserialize(str))
+    local game = assert(Game:deserialize(str))
+
+    game:validate()
+
+    games[stateFile] = game
 end
 
-for _, stateFile in ipairs(stateFiles) do
-    games[stateFile] = loadFrom(stateFile .. '.lua')
+-- clone/serialize/deserialize
+
+do
+    local game = games.turn:clone()
+    local str = game:serialize()
+    local game2 = Game:deserialize(str)
+    assert(TableUtils:deepEqual(game, game2, true))
 end
 
-for stateFile, game1 in pairs(games) do
-    game1:validate()
+do
+    local game = games.turn:clone()
+    game.round = "foo"
+    local str = game:serialize()
+    assert(not Game:deserialize(str))
+end
 
-    local str1 = game1:serialize()
-    local game2 = assert(Game:deserialize(str1))
-
-    assert(TableUtils:deepEqual(game1, game2, true))
-
-    game2.player = "foobar"
-
-    local str2 = game2:serialize()
-    assert(not Game:deserialize(str2))
+do
+    local game = games.turn:clone()
+    game.round = -1
+    local str = game:serialize()
+    assert(not Game:deserialize(str))
 end
 
 assert(not Game:deserialize"return {")
@@ -113,7 +122,7 @@ do
 end
 
 do
-    local game = games.limitedHexProduction
+    local game = games.limitedHexProduction:clone()
     local hexprod = game:roll{5, 6}
 
     -- one player, receives all remaining resources
@@ -159,8 +168,11 @@ do
     local game = games.turn
     assert(not game:canTradeWithPlayer"foo")
     assert(not game:canTradeWithPlayer("blue", "foo"))
-    assert(not game:canTradeWithPlayer("blue", {}, "foo"))
-    assert(not game:canTradeWithPlayer("blue", {brick=777}, {grain=1}))
+    assert(not game:canTradeWithPlayer("blue", {}))
+    assert(not game:canTradeWithPlayer("blue", {brick=777}))
+    assert(not game:canTradeWithPlayer("blue", {brick=1}, "foo"))
+    assert(not game:canTradeWithPlayer("blue", {brick=1}, {}))
+    assert(not game:canTradeWithPlayer("blue", {brick=1}, {brick=1}))
     assert(not game:canTradeWithPlayer("blue", {brick=1}, {grain=777}))
 end
 
@@ -226,6 +238,14 @@ do
     assert(game:getNumberOfDevelopmentCards"red" == 8)
 end
 
+-- playRoadBuildingCard
+
+do
+    local game = games.devcards:clone()
+    game:playRoadBuildingCard()
+    game:buildRoad{q=0, r=2, e='NW'}
+end
+
 -- playYearOfPlentyCard
 
 do
@@ -245,19 +265,19 @@ end
 -- getWinner
 
 do
-    local game = games.breakLongestRoad
+    local game = games.breakLongestRoad:clone()
     game:buildSettlement{q=-1, r=1, v='S'}
 end
 
 -- _getNewTitleHolder
 
 do
-    local game = games.breakLongestRoadLeadsToTie
+    local game = games.breakLongestRoadLeadsToTie:clone()
     game:buildSettlement{q=-1, r=1, v='S'}
 end
 
 do
-    local game = games.breakLongestRoadLeadsToTieBelowMin
+    local game = games.breakLongestRoadLeadsToTieBelowMin:clone()
     game:buildSettlement{q=-1, r=1, v='S'}
 end
 

@@ -1,5 +1,5 @@
 ---
--- Defines platform-specific constants
+-- Defines platform-specific constants.
 --
 -- @module util.platform
 

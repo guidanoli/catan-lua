@@ -1,5 +1,5 @@
 ---
--- Constants for the Catan back-end logic
+-- Constants for the Catan back-end logic.
 --
 -- @module catan.logic.constants
 

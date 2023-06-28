@@ -1,5 +1,5 @@
 ---
--- Catan match state
+-- Catan game state class.
 --
 -- This class implements the state of a Catan match.
 --

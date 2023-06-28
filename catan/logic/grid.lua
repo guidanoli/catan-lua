@@ -1,5 +1,5 @@
 ---
--- Hexagonal grid parts and relations
+-- Hexagonal grid parts and relations.
 --
 -- We use the axial coordinate system, since it is the simplest to implement.
 -- We'll use letters `q` and `r` for integers, and `e` and `v` for strings.

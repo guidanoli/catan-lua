@@ -35,7 +35,7 @@ function Layer:addSprite (...)
 end
 
 ---
--- Table cell in  @{catan.gui.Layer:addSpriteTable}
+-- Table cell in  @{addSpriteTable}
 -- @tfield Drawable 1 the drawable object
 -- @tfield[opt=1] number sx the horizontal scaling factor
 -- @tfield[opt=sx] number sy the vertical scaling factor
@@ -93,7 +93,7 @@ end
 ---
 -- Add a table of sprites
 -- @tparam table t a table of tables of cells, which can be
--- either @{catan.gui.Layer.TableCell}, `Drawable` or `nil`.
+-- either @{TableCell}, `Drawable` or `nil`.
 -- @tparam[opt=1] number t.n number of table lines
 -- @tparam[opt=1] number t.m number of table columns
 -- @tparam[opt=0] number t.x the sprite table horizontal coordinate

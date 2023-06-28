@@ -2,11 +2,11 @@ require "util.safe"
 
 local TableUtils = require "util.table"
 
-local function assertEq (ta, tb)
-    assert(TableUtils:deepEqual(ta, tb))
+local function assertEq (...)
+    assert(TableUtils:deepEqual(...))
 end
 
-local function iterationCount(...)
+local function iterationCount (...)
     local n = 0
     for _ in ... do
         n = n + 1
@@ -452,7 +452,7 @@ end
 -- deepEqual
 
 do
-    local function ok(f)
+    local function ok (f)
         local ta = f()
         local tb = f()
         assertEq(ta, tb, true)
@@ -467,7 +467,7 @@ do
     local mt = {}
     ok(function () return setmetatable({}, mt) end)
 
-    local function fail(ta, tb, checkmetatable)
+    local function fail (ta, tb, checkmetatable)
         assert(not TableUtils:deepEqual(ta, tb, checkmetatable))
         assert(not TableUtils:deepEqual(tb, ta, checkmetatable))
     end
@@ -513,7 +513,7 @@ end
 
 -- podium
 
-local function check(t, expectedMax, expectedCount, expectedKeys)
+local function check (t, expectedMax, expectedCount, expectedKeys)
     local max, count, keys = TableUtils:podium(t)
     assert(max == expectedMax)
     assert(count == expectedCount)

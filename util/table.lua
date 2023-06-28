@@ -1,5 +1,18 @@
+---
+-- Useful operations on tables.
+--
+-- For arbitrary tables, we'll use the letter `t`.
+--
+-- For list-like tables, however, we'll use the letter `l`.
+--
+-- @module util.table
+
 local TableUtils = {}
 
+---
+-- Sum all values of a table.
+-- @tparam table t
+-- @treturn number sum of all values of `t`
 function TableUtils:sum (t)
     local n = 0
     for k, v in pairs(t) do
@@ -8,10 +21,21 @@ function TableUtils:sum (t)
     return n
 end
 
-function TableUtils:filter (t, f)
+---
+-- Filter values of a list.
+-- @tparam table l
+-- @tparam function f filter
+-- @treturn table list containing only pairs `(i, v)` for which `f(v)` is true.
+-- @usage
+-- local TableUtils = require "util.table"
+-- local l = {1, 2, 3, 4, 5, 6}
+-- local function f (v) return v % 2 == 0 end
+-- local fl = TableUtils:filter(l, f)
+-- print(table.concat(fl, ', ')) -- 2, 4, 6
+function TableUtils:filter (l, f)
     local out = {}
     local j = 1
-    for i, v in ipairs(t) do
+    for i, v in ipairs(l) do
         if f(v) then
             rawset(out, j, v)
             j = j + 1
@@ -20,25 +44,49 @@ function TableUtils:filter (t, f)
     return out
 end
 
-function TableUtils:map (t, m)
+---
+-- Map values of a list.
+-- @tparam table l
+-- @tparam function m mapping
+-- @treturn table list containing only pairs `(i, m(v))` for all `(i, v)` in `l`.
+-- @usage
+-- local TableUtils = require "util.table"
+-- local l = {1, 2, 3, 4, 5, 6}
+-- local function m (v) return v * 2 end
+-- local ml = TableUtils:map(l, m)
+-- print(table.concat(ml, ', ')) -- 2, 4, 6, 8, 10, 12
+function TableUtils:map (l, m)
     local out = {}
-    for i, v in ipairs(t) do
+    for i, v in ipairs(l) do
         rawset(out, i, m(v))
     end
     return out
 end
 
-function TableUtils:sample (t)
-    local n = #t
-    if n ~= 0 then
+---
+-- Choose a random value from a list.
+-- @tparam table l
+-- @return some `l[i]` such that `i` is in `[1, #l]`, or `nil` if `#l < 1`
+-- @treturn ?number `i`, iff `#l >= 1`
+-- @see math.random
+function TableUtils:sample (l)
+    local n = #l
+    if n >= 1 then
         local i = math.random(n)
-        return rawget(t, i), i
+        return rawget(l, i), i
     end
 end
 
-function TableUtils:uniqueSamples (t, m)
+---
+-- Sample `m` values from a list (without replacement).
+-- Asserts that `m` is less than or equal to the length of the list.
+-- @tparam table l
+-- @tparam number m
+-- @treturn table a list containing `m` unique samples from `l`
+-- @see sample
+function TableUtils:uniqueSamples (l, m)
     local samples = {}
-    local n = #t
+    local n = #l
     assert(m <= n)
     local indices = {}
     for i = 1, n do
@@ -47,23 +95,31 @@ function TableUtils:uniqueSamples (t, m)
     for i = 1, m do
         local j, k = self:sample(indices)
         table.remove(indices, k)
-        samples[i] = rawget(t, j)
+        samples[i] = rawget(l, j)
     end
     return samples
 end
 
-function TableUtils:histogram (t)
+---
+-- Create histogram of values of a list.
+-- @tparam table l
+-- @treturn table histogram of values of `l`
+function TableUtils:histogram (l)
     local h = {}
-    for _, v in ipairs(t) do
+    for _, v in ipairs(l) do
         h[v] = (h[v] or 0) + 1
     end
     return h
 end
 
-function TableUtils:shuffleInPlace (t)
-    for i = #t, 2, -1 do
+---
+-- Shuffle the values of a list in-place.
+-- @tparam table l
+-- @see math.random
+function TableUtils:shuffleInPlace (l)
+    for i = #l, 2, -1 do
         local j = math.random(i)
-        t[i], t[j] = t[j], t[i]
+        l[i], l[j] = l[j], l[i]
     end
 end
 
@@ -78,7 +134,11 @@ local function comp (a, b)
     end
 end
 
--- Returns a sorted array of keys in t
+---
+-- Create an ordered list with all the keys of a table.
+-- Orders keys by `<` on the key types, and then by `<` on the keys.
+-- @tparam table t
+-- @treturn table an ordered list of all the keys of `t`
 function TableUtils:sortedKeys (t)
     local st = {}
     for k in pairs(t) do
@@ -88,10 +148,14 @@ function TableUtils:sortedKeys (t)
     return st
 end
 
--- Iterate through table in order of keys
--- Function f is called with each key and value pair
--- If f returns anything different from nil or false,
--- then iteration is interupted and this value is returned
+---
+-- Iterate through the pairs of a table, ordered by the keys.
+-- Calls `f` for all key-value pairs and checks if the return value is true.
+-- If `f(k, v)` ever returns some `ret` different from `nil` and `false`,
+-- then the iteration stops and `ret` is returned.
+-- @tparam table t
+-- @tparam function f
+-- @return the first true return value of `f(k, v)` or `nil`
 function TableUtils:sortedIter (t, f)
     for _, k in ipairs(self:sortedKeys(t)) do
         local v = rawget(t, k)
@@ -100,7 +164,10 @@ function TableUtils:sortedIter (t, f)
     end
 end
 
--- |K| where K = { k | (k, v) ∊  t }
+---
+-- Get the number of key-value pairs in a table.
+-- @tparam table t
+-- @treturn number number of key-value pairs in `t`
 function TableUtils:numOfPairs (t)
     local n = 0
     for _ in pairs(t) do
@@ -109,21 +176,42 @@ function TableUtils:numOfPairs (t)
     return n
 end
 
-local function reversedipairsiter (t, i)
+local function reversedipairsiter (l, i)
     i = i - 1
     if i ~= 0 then
-        return i, t[i]
+        return i, l[i]
     end
 end
 
--- reversed ipairs
-function TableUtils:ipairsReversed (t)
-    return reversedipairsiter, t, #t + 1
+---
+-- Iterate through all index-value pairs of a list, in reverse order.
+-- @tparam table l
+-- @treturn function iterator
+-- @treturn table list
+-- @treturn number index
+-- @usage
+-- local TableUtils = require "util.table"
+-- local l = {'a', 'b', 'c'}
+-- for i, v in TableUtils:ipairsReversed(l) do
+--   print(i, v) -- 3 c; 2 b; 1 a
+-- end
+function TableUtils:ipairsReversed (l)
+    return reversedipairsiter, l, #l + 1
 end
 
-function TableUtils:foldl (f, z, t)
+---
+-- Perform a left fold of a list with a combining function and an initial value.
+-- @tparam function f combining function
+-- @param z initial value
+-- @tparam table l list
+-- @return final state of the accumulator
+-- @usage
+-- local TableUtils = require "util.table"
+-- local l = {'a', 'b', 'c'}
+-- print(TableUtils:foldl(string.concat, '', l)) -- abc
+function TableUtils:foldl (f, z, l)
     local acc = z
-    for _, v in ipairs(t) do
+    for _, v in ipairs(l) do
         acc = f(v, acc)
     end
     return acc
@@ -173,20 +261,45 @@ local function equalrec (ta, tb, checkmetatable)
     return true
 end
 
+---
+-- Recursively check if two tables are equal.
+-- You can also check for metatable equality with `checkmetatable`.
+-- @tparam table ta
+-- @tparam table tb
+-- @tparam[opt=false] boolean checkmetatable
+-- @treturn boolean whether `ta` and `tb` are equal
+-- @treturn ?string an error message (if `ta` and `tb` are not equal)
 function TableUtils:deepEqual (...)
     return equalrec(...)
 end
 
-function TableUtils:reverse (t)
+---
+-- Reverse a list.
+-- @tparam table l
+-- @treturn table a list with all values of `l` in reverse order
+function TableUtils:reverse (l)
     local reversed = {}
-    local n = #t
-    for i, v in ipairs(t) do
+    local n = #l
+    for i, v in ipairs(l) do
         local j = n - i + 1
         reversed[j] = v
     end
     return reversed
 end
 
+---
+-- Create a podium for a table of comparable values.
+-- @tparam table t
+-- @return the maximum value in `t`, or `nil` if `t` is empty
+-- @treturn number the number of keys paired with the maximum value
+-- @treturn table the set of keys paired with the maximum value
+-- @usage
+-- local TableUtils = require "util.table"
+-- local t = {a=5, b=7, c=3, d=7, e=1}
+-- local maxValue, tiedCount, tiedKeys = TableUtils:podium(t)
+-- print(maxValue) -- 7
+-- print(tiedCount) -- 2
+-- print(table.concat(TableUtils:sortedKeys(tiedCount), ', ')) -- b, d
 function TableUtils:podium (t)
     local maxValue
     local tiedCount = 0
@@ -223,6 +336,10 @@ local function copyrec (t)
     end
 end
 
+---
+-- Recursively copy a table. Also sets metatables.
+-- @tparam table t
+-- @treturn table a clone of `t`
 function TableUtils:deepCopy (...)
     return copyrec(...)
 end

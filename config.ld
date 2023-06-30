@@ -14,7 +14,10 @@ file = {
     'main.lua',
 }
 
-readme = 'README.md'
+readme = {
+    'README.md',
+    'ABOUT.md'
+}
 
 style = 'style'
 

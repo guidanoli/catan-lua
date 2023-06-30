@@ -41,9 +41,6 @@ and run the client in debug mode, which allows you to draw as many resource card
 
 ## Functional requirements
 
-Here, we list all functional requirements of LuaCatan.
-Note that some of them are not implemented yet.
-
 The user must be able to start a match...
 
 - with a random terrain
@@ -103,3 +100,19 @@ At any time, the user must also be able to...
 - pause the game
 - save the game
 - load the game
+
+## Non-functional requirements
+
+- the source code must be licensed with GPLv3
+- the source code must only depend on free and open-source software
+- any extra resources (such as images) must also be used under a free license
+- the back-end and the front-end must be written in Lua >= 5.1
+- the back-end must be as uncoupled from the front-end as possible
+- the back-end should provide an entry point to validate the state of the game against a set of invariants
+- the back-end must be easily run on Linux environments
+- the front-end must use LÖVE >= 11.4
+- the front-end may only listen to mouse and keyboard events
+- the front-end must be easily run on any platform **(PENDING, client-server separation)**
+- each Lua module must be thoroughly documented and tested
+- the code documentation must be accessible in HTML format
+- the ratio of program lines covered the tests must be >= 95%

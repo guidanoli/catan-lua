@@ -14,6 +14,8 @@ file = {
     'main.lua',
 }
 
+readme = 'README.md'
+
 style = 'style'
 
 local loveURL = "https://love2d.org/wiki/%s"

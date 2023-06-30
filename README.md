@@ -2,21 +2,27 @@
 
 ## Dependencies
 
-For users:
+For executing commands:
 
-* [LÖVE] 11.4
-* [Serpent] 0.30-2
+* [GNU Make](https://www.gnu.org/software/make/) 4.3
 
-For developers:
+For loading/saving game states:
 
-* [Lua] 5.4
-* [GNU Make] 4.3
-* [LDoc] 1.5.0-1
-* [argparse] 0.7.1-1
-* [LuaCov] 0.15.0-1
-* [LuaCov-HTML] 1.0.0-1
+* [Serpent](https://luarocks.org/modules/paulclinger/serpent) 0.30-2
 
-If you have [LuaRocks] on your machine, you can install the Lua modules with the following command.
+For running the game GUI:
+
+* [LÖVE](https://love2d.org/) 11.4
+
+For running the tests and building the documentation:
+
+* [Lua](https://www.lua.org/) 5.4
+* [LDoc](https://luarocks.org/modules/lunarmodules/ldoc) 1.5.0-1
+* [argparse](https://luarocks.org/modules/argparse/argparse) 0.7.1-1
+* [LuaCov](https://luarocks.org/modules/hisham/luacov) 0.15.0-1
+* [LuaCov-HTML](https://luarocks.org/modules/wesen1/luacov-html) 1.0.0-1
+
+If you have [LuaRocks](https://luarocks.org/) on your machine, you can install the Lua modules with the following command.
 
 ```sh
 luarocks install serpent 0.30-2
@@ -28,7 +34,7 @@ luarocks install luacov-html 1.0.0-1
 
 ## Tests
 
-The tests reside in the `test/` folder, and can be run with the following command. Make sure you have all the developer dependencies installed!
+The tests reside in the `test/` folder, and can be run with the following command.
 
 ```
 make test
@@ -54,13 +60,13 @@ make clean
 
 ## Documentation
 
-### Deployment
+### Hosted
 
 You can see the latest version of the documentation [here](https://guidanoli.github.io/catan-lua/).
 
 ### Local
 
-Please make sure you have [LDoc] installed on your machine. Then, run the following command:
+You can also build the documentation locally by running the following command.
 
 ```sh
 make docs
@@ -77,13 +83,3 @@ This should load the configurations from the `config.ld` file. You can tinker wi
 * [Article "Hexagonal Grids" by Red Blob Games (2021)](https://www.redblobgames.com/grids/hexagons)
 * [Article "Grid parts and relationships" by Red Blob Games (2021)](https://www.redblobgames.com/grids/parts/)
 * [Article "Amit's Thoughts on Grids" by Amit Patel (2006)](http://www-cs-students.stanford.edu/~amitp/game-programming/grids/)
-
-[Lua]: https://www.lua.org/
-[LÖVE]: https://love2d.org/
-[Serpent]: https://luarocks.org/modules/paulclinger/serpent
-[LDoc]: https://luarocks.org/modules/lunarmodules/ldoc
-[LuaRocks]: https://luarocks.org/
-[argparse]: https://luarocks.org/modules/argparse/argparse
-[LuaCov]: https://luarocks.org/modules/hisham/luacov
-[LuaCov-HTML]: https://luarocks.org/modules/wesen1/luacov-html
-[GNU Make]: https://www.gnu.org/software/make/

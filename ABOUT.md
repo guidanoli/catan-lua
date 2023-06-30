@@ -13,6 +13,8 @@ This fuzzy tester can be configured through command line arguments, thanks to th
 Apart from tests, all modules and classes are exhaustively documented.
 All this documentation is nicely converted into HTML by [LDoc](https://luarocks.org/modules/lunarmodules/ldoc).
 
+## Architecture
+
 LuaCatan is composed of two logical parts: the back-end and the front-end.
 This separation will be crucial for the implementation of the client and the server components.
 However, it is important to point out that both parts currently run on the same machine.
@@ -21,6 +23,8 @@ Meanwhile, the front-end part is loaded by LÖVE (which still runs on Lua 5.1).
 Do note, however, that a central design goal of LuaCatan is to keep the front-end as uncoupled from the back-end as possible.
 This means that you should have no problem in programming your own front-end on top of the LuaCatan back-end.
 
+## Target audience
+
 LuaCatan can be played by anyone that is already familiar with the rules of the game,
 but may require a level of technical knowledge above the average to set it up.
 We want to make LuaCatan as user-friendly and cross-platform as possible, specially for the client side.
@@ -28,12 +32,16 @@ However, for the time being, the user must know how to download LÖVE and serpen
 Note that not all dependencies listed in the `README.md` are necessary for the execution of the client.
 Most dependencies are only required for the developer to build the documentation, or to run the tests.
 
+## Expected usage
+
 We must acknowledge that there are several other implementations of Catan out there, such as [colonist.io](https://colonist.io/).
 They provide several interesting functionalities such as lobbies, custom maps, game settings, and a built-in chat.
 These implementations, however, require an internet connection, which might not always be available.
 For this reason, LuaCatan serves as an alternative to playing Catan offline.
 In the future, we would also like to implement an option to set up a LAN session,
 which would highly improve the user experience and interface.
+
+## Key features
 
 Despite the long list of pending features, LuaCatan has several interesting feature already.
 For instance, you can save and load game states into/from Lua files,

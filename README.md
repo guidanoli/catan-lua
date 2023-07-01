@@ -1,31 +1,38 @@
 # Settlers of Catan implemented in Lua
 
-## Dependencies
+LuaCatan is an implementation of the famous board game "Settlers of Catan" in Lua.
+This repository is divided into the following directories:
 
-For executing commands:
+* `catan`: Lua modules for the back-end and front-end of the application
+* `images`: Images used by the front-end
+* `layers`: GIMP project files for the images used by the front-end
+* `style`: CSS stylesheets for the HTML version of the documentation
+* `test`: Tests for the Lua modules
+* `util`: Lua modules for utilities used in `catan`
 
-* [GNU Make](https://www.gnu.org/software/make/) 4.3
-
-For loading/saving game states:
-
-* [Serpent](https://luarocks.org/modules/paulclinger/serpent) 0.30-2
-
-For running the game GUI:
+## User Dependencies
 
 * [LÖVE](https://love2d.org/) 11.4
+* [Serpent](https://luarocks.org/modules/paulclinger/serpent) 0.30-2
 
-For running the tests and building the documentation:
+If you have [LuaRocks](https://luarocks.org/) on your machine, you can install Serpent with the following command.
 
+```sh
+luarocks install serpent 0.30-2
+```
+
+## Developer Dependencies
+
+* [GNU Make](https://www.gnu.org/software/make/) 4.3
 * [Lua](https://www.lua.org/) 5.4
 * [LDoc](https://luarocks.org/modules/lunarmodules/ldoc) 1.5.0-1
 * [argparse](https://luarocks.org/modules/argparse/argparse) 0.7.1-1
 * [LuaCov](https://luarocks.org/modules/hisham/luacov) 0.15.0-1
 * [LuaCov-HTML](https://luarocks.org/modules/wesen1/luacov-html) 1.0.0-1
 
-If you have [LuaRocks](https://luarocks.org/) on your machine, you can install the Lua modules with the following command.
+If you have [LuaRocks](https://luarocks.org/) on your machine, you can install the Lua modules above with the following commands.
 
 ```sh
-luarocks install serpent 0.30-2
 luarocks install ldoc 1.5.0-1
 luarocks install argparse 0.7.1-1
 luarocks install luacov 0.15.0-1

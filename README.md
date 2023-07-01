@@ -21,6 +21,10 @@ If you have [LuaRocks](https://luarocks.org/) on your machine, you can install S
 luarocks install serpent 0.30-2
 ```
 
+## Tutorial
+
+Please consult the `TUTORIAL.md` file.
+
 ## Developer Dependencies
 
 * [GNU Make](https://www.gnu.org/software/make/) 4.3

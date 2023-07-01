@@ -16,7 +16,8 @@ file = {
 
 readme = {
     'README.md',
-    'ABOUT.md'
+    'TUTORIAL.md',
+    'ABOUT.md',
 }
 
 style = 'style'

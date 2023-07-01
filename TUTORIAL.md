@@ -1,14 +1,16 @@
 # Tutorial
 
 This tutorial will teach you how to install and play Catan through the LÖVE front-end of LuaCatan.
-If you'd like to learn more about the project, please consult the `ABOUT.md` file.
+
+If you'd like to learn more about the project, please go to [`ABOUT.md`](./ABOUT.md).
 
 ## Installation
 
 ### System requirements
 
 Currently, only Linux machines are supported.
-Please consult the "User dependencies" section of the `README.md`.
+
+Please consult the "User dependencies" section of the [`README.md`](./README.md).
 
 ### Downloading the source code
 

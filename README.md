@@ -10,6 +10,8 @@ This repository is divided into the following directories:
 * `test`: Tests for the Lua modules
 * `util`: Lua modules for utilities used in `catan`
 
+If you'd like to learn more about the project, please go to [`ABOUT.md`](./ABOUT.md).
+
 ## User Dependencies
 
 * [LÖVE](https://love2d.org/) 11.4
@@ -23,7 +25,7 @@ luarocks install serpent 0.30-2
 
 ## Tutorial
 
-Please consult the `TUTORIAL.md` file.
+Please go to [`TUTORIAL.md`](./TUTORIAL.md).
 
 ## Developer Dependencies
 

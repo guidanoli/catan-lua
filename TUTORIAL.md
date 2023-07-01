@@ -32,6 +32,74 @@ This should create a random initial state for the game, and present you with a w
 
 If this is your first time playing Catan, we highly suggest you to read the [base rules](https://www.catan.com/sites/default/files/2021-06/catan_base_rules_2020_200707.pdf) before.
 
+## Development Cards
+
+Here are the sprites used for each type of development card.
+
+### Knight
+
+![](https://imgur.com/D0dUWVB.png)
+
+See "Moving the robber".
+
+### Monopoly
+
+![](https://imgur.com/RiO5mjT.png)
+
+See "Playing the Monopoly card".
+
+### Road Building
+
+![](https://imgur.com/OhKxAkU.png)
+
+See "Build Road".
+
+### Victory Point
+
+![](https://imgur.com/hZp22Lx.png)
+
+Gives the player one extra victory point.
+
+### Year of Plenty
+
+![](https://imgur.com/3G2abxi.png)
+
+See "Playing the Year of Plenty card".
+
+## Resource Cards
+
+Here are the sprites used for each type of resource card.
+
+### Brick
+
+![](https://imgur.com/W5AE8GE.png)
+
+Used to build roads and settlements.
+
+### Grain
+
+![](https://imgur.com/2sdwO3K.png)
+
+Used to build settlements and cities, and to buy development cards.
+
+### Lumber
+
+![](https://imgur.com/B5TK6ld.png)
+
+Used to build roads and settlements.
+
+### Ore
+
+![](https://imgur.com/82vSk2d.png)
+
+Used to build cities, and to buy development cards.
+
+### Wool
+
+![](https://imgur.com/XereZSP.png)
+
+Used to build settlements, and to buy development cards.
+
 ## Leaderboard
 
 You can keep up with the progress of the game through the leaderboard on the top right of the screen.
